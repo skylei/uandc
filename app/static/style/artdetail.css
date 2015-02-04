@@ -1,0 +1,41 @@
+.sidebar2{
+	position:fixed;
+	float:left;
+	left:60px;
+	top:60px;
+	width:250px;
+	height:89%;
+	border:1px solid #b2b2b2;
+	color:#000;
+	overflow:hidden;
+}
+.sidebar2 .pannel{
+	float:left;
+	width:100%;
+	background:#efefef;
+	line-height:20px;
+	padding:5px;
+}
+.sidebar2 .tag{
+	float:left;
+	margin:5px;
+	display:inline;
+	border:1px solid #999;
+	padding:5px 10px 5px 10px;
+	border-radius:10px;
+}
+.art-wrap{
+	position:absolute;
+	top:45px;
+	left:320px;
+	width:62%;
+	overflow:hidden
+}
+
+hr{
+	margin-top:10px;
+	height:1px;
+	border:1px dotted #efefef;
+	width:100%;
+
+}

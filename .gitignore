@@ -1,0 +1,5 @@
+/.idea
+
+/app/runtime
+
+/app/config/BaseConf.php

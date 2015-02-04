@@ -1,0 +1,290 @@
+
+.*{
+margin:0;
+padding:0;
+}
+span,span1{
+	padding:5px;
+}
+a{
+	color:#1979CA;
+}
+a,a:hover{
+	text-decoration:none;
+}
+a:hover{
+	color:#b2b2b2;
+}
+form{
+	display:inline;
+}
+/*圆角边框border-radius:像素*/
+.l_menu{
+	position: fixed;
+	z-index: 10;
+	left: 0px;
+	top: 20px;
+	height: 100%;
+	width:55px;
+	color:#56D5FA;
+	
+}
+/*background:rgba(255, 255, 255, 0.8) none repeat scroll 0 0 !important;实现FF背景透明，文字不透明
+filter:Alpha(opacity=80); background:#fff;/*实现IE背景透明
+.con p{ position:relative;}/*实现IE文字不透明*/
+.l_menu ul{
+	list-style:none;
+	display:inline;
+}
+.l_menu ul li{
+	float:left;
+	margin-left:0;
+	padding:10px;
+	font-size:30px;
+	z-index:100;
+	list-style:none;
+	text-align:center;
+}
+.l_menu ul a{
+	text-decoration:none;
+	width:60px;
+	height:60px;
+	color:#1979CA;
+}
+.l_menu ul li a:hover{
+	float:left;
+	margin-left:0;
+	width:60px;
+	height:60px;
+	background:#faa;
+	z-index:100;
+	border:1px solid #999;
+	display:block;
+	list-style:none;
+	text-align:center;
+}
+
+
+.sidebar{
+	position:fixed;
+	left:55px;
+	top:0px;
+	width:320px;
+    padding-right: 10px;
+	height:100%;
+	color:#000;
+	
+	overflow:hidden;
+}
+.sidebar section{
+	float:left;
+	width:95%;
+	margin:10px 0 0 5%;
+	overflow:hidden;
+	
+}
+.signx .usericon img{
+	width:40px;
+	height:40px;
+	border-radius:50%;
+}
+.searchbar{
+	font-size:12px;
+	padding:5px;
+	line-height:16px;
+}
+.sidebar{
+	background:url(/app/static/images/site/2.jpg) no-repeat;
+}
+.sidebar .side-info{
+	margin-top:20px;
+	padding:20px 10px 0px 10px;
+	width:100%;
+	height:100%;
+	color:#999;
+	background-color:#222;
+	background-color:rgba(0, 0, 0, 0.1);
+}
+.sidebar .active{
+    display:block;
+}
+.side-info #side-tag{
+	display:none;
+}
+.sidebar .side-default{
+    display:none;
+}
+.side-info #side-nav{
+	display:block;
+}
+.side-info .side-weibo{
+    width: 300px;
+    height: 667px;
+}
+    
+.side-info p{
+	width:100%;
+	line-height:22px;
+	font-size:12px;
+	overflow:hidden;
+}
+#show-leftbar{
+	font-size:32px;
+}
+
+.side-info a{display:block;}
+.side-info .tag a:hover{
+	font-size:13px;
+	background:#faa;
+}
+.side-info .cate-art{
+	float:left;
+	/* margin: 0 1px 1px 0; */
+	width:85px;
+	height:85px;
+	line-height:85px;
+	text-align:center;
+	background-color:rgba(0, 0, 0, 0.5);
+	padding:5px;
+}
+.cate-art a{
+	color:#fff;
+}
+.cate-art a:hover{
+	color:#fff;
+	border-bottom:3px solid #fff;
+}
+.cate-art  section{
+	padding:0;
+	font-size:32px;
+	line-height:85px;
+}
+.side-info.sch{
+	float:left;
+	margin-bottom:40px;
+	width:320px;
+}
+.sch input{
+	float:left;
+	width:220px;
+	height:32px;
+	line-height:24px;
+}
+
+.sch .sch-icon{
+	float:left;
+	margin-left:30px;
+	margin-bottom:40px;
+	padding:2px;
+	width:30px;
+	height:32px;
+	font-size:32px;
+	border:0px;
+	border-radius:5px;
+	color:#56D5FA;
+	background:#fff;
+	
+}
+
+.crab-show{
+	position:absolute;
+	top:20px;
+	width:70%;
+	height:1px;
+	border-bottom:1px solid #56D5FA;
+	left:380px;
+	background:#fff;
+	overflow:hidden
+}
+.crab-desc{
+	width:100%;
+	height:100%;
+	text-align:center;
+	font-size:28px;
+	font-weight:18px;
+	
+}
+.crab-show .crab-logo{
+	margin-left:40%;
+	margin-bottom:10px;
+	height:110px;
+	width:150px;
+	background:url(/app/static/images/site/2b.jpg) no-repeat; 
+}
+.crab-show .crab-sb{
+	float:left;
+	margin-left:10px;
+	height:170px;
+	width:200px;
+	/* background:url(/app/static/images/site/lufy.png) no-repeat; */
+}
+.crab-show .crab-silence{
+	float:right;
+	margin-right:10px;
+	margin-bottom:10px;
+	height:170px;
+	width:180px;
+	/* background:url(/app/static/images/site/cat.png) no-repeat; */
+}
+
+.contentw{
+	float:left;
+	margin-top:20px;
+	margin-left:380px;
+	width:62%;
+	overflow:hidden
+}
+ section span2{
+	float:left;
+	width:100%;
+	line-height:28px;
+	font-size:18px;
+}
+section p{
+	width:100%;
+	margin:0;
+	line-height:20px;
+	font-size:14px;
+}
+section p a{
+	color:#fff;
+	filter:alpha(Opacity=0);-moz-opacity:0;opacity: 0;
+	margin:0px;
+	display:block;
+	padding:5px 10px 0 20px;
+}
+section p a:hover{
+	filter:alpha(Opacity=90);-moz-opacity:0.9;opacity: 0.9;
+	color:#222;
+	background:#faa;
+}
+.sidebar .userinfo{
+	float:left;
+	margin-left:10%;
+	width:80%;
+	height:400px;
+	border:1px solid #cbcbcb;
+	overflow:hidden;
+	
+}
+.content-s{
+	float:left;
+	margin-top:63px;
+	margin-left:380px;
+	width:62%;
+	overflow:hidden
+}
+.footer{	
+	float:left;
+	width:62%;
+	margin-top:20px;
+	margin-left:380px;
+	height:80px;
+	text-align:center;
+	color:#b2b2b2;
+	display:block;
+	overflow:hidden
+}
+
+
+

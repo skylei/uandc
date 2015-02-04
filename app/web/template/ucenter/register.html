@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>HTML5/CSS3实现蝙蝠侠人物动画演示地址</title>
+
+<link rel="stylesheet" href="static/css/Common/register.css" media="screen" type="text/css" />
+<style type="text/css">
+	
+	#reg{
+		margin-top:50px;
+		float:left;
+		width:35%;
+		height:500px;
+		border:1px solid #b2b2b2;
+	}
+	#reg .header{
+		width:100%;
+		height:32px;
+		border:1px solid #efefef;
+	}
+	#reg p{
+		width:98%;
+		border:1px solid #efefef;
+	}
+	#reg input{
+		margin-left:20px;
+		width:200px;
+		line-height:28px;
+	}
+	#reg .verify{
+		margin-left:20px;
+		margin-right:20px;
+		width:100px;
+		line-height:28px;
+	}
+	
+	#reg span{
+		float:left;
+		line-height:30px;
+		width:70px;
+		padding-left:10px;
+		vertical-align:middle;
+		border:1px solid #efefef;
+	}
+	#reg span2{
+		line-height:24px;
+		width:70px;
+		margin-right:20px;
+		vertical-align:middle;
+		border:1px solid #efefef;
+	}
+	#reg button{
+		float:right;
+		margin-right:100px;
+		width:100px;
+		line-height:28px;
+	}
+
+</style>
+</head>
+
+<body>
+
+<div id="animate">
+    <ol>
+    <li class="run time">
+        <div class="stage">
+            <div id="head-1"></div>
+            <div id="head-2"></div>
+            <div id="headear"></div>
+            <div id="headear-radius"></div>
+            <div id="white-square"></div>
+            <div id="face-left"></div>
+            <div id="face-right"></div>
+            <div id="face"></div>
+            <div id="brow-right"></div>
+            <div id="eye-left"></div>
+            <div id="eye-right"></div>
+            <div id="brow-left"></div>
+            <div id="back_mouse"></div>
+            <div id="circle1"></div>
+            <div id="circle2"></div>
+            <div id="circle3"></div>
+            <div id="circle4"></div>
+            <div id="ear"></div>
+            <div id="ear-square"></div>
+        </div>
+    </li>
+    </ol>
+</div>
+<div id="reg">
+<div class="header"></div>
+<form method="post" action="/?m=Users&c=index&a=checkRegister"
+<p><span>用户名：</span><input type="text" name="username" placeholder="登录名" /></p>
+<p><span>昵称：</span><input type="text" name="nickname"  placeholder="起个响亮的名号吧"/></p>
+<p><span>密码：</span><input type="password" name="password" placeholder="******"/></p>
+<p><span>确认:</span><input type="text" name="repassword" placeholder="******" /></p>
+<p><span>邮箱：</span><input type="text" name="email" placeholder="some@some.com" /></p>
+
+<p><span>验证码：</span><input type="text" name="verify"  class="verify"/><span2><img src="/?m=Users&c=index&a=verify" /></span2><lable>刷新</lable></p>
+<p><button type="submit">提交</button></p>
+</div>
+
+</body>
+</html>

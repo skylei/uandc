@@ -1,0 +1,54 @@
+<{layout:Common/aheader}>
+<div class="main">
+	<div class="artmanage">
+		<h3>文章管理</h3>
+		<h3>
+		
+			<item1>
+				<select name="filter">
+					<option value="cate">分类</option>
+					<option value="time">时间</option>
+					<option value="cate">来源</option>
+				</select>
+			</item1>
+			<item1><input type="text" name="search"  /></item1>
+		</h3>
+		<list>
+			<h4>
+				<span1>全选/取消</span1>
+				<span1 class="title">标题</span1>
+				<span1 class="time">时间</span1>
+				<span1><select name="do">
+							<option value="">编辑</option>
+							<option value="">删除</option>
+							<option value="">顶</option>
+							<option value="">沉</option>
+					   </select>
+				</span1>
+			</h4>
+				
+				<{foreach($data['artList'] as $list)}>
+			<h4>
+				<span1><input type="checkbox" class="chk"/></span1>
+				<span1 class="title"><{$list['title']}></span1>
+				<span1 class="time"><{echo date('Y-m-d',$list['time'])}></span1>
+				<span1><select name="do">
+							<option value="null">&nbsp;</option>
+							<option value="edit">编辑</option>
+							<option value="del">删除</option>
+							<option value="up">顶</option>
+							<option value="down">沉</option>
+					   </select>
+				</span1>
+			</h4>
+				<{/foreach}>
+			
+		</list>
+	</div>
+
+
+
+
+
+
+</div>

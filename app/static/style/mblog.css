@@ -1,0 +1,130 @@
+@import url(common1.css);
+h1,h2,h3,h4,h5,h6,h7,h8,h9,h10{
+	padding:0;
+	margin:0;
+}
+img{
+	cursor:pointer;
+}
+.content{
+	float:left;
+	margin:10px;
+	width:98%;
+	border:1px solid #efefef;
+	overflow:hidden;
+}
+.content section{
+	float:left;
+	margin:10px 0 0 20px;
+	width:240px;
+	height:300px;
+	border:1px solid #b2b2b2;
+	text-align:center;
+}
+section .iwrap{
+	width:240px;
+	height:35%;
+	overflow:hidden;
+}
+.iwrap .img{
+	float:left;
+	margin:5px 30%;
+	height:90%;
+	width:40%;
+	border:1px solid #efefef;
+	border-radius:50%;
+	overflow:hidden;
+}
+section h3{
+	width:240px;
+	padding:5px;
+	line-height:20px;
+	font-size:18px;
+	overflow:hidden;
+}
+section h4{
+	width:240px;
+	padding:5px;
+	line-height:18px;
+	font-size:14px;
+}
+section h5{
+	width:230px;
+	height:80px;
+	padding:5px;
+	border:1px solid #efefef;
+	line-height:16px;
+	font-size:12px;
+}
+.content section .fbutton{
+	float:left;
+	margin-top:5px;
+	width:240px;
+	height:40px;
+	border:1px solid #efefef;
+	background:#faa;
+	line-height:14px;
+	font-size:12px;
+}
+.contentw .context .front{
+	float:left;
+	margin: 25px 10px 0 -10px;
+	height:20px;
+	width:600px;
+	background:url(/static/thumb/dialog.png) no-repeat;
+	
+}
+.contentw .context .avatar img{
+	float:left;
+	margin:10px;
+	width:40px;
+	height:40px;
+	border:1px solid #999;
+	border-radius:50%;
+}
+.context .micbox{
+	float:left;
+	margin: 0 10px 0 20px;
+	width:565px;
+	background:#fff;
+}
+.micbox .title{
+	float:left;
+	margin-bottom:10px;
+	width:545px;
+	height:20px;
+	padding:4px 20px 4px 20px ;
+	border-bottom:1px dotted #ededed;
+
+}
+.bimg{
+	max-width:565px;
+}
+.lpart{
+	float:left;
+	width:220px;
+	height:200px;;
+}
+.rpart{
+	float:left;
+	width:340px;
+	height:200px;;
+}
+.onlyword{
+	width:565px;
+	padding:10px;
+}
+.micbox .info{
+	float:left;
+	margin-top:10px;
+	width:565px;
+	height:20px;
+	padding:5px 10px;
+	border:1px solid #ededef;
+}
+.opt{
+	float:right;
+	margin-right:10px;
+	border:1px solid #efefef;
+
+}

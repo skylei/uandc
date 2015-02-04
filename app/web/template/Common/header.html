@@ -1,0 +1,26 @@
+<div id="top">
+	<ul>
+		<li><a href="/?m=Home&c=index&a=run">首页</a></li> 
+		<li><a href="<{$data['basePath']}>/index.php/index/index/mblog">轻博客</a></li> 
+		<li><a href="/?m=Home&c=topic&a=run">低声细语</a></li> 
+		<li><a href="/?m=Ask&c=index&a=run"></a></li> 
+		<li>周边</li> 
+		<li>推荐</li> 
+		<li>足迹</li> 
+	</ul>
+	<form method="post" action="<{$data['searchUrl']}>">
+		<div class="search">
+			<input type="text" id="keyword" name="search" />
+		</div>
+		<button class="searchbtn" type="submit"><span class="icon">z</span></button>
+	
+		
+	</form>
+	<div class="signx">
+		<div class="usericon"><a href="<{$data['userUrl']}>">
+			<img src="<{$data['basePath']}>/app/static/images/usericon/crab.jpg"/></a>
+		</div>
+	</div>
+</div>
+
+

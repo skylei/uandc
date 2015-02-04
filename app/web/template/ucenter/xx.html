@@ -1,0 +1,15 @@
+
+<link rel="stylesheet" type="text/css" href="<{$data['basePath']}>/static/simditor/styles/font-awesome.css" />
+<link rel="stylesheet" type="text/css" href="<{$data['basePath']}>/static/simditor/styles/simditor.css" />
+
+<script type="text/javascript" src="<{$data['basePath']}>/static/simditor/scripts/jquery.min.js"></script>
+<script type="text/javascript" src="<{$data['basePath']}>/static/simditor/scripts/module.js"></script>
+<script type="text/javascript" src="<{$data['basePath']}>/static/simditor/scripts/uploader.js"></script>
+<script type="text/javascript" src="<{$data['basePath']}>/static/simditor/scripts/simditor.js"></script>
+<br /><br />
+<textarea id="editor" placeholder="这里输入内容" autofocus></textarea>
+<script>
+var editor = new Simditor({
+  textarea: $('#editor')
+});
+</script>

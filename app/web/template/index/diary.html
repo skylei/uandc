@@ -1,0 +1,83 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>慢生活</title>
+<script src="__ROOT__/dmb/Public/js/jquery.min.js"></script>
+<link rel="stylesheet" href="__ROOT__/dmb/Public/style/detail.css" type="text/css" media="all" /> 
+<script src="__ROOT__/dmb/Public/js/jquery.min.js"></script>
+<script>
+$(document).ready(function() {
+	//vendor script	
+	$('#footer')
+	.css({ 'bottom':-15 })
+	.delay(1000)
+	.animate({'bottom': 0}, 800);
+	
+	
+	$('#container').BlocksIt({
+		numOfCol: 4,
+		offsetX: 8,
+		offsetY: 8
+	});
+	
+	console.log($('#container').height());
+});
+</script>
+
+</head>
+
+<body>
+<div class="header">
+	<ul>
+		<li><a href="__APP__>homes</li>
+		<li><a href="" >coding</a></li>
+		<li><a href="#">低声细语</a></li>
+		<li><a href="#">他山之石</a></li>
+		<li><a href="#">图片采集</a></li>
+		<li><a href="#">岛国资源</a></li>
+		<li><a href="#">音乐广场</a></li>
+		<li><a href="#">给我留言</a></li>
+	</ul>
+</div>
+<div class="container">
+  <div class="content">
+	<foreach name="showart" item="row">
+    <div class="title"><h3>{$row.title|htmlspecialchars_decode}</h3></div>
+    <div class="info">创建时间:&nbsp;{$row.createtime|date='Y-m-d',###}&nbsp;|&nbsp;类型：{$row.type}&nbsp;|&nbsp;作者：{$row.author}</div>
+    <p>{$row.content|stripslashes|htmlspecialchars_decode|nl2br}</p>
+	<div class="info">
+		<div class="share"><DIV class=bshare-custom><A class=bshare-qzone title=分享到QQ空间></A><A class=bshare-sinaminiblog title=分享到新浪微�?/A><A class=bshare-renren title=分享到人人网></A><A class=bshare-qqmb title=分享到腾讯微�?/A><A class=bshare-neteasemb title=分享到网易微�?/A><A class="bshare-more bshare-more-icon more-style-addthis" title=更多平台></A><SPAN class="BSHARE_COUNT bshare-share-count">0</SPAN></DIV>
+			<SCRIPT type=text/javascript charset=utf-8 src="http://static.bshare.cn/b/buttonLite.js#style=-1&amp;uuid=&amp;pophcol=1&amp;lang=zh"></SCRIPT>
+			<SCRIPT type=text/javascript charset=utf-8 src="http://static.bshare.cn/b/bshareC0.js">
+			</SCRIPT>
+		</div><!-- bshare -->
+	</div>
+	<div class="info">上一</div>
+	</foreach>
+	<div class="info">
+	<!-- Duoshuo Comment BEGIN -->
+	<div class="ds-thread"></div>
+	<script type="text/javascript">
+		var duoshuoQuery = {short_name:"dmb"};
+			(function() {
+				var ds = document.createElement('script');
+				ds.type = 'text/javascript';ds.async = true;
+				ds.src = 'http://localhost/blog/Public/js/embed.js';
+				ds.charset = 'gb2312';
+				(document.getElementsByTagName('head')[0] 
+				|| document.getElementsByTagName('body')[0]).appendChild(ds);
+			})();
+	</script>
+	<!-- Duoshuo Comment END -->
+	</div>
+    <!-- end .content --></div>
+  <div class="sidebar">
+    <h4>right</h4>
+    <p>本质上，所朿div 中的背景颜色将仅显示与内容一样的长度?
+	如果您希望采用分隔线（而不是颜色），请content div 的侧面放
+	置边框（但仅当其将始终包含更多内容时</p>
+    <!-- end .sidebar2 --></div>
+  <!-- end .container --></div>
+</body>
+</html>

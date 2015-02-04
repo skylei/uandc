@@ -1,0 +1,38 @@
+<{include "Common/aheader.html"}>
+<!-- 配置文件 -->
+<script type="text/javascript" src="<{$data['basePath']}>/static/ueditor/ueditor.config.js"></script>
+<!-- 编辑器源码文件 -->
+<script type="text/javascript" src="<{$data['basePath']}>/static/ueditor/ueditor.all.js"></script>
+<script type="text/javascript" src="<{$data['basePath']}>/static/ueditor/lang/zh-cn/zh-cn.js"></script>
+
+<div class="main">
+	<form method="post" action="/?m=Admin&c=index&a=submit">
+	<div class="editbox">
+		<input type="hidden" name="type" value="mblog" />
+		<div class="title"><span>标题：</span><input type="text" name="title" placeholder="添加文章标题!"/></div>
+		<div class="editor">
+			<script type="text/explain" id="mycontent" style="height:300px" name="content"></script>
+		</div>
+		<div class="tag"><span>标签：</span><input type="text" name="tag" placeholder="多个标签请用 ','分隔 "/></div>
+		<div class="submit-w"><button type="submit" class="submitbtn">发表</button> </div>
+	</div>
+	<div class="optionbox">
+		<p>发布日期</p>
+		<div class="option"><input type="text" name="time"/></div>
+		<p>作者</p>
+		<div class="option"><input type="text" name="author"/></div>
+		<p>分类</p>
+		<div class="option"><input type="text" name="cate"/></div>
+		<p>来源</p>
+		<div class="option"><input type="text" name="from"/></div>
+	</div>
+	</form>
+</div>
+<script type="text/javascript">
+$(function(){
+	var editor = new UE.ui.Editor();
+	
+	editor.toolbars=['fullscreen', 'source', '|', 'undo', 'redo', '|'];
+	editor.render('mycontent');
+});
+</script>
