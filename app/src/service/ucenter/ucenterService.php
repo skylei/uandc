@@ -61,7 +61,7 @@ class ucenterService extends \components\BaseService{
     }
 
     public function getCateList(){
-        $res = \Ouno\Ouno::dao('cate', 'ucenter')->db->findAll('pid = 0', 'DISTINCT cate', 'order by create_time');
+        $res = \Ouno\Ouno::dao('cate', 'ucenter')->db->findAll('pid = 0', 'cate,name', 'order by create_time');
         return $res;
     }
 
