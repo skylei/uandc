@@ -6,7 +6,7 @@
  * Time: 18:23
  */
 namespace Ouno\Core\DB;
-class OunoMysql  extends \Ouno\BaseComponent {
+class OunoMysql  extends \Ouno\BaseComponent{
 
     private static $db;
     public $linkw;
@@ -17,6 +17,10 @@ class OunoMysql  extends \Ouno\BaseComponent {
     public $errotStr;
     public $config;
 
+    /*
+     * 初始化数据库连接
+     * @param $config array
+     * */
     public function __construct($config){
         $this->config = $config;
         $this->connectRouter();
@@ -31,7 +35,7 @@ class OunoMysql  extends \Ouno\BaseComponent {
         }
     }
     public static function getInstance($config){
-        if(self::$_instance == false){
+        if(self::$_instance == null){
             self::$_instance = new self($config);
         }
         return self::$_instance;
@@ -147,7 +151,7 @@ class OunoMysql  extends \Ouno\BaseComponent {
     public function error(){
 
         $type = $this->linkw ? 'marster' : 'slave';
-        OunoLog::logSql(mysql_error(), $this->table, $type);
+        \Ouno\OunoLog::logSql(mysql_error(), $this->table, $type);
     }
 
     public function findOneModify($where, $data, $options = ''){

@@ -51,10 +51,10 @@
 		<div class="option"><input type="text" name="author"/></div>
 		<p>分类</p>
 		<div class="option" id="selectcate">
-			<select name="cate" />
-				<option value="">请选择分类<option/>
+			<select name="cate" >
+				<option value="">请选择分类</option>
 				<{foreach $data['cate'] as $key=>$cate}>
-					<option value=""><{$cate['cate']}><option/>
+					<option value="<{$cate['cate']}>"><{$cate['name']}></option>
 				<{/foreach}>
 				<option value="add" id="addcate">添加新分类</option>
 			</select>
@@ -71,7 +71,6 @@
 $("#addcate").mousedown(function(){
 	var newcate = "<p>新分类</p><div class='option'><input type='text' name='newcate'/></div>";
 	$(".optionbox").append(newcate);
-	
 });
 (function() {
   $(function() {

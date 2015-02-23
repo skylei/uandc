@@ -78,7 +78,7 @@ class uhomeController extends \components\BaseUcenterController{
 		$this->data['artCount'] = $art->count($query);
 		$visitor = $this->getDao('visit', 'Common');
 		$this->setTpl('Ucenter/index');
-		//$this->dump($this->data['newArt']);
+		$this->dump($this->data['newArt']);
 	}
 
 
@@ -104,10 +104,9 @@ class uhomeController extends \components\BaseUcenterController{
 	}
 
 	public function addArtAction(){
-//        var_dump($_POST);
         if($_POST){
             $data['user_id'] = '1';
-            $data['update'] = date('Y-m-d H:i:s', time());
+            $data['update_time'] = date('Y-m-d H:i:s', time());
             $data['type'] =  $this->_post('type');
             $data['content'] = $this->_post('content');
             $data['title']  = $this->_post('title');
@@ -116,7 +115,7 @@ class uhomeController extends \components\BaseUcenterController{
             $data['tags'] = str_replace(array(',' , '，' ,'；', ';', '/'), ' ', $tag);
             $data['cate']  = $this->_post('cate');
             $newcate = $this->_post('newcate');
-            $data['from']  = $this->_post('from');
+            $data['from_url']  = $this->_post('from');
             if(empty($data['content']))  $this->ajax_return(false, "content unable null");
             $time = $this->_post('time');
             $data['create_time'] 	= !empty($time) ? strtotime($this->_post('time')) : time();
@@ -126,7 +125,7 @@ class uhomeController extends \components\BaseUcenterController{
                 $this->getUService()->addNewCate(array('cate'=> $newcate));
                 $data['cate'] = $newcate;
             }
-            $res = \Ouno\Ouno::dao('article', 'Index')->db->insert($data);
+            $res = \Ouno\Ouno::dao('article', 'index')->db->insert($data);
             if($res)
                 $this->ajax_return(true,'success');
             else
@@ -149,16 +148,25 @@ class uhomeController extends \components\BaseUcenterController{
 
 
     public function imgUploadAction(){
-       $upload = new uploadInit();
-        $res = $upload->upload('upload_file', 'simx', 'd:/web/www/uandc/app/static/images/test');
-        $this->display=false;
-        echo "dfadfa";
-        if($res) echo json_encode(array('sucess'=>true, 'msg'=>'yes', 'file_path'=> "[" .$res['source'] ."]"));exit;
+//        $m =
+        $mservice = new \src\service\ucenter\mongoService();
+        $dao = $mservice->getDao('image');
+        $gfs = $mservice->getDao('image')->getGridFS();
+        var_dump($_FILES);
+
+
+        exit;
+        $file = 'd:\web\www\uandc\app\static\images\site\m.jpg';
+        $gfs->storeFile($file, array('name'=>'test', 'create_time'=>new \MongoDate () ));
+
+        exit;
        // $this->setTpl('upload');
 
     }
 
     public function uploadAction(){
+        $mservice = new \src\service\ucenter\mongoService();
+        $dao = $mservice->getDao('image');
         $this->setTpl('upload');
 
     }

@@ -5,7 +5,7 @@
  * Date: 2014/10/29
  * Time: 18:23
  */
-interface class OunoMysql {
+interface class OunoDb {
 
 	private static $db;
 	private $tableName;

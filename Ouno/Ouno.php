@@ -254,8 +254,8 @@ class Ouno extends BaseComponent{
             session_start();
         Ouno::$_classes = array(
             "Ouno\\Core\\Db\\OunoMysql"=> BASE_DIR . "/Ouno/Core/Db/OunoMysql.php",
-            "Ouno\\Core\Db\\OunoMonogo"=> BASE_DIR . "Ouno/Core/Db/OunoMonogo.php",
-            "Ouno\\Core\Db\\AbstractDb"=> BASE_DIR . "Ouno/Core/Db/AbstractDb.php",
+            "Ouno\\Core\\Db\\OunoMongo"=> BASE_DIR . "/Ouno/Core/Db/OunoMongo.php",
+            "Ouno\\Core\\Db\\AbstractDb"=> BASE_DIR . "/Ouno/Core/Db/AbstractDb.php",
         );
         $this->init2Ehandle();
         spl_autoload_register(array('self', 'loader'));
@@ -515,6 +515,7 @@ class Controller extends BaseComponent{
      * 构造函数，初始化视图实例，调用hook
      */
     public function __construct(){
+        $this->run();
 //        parent::__construct();
         //模板引擎用户可自定义模板引擎
         if(Ouno::config('VIEW') == 'DEFAULT'){
@@ -566,9 +567,10 @@ class Controller extends BaseComponent{
 
     public function setTpl($file){//false返回不输出
         if(Ouno::config('MODULE'))
-            $file = $_GET['m'] . DIRECTORY_SEPARATOR . $file . '.' . Ouno::config('VIEW_POSTFIX');
+            $file = $_GET['m'] . DIRECTORY_SEPARATOR . $file . Ouno::config('VIEW_POSTFIX');
         else
             $file = $file . '.' . Ouno::config('VIEW_POSTFIX');
+
         if(!file_exists(APP_PATH . Ouno::config('TEMPLATE_PATH'). DIRECTORY_SEPARATOR . $file))
             Ouno::error('template not exist');
         $this->tpl = $file;
@@ -696,23 +698,23 @@ class OunoView extends BaseComponent{
 /*
  * 数据库操作接口
  * */
-class Dao extends  BaseComponent{
+class Dao extends  BaseComponent
+{
 
-    public  $db = null;
+    public $db = null;
     public $table = '';
     public $is_slice = false;
-    public function __construct(){
+
+    public function __construct()
+    {
         $driver = Ouno::config('DB_DRIVER');
 //        new \OunoMysql(array());exit;
         $namespace = 'Ouno\\Core\Db\\';
-        $daoClass =  $namespace . $driver;
+        $daoClass = $namespace . $driver;
         $this->db = new $daoClass(Ouno::config('DB'));
         $this->db->table = $this->table;
     }
 
-    public function mapTable(){
-
-    }
 }
 
 

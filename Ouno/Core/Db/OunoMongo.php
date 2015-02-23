@@ -1,44 +1,54 @@
 <?php
-class OunoMongo{
+/**
+ * Created by IntelliJ IDEA.
+ * User: crab
+ * Date: 2014/10/29
+ * Time: 18:23
+ */
+namespace Ouno\Core\DB;
+class OunoMongo extends \Ouno\BaseComponent{
 	
 	protected $cursor = '';
-	//private static $mongo; //mongo对象
+
+    /*
+     * 保存单利对象
+     * @var static $_instance
+     * */
     public static $_instance = '';
-	private $db; //db mongodb对象数据库
+	public $db; //db mongodb对象数据库
 	private $collection; //集合，相当于数据表 
 	
 	/**
 	 * 初始化Mongo
 	 * $config = array(
-	 * 'server' => ‘127.0.0.1' 服务器地址
-	 * ‘port’   => '27017' 端口地址
-	 * ‘option’ => array('connect' => true) 参数
-	 * 'db_name'=> 'test' 数据库名称
-	 * 'username'=> 'zhuli' 数据库用户名
-	 * ‘password’=> '123456' 数据库密码
+	 *      'POST' => ‘127.0.0.1' 服务器地址
+	 *      'PORT'   => '27017' 端口地址
+	 *      'OPTION' => array('connect' => true) 参数
+	 *      'DBNAME'=> 'test' 数据库名称
+	 *      'USERNAME'=> 'CRAB' 数据库用户名
+	 *      'PASSWORD'=> '123456' 数据库密码
 	 * )
-	 * @param unknown_type $config
 	 */
 	public function __construct($config = array()) {
-		if ($config['PASSWORD'] == '') $config['password'] = '123456';
-		if ($config['USERNAME'] == '') $config['username'] = 'root';
-		if ($config['SERVER'] == '')  $config['server'] = '127.0.0.1';
-		if ($config['PORT'] == '')  $config['port'] = '27017';
+		if ($config['PASSWORD'] == '') $config['PASSWORD'] = '123456';
+		if ($config['USERNAME'] == '') $config['USERNAME'] = 'root';
+		if ($config['HOST'] == '')  $config['HOST'] = '127.0.0.1';
+		if ($config['PORT'] == '')  $config['PORT'] = '27017';
 		if (!isset($config['OPTION'])) $config['OPTION'] = array('connect' => true);
-		$server = 'mongodb://' . $config['SERVER'] . ':' . $config['PORT'];
-		$mongo = new MongoClient($server, $config['OPTION']);
+		$server = 'mongodb://' . $config['HOST'] . ':' . $config['PORT'];
+		$mongo = new \MongoClient($server, $config['OPTION']);
 		if ($config['DBNAME'] == '') $config['DBNAME'] = 'test';
 		$this->db = $mongo->selectDB($config['DBNAME']);
-		if ($config['username'] != '' && $config['password'] != '') 
-			$this->db->authenticate($config['username'], $config['password']);
+		if ($config['USERNAME'] != '' && $config['PASSWORD'] != '')
+			$this->db->authenticate($config['USERNAME'], $config['PASSWORD']);
 	}
 
     /*
-     *
+     * 获得单例
      * */
-    public static  function getInstance($config){
+    public static  function getInstance(){
         if(self::$_instance == null)
-            self::$_instance = new self($config);
+            self::$_instance = new self(\Ouno\Ouno::config('MONGO'));
 
         return self::$_instance;
     }
@@ -46,6 +56,7 @@ class OunoMongo{
 	/**
 	 * 选择一个集合，相当于选择一个数据表
 	 * @param string $collection 集合名称
+     * @return mixed
 	 */
 	public  function collection($collection) {
 		return $this->collection = $this->db->selectCollection($collection);
@@ -82,6 +93,7 @@ class OunoMongo{
 	 * 根据条件移除
  	 * @param array $query  条件 例如：array(('title' => '1000'))
 	 * @param array $option 参数
+     * @return array | true
 	 */
 	public function remove($query, $option = array()) {
 		return $this->collection->remove($query, $option);
@@ -110,10 +122,11 @@ class OunoMongo{
 	 * 根据条件查找一条数据
  	 * @param array $query  条件 例如：array(('title' => '1000'))
 	 * @param array $fields 参数
+     * @return array |
 	 */
 	public function getOneById($_id, $fields = array()) {
 		$_id = new mongoId($_id);
-		return $this>findOne(array('_id'=>$_id), $fields);
+		return $this->collection->findOne(array('_id'=>$_id), $fields);
 	}
 	
 	/**
@@ -122,7 +135,8 @@ class OunoMongo{
 	 * @param array $sort  排序条件 array('age' => -1, 'username' => 1)
 	 * @param int   $limit 页面
 	 * @param int   $limit 查询到的数据条数
-	 * @param array $fields返回的字段
+	 * @param array $fields 返回的字段
+     * @return array
 	 */
 	public function findAll($query = '', $sort = array(), $skip = 0, $limit =2, $fields = array()) {
 		$this->cursor = $query ? $this->collection->find($query, $fields) : $this->collection->find();
@@ -139,6 +153,7 @@ class OunoMongo{
 	public function count($query = array()) {
 		return $this->collection->count($query);
 	}
+
 	/**
 	 * 错误信息
 	 */
@@ -181,8 +196,8 @@ class OunoMongo{
 	
 	 /**
      * 执行命令 mongo 所有CURD 都可以通过command来实现
-     * @param array $command  指令 example： array("distinct" => "collectionName", "key" => "age") 按键名age去重复查找
-     * @return array
+     * @param $cmd array 指令 example： array("distinct" => "collectionName", "key" => "age") 按键名age去重复查找
+     * @return unkwon
 	 * 
      */
     public function command($cmd){
@@ -204,20 +219,18 @@ class OunoMongo{
 	
 	/**
 	 * mapreduce 方法
-	 * @param  js function $map 映射函数
-	 * @param js function $reduce  统计处理函数
+	 * @param string  $map  js function 映射函数
+	 * @param string $reduce js function 统计处理函数
 	 * @param string outputCollection 统计结果存放集合
-	 
 	 * @param array  $query 过滤条件 如：array('uid'=>123)
      * @param array  $sort 排序
      * @param number $limit 限制的目标记录数
-     * @param string $out 统计结果存放集合 (不指定则使用tmp_mr_res_$table_name, 1.8以上版本需指定)
      * @param bool   $keeptemp 是否保留临时集合
      * @param string $finalize 最终处理函数 (对reduce返回结果进行最终整理后存入结果集合)
      * @param string $scope 向 map、reduce、finalize 导入外部js变量
      * @param bool   $jsMode 是否减少执行过程中BSON和JS的转换，默认true(注：false时 BSON-->JS-->map-->BSON-->JS-->reduce-->BSON,可处理非常大的mapreduce,//true时BSON-->js-->map-->reduce-->BSON)
      * @param bool   $verbose 是否产生更加详细的服务器日志
-	
+     * @return mixed
 	 */
 	
 	public function mapReduce($map, $reduce, $outputCollection = '',$query = null, $sort = null, $limit = null, $keeptemp = true, $finalize = null, $scope = null, $jsMode = true, $verbose = true){
@@ -267,15 +280,16 @@ class OunoMongo{
 	/**
 	 * 按$key去重复
 	 *	@param string 键名
-	 *	@param query 查询条件
-	 *  @return array 
+     * 	@param array $query 查询条件
+     *  @return array | false
 	 */
 	public function distinct($key, $query = array()){
 		return $this->collection->distinct($key, $query);
 	}
 
     /*
-     *
+     * 执行js代码
+     * @return unkwon
      * */
     public function execute($code , $args = array()){
         $code = 'return ' . $code;

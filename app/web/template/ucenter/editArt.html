@@ -1,22 +1,42 @@
 <!DOCTYPE HTML>
 <html lang="en-us">
 <head>
- <meta http-equiv=Content-Type content="text/html; charset=utf-8">
-<title>后台管理</title>
-<link rel="stylesheet" type="text/css" href="/app/static/simditor/styles/font-awesome.css" />
-<link rel="stylesheet" type="text/css" href="/app/static/simditor/styles/simditor.css" />
-<link href="/app/static/style/common.css" rel="stylesheet" type="text/css">
-<link href="/app/static/assets/raphaelicons.css" rel="stylesheet" type="text/css">
-<script type="text/javascript" src="/app/static/simditor/scripts/jquery.min.js"></script>
-<script type="text/javascript" src="/app/static/simditor/scripts/module.js"></script>
-<script type="text/javascript" src="/app/static/simditor/scripts/uploader.js"></script>
-<script type="text/javascript" src="/app/static/simditor/scripts/simditor.js"></script>
-<link rel="stylesheet" type="text/css" href="/app/static/plugin/wmd/wmd.css" />
-<script type="text/javascript" src="/app/static/plugin/wmd/showdown.js"></script>
-<link rel="stylesheet" type="text/css" href="/app/static/style/addart.css" >
+    <meta http-equiv=Content-Type content="text/html; charset=utf-8">
+    <title>后台管理</title>
+    <link rel="stylesheet" type="text/css" href="/app/static/simditor/styles/font-awesome.css" />
+    <link rel="stylesheet" type="text/css" href="/app/static/simditor/styles/simditor.css" />
+    <link href="/app/static/style/common.css" rel="stylesheet" type="text/css">
+    <link href="/app/static/assets/raphaelicons.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="/app/static/simditor/scripts/jquery.min.js"></script>
+    <script type="text/javascript" src="/app/static/simditor/scripts/module.js"></script>
+    <script type="text/javascript" src="/app/static/simditor/scripts/uploader.js"></script>
+    <script type="text/javascript" src="/app/static/simditor/scripts/simditor.js"></script>
+    <link rel="stylesheet" type="text/css" href="/app/static/plugin/wmd/wmd.css" />
+    <script type="text/javascript" src="/app/static/plugin/wmd/showdown.js"></script>
+    <link rel="stylesheet" type="text/css" href="/app/static/style/addart.css" >
+    <link href="/app/static/style/ucenter.css" rel="stylesheet" type="text/css">
 </head>
 <body>
-<{include 'Common/lmenu.html'}>
+<div id="top">
+    <ul>
+        <li><a href="http://www.uandc.cn">首页</a></li>
+        <li><a href="http://www.uandc.cn/index.php/ucenter/uhome/">文章管理</a></li>
+        <li><a href="/?m=Home&c=topic&a=run">低声细语</a></li>
+        <li><a href="/?m=Ask&c=index&a=run"></a></li>
+        <li><a href="http://www.uandc.cn/index.php/ucenter/uhome/addart">写文章</a></li>
+        <li>推荐</li>
+        <li>足迹</li>
+    </ul>
+    <form method="post" action="<{$data['searchUrl']}>">
+        <div class="search">
+            <input type="text" id="keyword" name="search" />
+        </div>
+        <button class="searchbtn" type="submit"><span class="icon">z</span></button>
+
+
+    </form>
+
+</div>
 <div class="tag-e"><a href="javascript:;" >markdown</a></div>
 <div class="main">
 	<form method="post" action="<{$data['baseUrl']}>/ucenter/uhome/addart" id="simditor" >
@@ -52,7 +72,7 @@
 		<p>分类</p>
 		<div class="option"><input type="text" name="cate" value="<{$data['art']['cate']}>" required /></div>
 		<p>来源</p>
-		<div class="option"><input type="text" name="from" value="<{$data['art']['from']}>" /></div>
+		<div class="option"><input type="text" name="from" value="<{$data['art']['from_url']}>" /></div>
 	</div>
 	</form>
 </div>
@@ -60,7 +80,6 @@
 <script type="text/javascript" src="/app/static/plugin/wmd/wmd.js"></script>
 
 <script type="text/javascript">
-
 (function() {
   $(function() {
     var editor, mobileToolbar, toolbar;

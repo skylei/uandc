@@ -10,7 +10,8 @@ class smartyView extends \Ouno\BaseComponent{
 	
 	
 	public $viewObj = '';
-	
+
+
 	public function __construct(){
 		$smartyPath = \Ouno\Ouno::config('SMARTY_PATH');
         \Ouno\Ouno::$_classes['Smarty'] = APP_PATH . $smartyPath . '/Smarty.class.php';
@@ -38,9 +39,9 @@ class smartyView extends \Ouno\BaseComponent{
 
 
     /*
-     * ��ʾģ��
+     * 显示模版
      * @param $file string
-     * @param $oupt boolean �Ƿ����
+     * @param $oupt boolean|string
      * */
     public function display($file, $output =true){
         if($output)
@@ -51,7 +52,7 @@ class smartyView extends \Ouno\BaseComponent{
     }
 
     /*
-     * ���smarty ����
+     * 开启smarty缓存
      * */
     public function cleanCache(){
         $this->viewObj->cache->clearAll();

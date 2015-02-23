@@ -10,13 +10,35 @@ class searchService extends \components\BaseService{
 
     public function getArt($word, $highlight = true){
          \Ouno\Ouno::import('/src/dao/search/searchDao.php');
-        $searchDao = new \searchDao();
-        //$search = $searchDao->getSphinx();
+        $searchDao = new\searchDao();
         $res = $searchDao->selectArt($word);
-        var_dump($res);
-//        $artDao = InitPHP::getDao('homeArt', 'Home');
-//        $res = $this->getResultByIds($artDao, $res, $word, $highlight);
-
+        $result = array();
+        if(isset($res[0]['total']) && $res[0]['total'] > 0){
+            $result['attr'] = array(
+                'total'=> $res[0]['total'],
+                'time'=> $res[0]['time'],
+                'word'=> $word,
+                'info'=> $res[0]['words']
+            );
+            foreach($res[0]['matches'] as $key=>$val){
+                $where = array('id'=>array('value'=>$val['id'], 'operator'=> '='));
+                $article = \Ouno\Ouno::dao('article', 'index')->db->findOne($where);
+                $options = array(
+                    "before_match"		=> "<strong>",
+                    "after_match"		=> "</strong>",
+                    "chunk_separator"	=> " ... ",
+                    "limit"				=> 300,
+                    "around"			=> 600,
+                );
+                $docs = array($article['title'],$article['tags'], $article['content']);
+                $highlight = $searchDao->sphinx->buildExcerpts($docs, 'crab_article', $word, $options);
+                list($article['title'], $article['tags'], $article['content']) = $highlight;
+                $result['list'][] = $article;
+            }
+        }else{
+            return false;
+        }
+        return $result;
     }
 
 
@@ -74,7 +96,6 @@ class searchService extends \components\BaseService{
         );
         $res = InitPHP::getDao('search', 'Search')->sphinx->buildExcerpts( $text, $index, $word, $option );
         var_dump($res);
-        return InitPHP::getDao('search', 'Search')->sphinx->buildExcerpts($text, $index, $word, $option);
     }
 
 

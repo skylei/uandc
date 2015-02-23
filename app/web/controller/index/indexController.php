@@ -44,7 +44,6 @@ class indexController extends \components\BaseController {
 
     public function testAction()
     {
-//        \Ouno\Ouno::import('/components/sphinxapi.php');
         $res = \Ouno\Ouno::service('search', 'search')->getArt('兔子');
         var_dump($res);
         exit;
@@ -53,7 +52,7 @@ class indexController extends \components\BaseController {
     public function viewAction(){
         $a = array(1=>'aaaa',2=>'dfddd',3=>'ssss',4=>'dddddd',5=>'aaa');
         $this->_view->assign('a', $a);
-//        $this->_view->display('view');
+        $this->_view->display('view');
         $this->_view->createStaticFile('view');
     }
 
@@ -68,11 +67,11 @@ class indexController extends \components\BaseController {
     /*
      * 后置控制器
      * */
-//    public function run_after(){
-//        $this->assign('data', $this->data);
-//        if($this->display) $this->show();
-//    }
-//
+    public function run_after(){
+        $this->assign('data', $this->data);
+        if($this->display) $this->show();
+    }
+
 	public function detailAction(){
 		$id =$this->_get('id');
         $detail = $this->getIndexService()->getDetail($id);
@@ -115,17 +114,13 @@ class indexController extends \components\BaseController {
     }
 
 	public function searchAction(){
-        $info['keyword'] = $this->_get('search');
-        $info['info'] = $info['keyword'];
-        $info['user_agent'] = $_SERVER['HTTP_USER_AGENT'];
-        $info['ip'] = ip2long($_SERVER['REMOTE_ADDR']);
-        if (empty($info['keyword'])) $this->redirect('');
-        $this->data['artList'] = $this->getIndexService()->search($info['keyword']);
-        $this->data['visitLog'] = $this->getIndexService()->visitLog($info);
-        $this->data['keyword'] = $info['keyword'];
-        $this->assign('data', $this->data);
+        $keyword = $this->_get('search', '');
+        if (!$keyword) $this->redirect('');
+        $searchService = new \src\service\search\searchService();
+        $result = $searchService->getArt($keyword);
+        if(!$result) exit;
+        $this->assign('result', $result);
         $this->setTpl('search');
-//        $this->display= false;
     }
 
     public function artCommentAction(){

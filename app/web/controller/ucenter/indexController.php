@@ -21,10 +21,10 @@ class indexController extends \components\BaseUcenterController {
         $this->data['loginUrl'] = $this->createUrl('/ucenter/index/checkLogin');
     }
 
-    /* 	public function userState() {//通过
-            $userInfo = $this->getUService()->checkUserState();
-            return $userInfo;
-        }  */
+    public function userState() {//通过
+        $userInfo = $this->getUService()->checkUserState();
+        return $userInfo;
+    }
 	
 
 	public function loginAction(){ //通过
