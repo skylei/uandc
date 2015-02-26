@@ -27,6 +27,21 @@ class imageDao extends \components\BaseMongoDao{
 		return $this->Ndb->findAll($query, $sort = array(), $skip, $limit, $fields);
 	}
 	
+	public function save($data){
+		return $this->getGridFS()->storeFile($data['file'], $data['info']);
+	}
+	
+	public function getOne(){
+		
+	
+	}
+	
+	
+	public function getBinaryData($mid){
+		
+	
+	}
+	
 	/*
 	 * 获得分组
 	 * @param $key string
