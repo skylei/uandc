@@ -111,6 +111,7 @@ class uhomeController extends \components\BaseUcenterController{
             $data['content'] = $this->_post('content');
             $data['title']  = $this->_post('title');
             $data['author']  = $this->_post('author');
+            $data['is_show'] = 1;
             $tag  = $this->_post('tag');
             $data['tags'] = str_replace(array(',' , '，' ,'；', ';', '/'), ' ', $tag);
             $data['cate']  = $this->_post('cate');
@@ -148,13 +149,16 @@ class uhomeController extends \components\BaseUcenterController{
 
 
     public function imgUploadAction(){
-//        $m =
-        $mservice = new \src\service\ucenter\mongoService();
-        $dao = $mservice->getDao('image');
-        $gfs = $mservice->getDao('image')->getGridFS();
+
         var_dump($_FILES);
-
-
+        $path = \components\Myconstant::ARTICLE_IMG_PATH;
+        if(!isset($_FILES['art_img'])) return false;
+        $temp = $_FILES['art_img'];
+        \components\BaseTools::allow_img_type($temp['type']);
+        
+        $filename = time().mt_rand(1000, 9999);
+        $return = array('success'=>true, 'msg'=>'upload success!', 'file_path'=>'/app/static/images/site/cat.png');
+        echo json_encode($return);
         exit;
         $file = 'd:\web\www\uandc\app\static\images\site\m.jpg';
         $gfs->storeFile($file, array('name'=>'test', 'create_time'=>new \MongoDate () ));
@@ -167,6 +171,15 @@ class uhomeController extends \components\BaseUcenterController{
     public function uploadAction(){
         $mservice = new \src\service\ucenter\mongoService();
         $dao = $mservice->getDao('image');
+        $gfs = $mservice->getDao('image')->getGridFS();
+        $return = array('success'=>true, 'msg'=>'upload success!', 'file_path'=>'/app/static/images/site/cat.png');
+        echo json_encode($return);
+        exit;
+        $file = 'd:\web\www\uandc\app\static\images\site\m.jpg';
+        $gfs->storeFile($file, array('name'=>'test', 'create_time'=>new \MongoDate () ));
+
+        exit;
+        // $this->setTpl('upload');
         $this->setTpl('upload');
 
     }
