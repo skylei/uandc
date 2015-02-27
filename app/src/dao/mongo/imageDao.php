@@ -31,8 +31,8 @@ class imageDao extends \components\BaseMongoDao{
 		return $this->getGridFS()->storeFile($data['file'], $data['info']);
 	}
 	
-	public function getOne(){
-		
+	public function getOne($query){
+        return $this->Ndb->findOne($query);
 	
 	}
 	

@@ -6,6 +6,8 @@
  *
  * */
 namespace web\controller\ucenter;
+use components\Myconstant;
+
 class uhomeController extends \components\BaseUcenterController{
 
 
@@ -126,12 +128,14 @@ class uhomeController extends \components\BaseUcenterController{
                 $this->getUService()->addNewCate(array('cate'=> $newcate));
                 $data['cate'] = $newcate;
             }
+            var_dump($_POST['content']);
             $res = \Ouno\Ouno::dao('article', 'index')->db->insert($data);
             if($res)
                 $this->ajax_return(true,'success');
             else
                 $this->ajax_return(false,'false');
         }
+
         $this->data['cate'] = $this->getUService()->getCateList();
         $this->data['submitUrl'] = $this->createUrl('/ucenter/uhome/addArt');
 		$this->setTpl('addArt');
@@ -149,36 +153,47 @@ class uhomeController extends \components\BaseUcenterController{
 
 
     public function imgUploadAction(){
-
-        var_dump($_FILES);
-        $path = \components\Myconstant::ARTICLE_IMG_PATH;
         if(!isset($_FILES['art_img'])) return false;
         $temp = $_FILES['art_img'];
-        \components\BaseTools::allow_img_type($temp['type']);
-        
-        $filename = time().mt_rand(1000, 9999);
-        $return = array('success'=>true, 'msg'=>'upload success!', 'file_path'=>'/app/static/images/site/cat.png');
+        $check = \components\BaseTools::allow_img_type($temp['type']);
+        if(!$check)
+           $this->ajax_return(false, 'image type is incorrect!', 400);
+        if($temp['error'] != 0)
+            $this->ajax_return(flase, 'image upload has some wrong!');
+        $filename = Myconstant::IMG_PREFIX . time(). mt_rand(1000, 9999);
+        $postfix = substr($temp['type'], strrpos($temp['type'],'/') + 1);
+        $file = '/static/images/ablum/default/' . $filename . '.'. $postfix;
+        $mservice = new \src\service\ucenter\mongoService();
+        $gfs = $mservice->getDao('image')->getGridFS();
+        $mid = $gfs->storeFile($temp['tmp_name'], array('filename'=> $file, 'create_time'=>new \MongoDate ()));
+        if(is_object($mid) && isset($mid->{'$id'})) {
+            $id = $mid->{'$id'};
+        }else{
+            $this->ajax_return(false, 'add mongo fail');
+        }
+        $truePath = APP_PATH . $file;
+        $showPath = 'http://www.uand.cn/index.php/image/pic/show/id/' . $id;
+        //保险起见保留一张原图
+        move_uploaded_file($temp['tmp_name'], $truePath);
+
+      $return = array('success'=>true, 'msg'=>'upload success!', 'file_path'=>$showPath);
+//        $return = array('success'=>true, 'msg'=>'upload success!', 'file_path'=>$truePath);
         echo json_encode($return);
         exit;
-        $file = 'd:\web\www\uandc\app\static\images\site\m.jpg';
-        $gfs->storeFile($file, array('name'=>'test', 'create_time'=>new \MongoDate () ));
-
-        exit;
-       // $this->setTpl('upload');
 
     }
 
     public function uploadAction(){
-        $mservice = new \src\service\ucenter\mongoService();
-        $dao = $mservice->getDao('image');
-        $gfs = $mservice->getDao('image')->getGridFS();
-        $return = array('success'=>true, 'msg'=>'upload success!', 'file_path'=>'/app/static/images/site/cat.png');
-        echo json_encode($return);
-        exit;
-        $file = 'd:\web\www\uandc\app\static\images\site\m.jpg';
-        $gfs->storeFile($file, array('name'=>'test', 'create_time'=>new \MongoDate () ));
-
-        exit;
+//        $mservice = new \src\service\ucenter\mongoService();
+//        $dao = $mservice->getDao('image');
+//        $gfs = $mservice->getDao('image')->getGridFS();
+//        $return = array('success'=>true, 'msg'=>'upload success!', 'file_path'=>'/app/static/images/site/cat.png');
+//        echo json_encode($return);
+//        exit;
+//        $file = 'd:\web\www\uandc\app\static\images\site\m.jpg';
+//        $gfs->storeFile($file, array('name'=>'test', 'create_time'=>new \MongoDate () ));
+//
+//        exit;
         // $this->setTpl('upload');
         $this->setTpl('upload');
 

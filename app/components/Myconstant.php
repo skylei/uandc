@@ -8,4 +8,6 @@
 namespace components;
 class Myconstant{
     const ARTICLE_IMG_PATH = 'app/static/images/article';
+    const IMG_DOMAIN = 'http://www.uandc.cn/';
+    const IMG_PREFIX = 'crab_running';
 }
