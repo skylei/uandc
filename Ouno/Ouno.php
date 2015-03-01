@@ -259,10 +259,19 @@ class Ouno extends BaseComponent{
         );
         $this->init2Ehandle();
         spl_autoload_register(array('self', 'loader'));
-        if(self::config('URI') == 'PATH') $this->getRequest();
-        $this->container['module'] = $_GET['m'] = (self::config('MODULE') && !empty($_GET['m'])) ? $_GET['m'] : 'index';
-        $this->container['controller'] = $_GET['c'] = (!empty($_GET['c'])) ? $_GET['c'] : 'index';
-        $this->container['action'] = $_GET['a'] = (!empty($_GET['a'])) ? $_GET['a'] : 'index';
+        if(php_sapi_name() == 'cli'){
+            global $argv;
+            if(self::config('MODULE'))
+                $this->container['module'] = isset($argv[1]) ? $argv[1] : 'index';
+            $this->container['controller'] = isset($argv[2]) ? $argv[2] : 'index';
+            $this->container['action'] = isset($argv[3]) ? $argv[3] : 'index';
+        }else {
+            if (self::config('URI') == 'PATH') $this->getRequest();
+            if(self::config('MODULE'))
+                $this->container['module'] = $_GET['m'] = isset($_GET['m']) ? $_GET['m'] : 'index';
+            $this->container['controller'] = $_GET['c'] = isset($_GET['c']) ? $_GET['c'] : 'index';
+            $this->container['action'] = $_GET['a'] = !isset($_GET['a']) ? $_GET['a'] : 'index';
+        }
         $controller =  self::config('CONTROLER_NAMESPACE') . '\\' . $this->container['module'] . '\\' .$this->container['controller'] .'Controller';
 
         if(!class_exists( $controller)){
@@ -516,15 +525,16 @@ class Controller extends BaseComponent{
      */
     public function __construct(){
         $this->run();
-//        parent::__construct();
-        //模板引擎用户可自定义模板引擎
-        if(Ouno::config('VIEW') == 'DEFAULT'){
-            $this->_view = OunoView::getInstance();
-        }else{
-            $view = Ouno::config('VIEW');
-            $this->_view = new $view;
+        if(php_sapi_name() != 'cli' || Ouno::config('ENABLE_VIEW')) {
+            //模板引擎用户可自定义模板引擎
+            if (Ouno::config('VIEW') == 'DEFAULT') {
+                $this->_view = OunoView::getInstance();
+            } else {
+                $view = Ouno::config('VIEW');
+                $this->_view = new $view;
+            }
+            $this->baseUrl = Ouno::config('BASEURL');
         }
-        $this->baseUrl = Ouno::config('BASEURL');
     }
 
     /*
