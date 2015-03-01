@@ -1,5 +1,5 @@
 <?php
-// error_reporting( E_ERROR |  E_PARSE);
+ error_reporting(-1);
 define('APP_PATH', __DIR__ .'/app');
 define('CORE_PATH', __DIR__ .'/core');
 define('BASE_DIR', __DIR__);
