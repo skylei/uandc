@@ -251,7 +251,7 @@ class Ouno extends BaseComponent{
      * */
     public function run(){
 //        if(self::config('SESSION'))
-            session_start();
+        session_start();
         Ouno::$_classes = array(
             "Ouno\\Core\\Db\\OunoMysql"=> BASE_DIR . "/Ouno/Core/Db/OunoMysql.php",
             "Ouno\\Core\\Db\\OunoMongo"=> BASE_DIR . "/Ouno/Core/Db/OunoMongo.php",
@@ -273,7 +273,6 @@ class Ouno extends BaseComponent{
             $this->container['action'] = $_GET['a'] = !isset($_GET['a']) ? $_GET['a'] : 'index';
         }
         $controller =  self::config('CONTROLER_NAMESPACE') . '\\' . $this->container['module'] . '\\' .$this->container['controller'] .'Controller';
-
         if(!class_exists( $controller)){
             throw new \Exception("controller $controller inexistance");
         }
@@ -377,7 +376,7 @@ class Ouno extends BaseComponent{
             //echo "<pre>"; var_dump($trace) ;echo "</pre>";
             $traceStr = '#(strace)';
             foreach(array_slice($trace, 1, Ouno::config('ERROR_LEVE', 5) ) as $key=>$val){
-                $traceStr .= '#';
+                $traceStr .= "#";
                 $traceStr .= isset($val['file']) ?  ' file : ' .$val['file']  : '';
                 $traceStr .= isset($val['class']) ?  ' ' .$val['class'] . '::' : '';
                 $traceStr .= isset($val['function']) ? ' ' .$val['function'] . '()' : '';
@@ -395,7 +394,7 @@ class Ouno extends BaseComponent{
     */
     public static function handleException($exception){
         restore_exception_handler();
-        $message = 'Exception : ' . $exception->__toString();
+        $message = "#Exception : " . $exception->__toString();
         $message .= '#date : ' .date('Y-m-d H:i:s', time());
         $class = get_class($exception);
         $message .='#exception : ' .$class;
@@ -409,7 +408,7 @@ class Ouno extends BaseComponent{
      * */
     public static function displayException($message){
         if(php_sapi_name() == 'cli')
-            echo str_replace('#', '\n#', $message);
+            echo str_replace('#', "\n\r#", $message);
         else
             echo str_replace('#', '<br/>#', $message);
     }
@@ -692,7 +691,7 @@ class OunoView extends BaseComponent{
      * */
     public function fetch($file){
         $this->tpl = APP_PATH . rtrim(Ouno::config('TEMPLATE_PATH'), '/') . '/' . $file . $this->fileExtension;
-        $template = str_replace(array("\n", "\t", " "), '', file_get_contents($this->tpl));
+        $template = str_replace(array("\n\r", "\t", " "), '', file_get_contents($this->tpl));
         return $template;
     }
 
@@ -799,7 +798,7 @@ class OunoLog extends BaseComponent{
         $errorStr .= $traceStr;
         self::log($errorStr);
         if(Ouno::config('DEBUG')){
-            $lf = (php_sapi_name() == 'cli') ? '\n#' : '<br />#';
+            $lf = (php_sapi_name() == 'cli') ? "\n\r#" : '<br />#';
             echo str_replace('#', $lf, $errorStr);
         }
         exit;
@@ -811,7 +810,7 @@ class OunoLog extends BaseComponent{
     public static function userLog($msg){
         $logStr = "[USER_LOG]";
         $logStr .= "#mssage : $msg";
-        $logStr .=  (php_sapi_name() == 'cli') ? '\n#' : '<br />#';
+        $logStr .=  (php_sapi_name() == 'cli') ? "\n\r#" : '<br />#';
     }
 
 
