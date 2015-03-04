@@ -26,14 +26,14 @@ body{
 .context p{
 	width:100%;
 	letter-spacing:3px;
-	line-height:32px;
+	line-height:24px;
 	vertical-align:text-top;
 }
 .context p img{
 	float:left;
 	padding:20px;
-	margin-left:5%;
-	max-width:30%;
+    display:block;
+    max-width: 95%;
 }
  .context .avatar img{
 	float:left;

@@ -13,6 +13,13 @@ class BaseQueue{
      * */
     public $config;
 
+    /*
+     * @var public 持有链接
+     * */
+    public $conn;
+
+    public static $instance = array();
+
 
     /*
      * 构造函数，初始化队列及自动加载
@@ -20,43 +27,66 @@ class BaseQueue{
     public function __construct(){
         define('AMQP_DEBUG', true);
         $this->config = array('HOSPT'=>'127.0.0.1', 'PORT'=>5672, 'USER'=>'guest', 'PASS'=>'guest');
-        \Ouno\Ouno::registerAutoloader('this', 'mqLoader');
+        \Ouno\Ouno::registerAutoloader('this', 'qLoader');
 
     }
 
-    public function run(){
-        $conn = new \PhpAmqpLib\Connection\AMQPConnection('127.0.0.1', '5672', 'guest', 'guest', '/');
-        $exchange = 'router';
-        $queue = 'msgs';
-        $consumer_tag = 'consumer';
-        $ch = $conn->channel();
-        $ch->queue_declare($queue, false, true, false, false);
-        $ch->exchange_declare($exchange, 'direct', false, true, false);
-        $ch->queue_bind($queue, $exchange);
-        $msg_body = 'nihao 234 asdfa adfasd 23 quit';
-        $msg = new \PhpAmqpLib\Message\AMQPMessage($msg_body, array('content_type' => 'text/plain', 'delivery_mode' => 2));
-        //$ch->basic_publish($msg, $exchange);
-        $msg = $ch->basic_get($queue);
-
-        $ch->basic_ack('consumer');
-
-        var_dump($msg->body);
-        // Loop as long as the channel has callbacks registered
-//        while (count($ch->callbacks)) {
-//            $ch->wait(10);
-//        }
-    }
 
     /*
      * 自动加载ampq相关类
      * */
-    public function mqLoader($className){
+    function qloader($className){
         $class =strtolower($className);
         if(strncmp($class, 'phpamqplib', 10) === 0){
-            $classFile = '/extensions/' . $className .'.php';
-            \Ouno\Ouno::import($classFile);
+            $classFile =  PATH . '/app/extensions/' . $className .'.php';
+            if(!isset(queue::$instance[$className])){
+                include($classFile);
+                queue::$instance[$className] = $className;
+            }
         }
     }
+
+    public function publish(){
+        $queue = 'msg';
+        $consumer_tag = 'crab';
+        $exchange = 'router';
+        $ch = $this->conn->channel();
+
+        /*
+            The following code is the same both in the consumer and the producer.
+            In this way we are sure we always have a queue to consume from and an
+                exchange where to publish messages.
+        */
+
+        /*
+            name: $queue
+            passive: false
+            durable: true // the queue will survive server restarts
+            exclusive: false // the queue can be accessed in other channels
+            auto_delete: false //the queue won't be deleted once the channel is closed.
+        */
+        $ch->queue_declare($queue, false, true, false, false);
+
+        /*
+            name: $exchange
+            type: direct
+            passive: false
+            durable: true // the exchange will survive server restarts
+            auto_delete: false //the exchange won't be deleted once the channel is closed.
+        */
+
+        $ch->exchange_declare($exchange, 'direct', false, true, false);
+
+        $ch->queue_bind($queue, $exchange);
+        $argv = func_get_args();
+        $msg_body = implode(' ', array_slice($argv, 1));
+        //publish param $msg(AMQPMessage instance) ,param $exchange mq excahnge string param $routing_key for upon is $consumer_tag , param $mandatory 是否强制性
+        $msg = new \PhpAmqpLib\Message\AMQPMessage($msg_body, array('content_type' => 'text/plain', 'delivery_mode' => 2));
+        $ch->basic_publish($msg, $exchange);
+
+    }
+
+
 
     public function process_message($msg)
     {
@@ -71,6 +101,8 @@ class BaseQueue{
             $msg->delivery_info['channel']->basic_cancel($msg->delivery_info['consumer_tag']);
         }
     }
+
+
 
 
     function shutdown($ch, $conn)

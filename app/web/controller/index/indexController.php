@@ -113,6 +113,10 @@ class indexController extends \components\BaseController {
         $this->getIndexService()->praiseComment($cid, $field);
     }
 
+    public function cliAction(){
+        $detail = $this->getIndexService()->getDetail($id = 1);
+    }
+
 	public function searchAction(){
         $keyword = $this->_get('search', '');
         if (!$keyword) $this->redirect('');

@@ -128,12 +128,11 @@ class uhomeController extends \components\BaseUcenterController{
                 $this->getUService()->addNewCate(array('cate'=> $newcate));
                 $data['cate'] = $newcate;
             }
-            var_dump($_POST['content']);
             $res = \Ouno\Ouno::dao('article', 'index')->db->insert($data);
             if($res)
-                $this->ajax_return(true,'success');
+                $this->createUrl('/ucenter/uhome/index');
             else
-                $this->ajax_return(false,'false');
+                echo "<script>history.back(-1);</script>";
         }
 
         $this->data['cate'] = $this->getUService()->getCateList();
@@ -172,7 +171,7 @@ class uhomeController extends \components\BaseUcenterController{
             $this->ajax_return(false, 'add mongo fail');
         }
         $truePath = APP_PATH . $file;
-        $showPath = 'http://www.uand.cn/index.php/image/pic/show/id/' . $id;
+        $showPath = 'http://www.uandc.cn/index.php/image/pic/show/id/' . $id;
         //保险起见保留一张原图
         move_uploaded_file($temp['tmp_name'], $truePath);
 

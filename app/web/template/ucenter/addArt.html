@@ -8,9 +8,11 @@
 <link href="/app/static/style/common.css" rel="stylesheet" type="text/css">
 <link href="/app/static/assets/raphaelicons.css" rel="stylesheet" type="text/css">
 <script type="text/javascript" src="/app/static/simditor/scripts/jquery.min.js"></script>
-<script type="text/javascript" src="/app/static/simditor/scripts/module.js"></script>
-<script type="text/javascript" src="/app/static/simditor/scripts/uploader.js"></script>
-<script type="text/javascript" src="/app/static/simditor/scripts/simditor.js"></script>
+    <script type="text/javascript" src="/app/static/simditor/scripts/mobilecheck.js"></script>
+
+
+
+
 <link rel="stylesheet" type="text/css" href="/app/static/plugin/wmd/wmd.css" />
 <script type="text/javascript" src="/app/static/plugin/wmd/showdown.js"></script>
 <link rel="stylesheet" type="text/css" href="/app/static/style/addart.css" >
@@ -67,6 +69,11 @@
 
 <script type="text/javascript" src="/app/static/plugin/wmd/wmd.js"></script>
 
+<script type="text/javascript" src="/app/static/simditor/scripts/module.js"></script>
+<script type="text/javascript" src="/app/static/simditor/scripts/uploader.js"></script>
+<script type="text/javascript" src="/app/static/simditor/scripts/hotkeys.js"></script>
+<script type="text/javascript" src="/app/static/simditor/scripts/simditor.js"></script>
+
 <script type="text/javascript">
 $("#addcate").mousedown(function(){
 	var newcate = "<p>新分类</p><div class='option'><input type='text' name='newcate'/></div>";
@@ -75,10 +82,11 @@ $("#addcate").mousedown(function(){
 (function() {
   $(function() {
     var editor, mobileToolbar, toolbar;
-	 toolbar = ['title', 'bold', 'italic', 'underline', 'strikethrough', 'color', 'ol', 'ul','code', 'table', 'image', 'hr', 'indent', 'outdent'];
+      toolbar = ['title', 'bold', 'italic', 'underline', 'strikethrough', 'color', 'ol', 'ul', 'blockquote', 'code', 'table',  'link', 'image', 'hr', 'indent', 'outdent', 'source'];
+      mobileToolbar = ["bold", "underline", "strikethrough", "color", "ul", "ol"];
     return editor = new Simditor({
       textarea: $('#txt-content'),
-      placeholder: '这里输入文字...',
+      placeholder: '这里输入文字2...',
 	  tabIndent :true,
       toolbar: toolbar,
       pasteImage: false,
