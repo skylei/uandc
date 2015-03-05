@@ -7,10 +7,32 @@
  * Time: 21:23
  */
 namespace web\controller\image;
-class picController extends \components\BaseController {
+class imageController extends \components\BaseController {
 
     public function run(){
 
+    }
+
+    /*
+     * 显示上传图片模版
+     * */
+    public function indexAction(){
+        $basepath = $this->getbasePath();
+        $iservice = new \src\service\image\mongoService();
+        $albums = $iservice->getAllAlbums();
+        $images = array();
+        if($albums){
+            foreach($albums as $key=>$val)
+            {
+                $temp = $iservice->getAlbumImages($val['name'], $limit = 4);
+                $images[] = $temp;
+            }
+        }
+
+        $this->assign('basePath', $basepath);
+        $this->assign('images',$images);
+        $this->setTpl('image');
+        $this->show();
     }
 
     /*

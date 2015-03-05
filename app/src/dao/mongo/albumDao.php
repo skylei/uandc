@@ -6,8 +6,8 @@
  * Time: 0:52
  */
 namespace src\dao\mongo;
-class imageDao extends \components\BaseMongoDao{
-	public $collection = 'crab_img.files';
+class albumDao extends \components\BaseMongoDao{
+	public $collection = 'album';
 
     /*
      * 获取最新的图片
@@ -18,7 +18,7 @@ class imageDao extends \components\BaseMongoDao{
      * @param array $fields
      * @return array | false
      * */
- 	public function getNew($query = array(), $sort = array('time'=>-1), $skip = 0, $limit = 10, $fields = array()){
+ 	public function getAlbum($query = array(), $sort = array('create_time'=>-1), $skip = 0, $limit = 10, $fields = array()){
 		return $this->Ndb->findAll($query, $sort, $skip, $limit, $fields);
 	}
 	
@@ -33,9 +33,11 @@ class imageDao extends \components\BaseMongoDao{
 	
 	public function getOne($query){
         return $this->Ndb->findOne($query);
-	
 	}
-	
+
+    public function getAll($query = array(),$sort = array('create_time'=>-1) ){
+        return $this->Ndb->findAll($query, $sort);
+    }
 	
 	public function getBinaryData($mid){
 		
@@ -47,7 +49,6 @@ class imageDao extends \components\BaseMongoDao{
 	 * @param $key string
 	 * @param $initial string
 	 * @param $reduce
-	 * @return array | null
 	 * */
 	public function group($key='', $initial ='', $reduce ='', $options = array()) {//通过
 		

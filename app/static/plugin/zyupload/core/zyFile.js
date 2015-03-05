@@ -54,7 +54,7 @@ var ZYFILE = {
 			self.lastUploadFile = this.uploadFile;
 			this.uploadFile = this.uploadFile.concat(this.filterFile(files));
 			var tmpFiles = [];
-			
+
 			// 因为jquery的inArray方法无法对object数组进行判断是否存在于，所以只能提取名称进行判断
 			var lArr = [];  // 之前文件的名称数组
 			var uArr = [];  // 现在文件的名称数组
@@ -144,9 +144,14 @@ var ZYFILE = {
 		// 上传单个个文件
 		funUploadFile : function(file){
 			var self = this;  // 在each中this指向没个v  所以先将this保留
-			
+
 			var formdata = new FormData();
-			formdata.append("fileList", file);	         		
+			formdata.append("fileList", file);
+
+            //crab add post param
+            var album = $(".upload-album").val();
+            formdata.append("album", album);
+
 			var xhr = new XMLHttpRequest();
 			// 绑定上传事件
 			// 进度

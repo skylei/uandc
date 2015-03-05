@@ -30,4 +30,8 @@ class BaseMongoDao {
         return \Ouno\Ouno::dao('user', 'ucenter')->Ndb->collection($this->collection);
     }
 
+    public function getAll($query = array()){
+        return $this->Ndb->findAll($query);
+    }
+
 }

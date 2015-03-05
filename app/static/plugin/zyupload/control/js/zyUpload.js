@@ -48,20 +48,23 @@
 			
 			this.createHtml = function(){
 				var album;
-				$.get('/uandc/index.php/ucenter/uhome/imgupload',function(album){
-					
-					album = " " + data;
-					alert(data);
-				});
+				$.ajax({
+                    url:'/index.php/ucenter/image/album',
+                    type:'get',
+                    async:false,
+                    success:function(data){
+                        album = data;
+                    }
+                });
 				alert(album);
 				var multiple = "";  // 设置多选的参数
 				para.multiple ? multiple = "multiple" : multiple = "";
 				var html= '';
-				
 				if(para.dragDrop){
 					// 创建带有拖动的html
 					html += '<form id="uploadForm" action="'+para.url+'" method="post" enctype="multipart/form-data">';
-					html += '	<div class="upload_box">';
+                    html += album;
+                    html += '	<div class="upload_box">';
 					html += '		<div class="upload_main">';
 					html += '			<div class="upload_choose">';
 	            	html += '				<div class="convent_choice">';

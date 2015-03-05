@@ -171,7 +171,7 @@ class uhomeController extends \components\BaseUcenterController{
             $this->ajax_return(false, 'add mongo fail');
         }
         $truePath = APP_PATH . $file;
-        $showPath = 'http://www.uandc.cn/index.php/image/pic/show/id/' . $id;
+        $showPath = 'http://www.uandc.cn/index.php/image/image/show/id/' . $id;
         //保险起见保留一张原图
         move_uploaded_file($temp['tmp_name'], $truePath);
 

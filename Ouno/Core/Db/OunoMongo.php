@@ -29,9 +29,9 @@ class OunoMongo extends \Ouno\BaseComponent{
 	 *      'PASSWORD'=> '123456' 数据库密码
 	 * )
 	 */
-	public function __construct($config = array()) {
-		if ($config['PASSWORD'] == '') $config['PASSWORD'] = '123456';
-		if ($config['USERNAME'] == '') $config['USERNAME'] = 'root';
+	public function __construct($config) {
+		if (isset($config['PASSWORD'])) $config['PASSWORD'] = '';
+		if (isset($config['USERNAME'])) $config['USERNAME'] = '';
 		if ($config['HOST'] == '')  $config['HOST'] = '127.0.0.1';
 		if ($config['PORT'] == '')  $config['PORT'] = '27017';
 		if (!isset($config['OPTION'])) $config['OPTION'] = array('connect' => true);
@@ -138,8 +138,8 @@ class OunoMongo extends \Ouno\BaseComponent{
 	 * @param array $fields 返回的字段
      * @return array
 	 */
-	public function findAll($query = '', $sort = array(), $skip = 0, $limit =2, $fields = array()) {
-		$this->cursor = $query ? $this->collection->find($query, $fields) : $this->collection->find();
+	public function findAll($query = array(), $sort = array(), $skip = 0, $limit =2, $fields = array()) {
+		$this->cursor = $this->collection->find($query, $fields);
 		if ($sort)   $this->cursor->sort($sort);
 		if ($skip)  $this->cursor->skip($skip);
         if ($limit) $this->cursor->limit($limit);
@@ -232,50 +232,50 @@ class OunoMongo extends \Ouno\BaseComponent{
      * @param bool   $verbose 是否产生更加详细的服务器日志
      * @return mixed
 	 */
-	
-	public function mapReduce($map, $reduce, $outputCollection = '',$query = null, $sort = null, $limit = null, $keeptemp = true, $finalize = null, $scope = null, $jsMode = true, $verbose = true){
-		if(empty($map) || empty($reduce)) return false;
-		if(empty($outputCollection)) $outputCollection = 'tmp_mr_res_'.$this->collection->getName();
-		$cmd = array('mapreduce'=>$this->collection->getName(),
-					'map'=>$map,
-					'reduce'=>$reduce,
-					'out'=>$outputCollection);
-	    if(!empty($query) && is_array($query)){
-			$cmd['query'] = $query;
-		}
-		if(!empty($sort) && is_array($sort)){
-			$cmd['sort'] = $query;
-		}
-		if(!empty($limit) && is_int($limit) && $limit>0){
-			$cmd['limit'] = $limit;
-		}
-		if(!empty($keeptemp) && is_bool($keeptemp)){
-			$cmd['keeptemp'] = $keeptemp;
-		}
-		if(!empty($finalize)){
-			$finalize = new Mongocode($finalize);
-			$cmd['finalize'] = $finalize;
-		}
-		if(!empty($scope)){
-			$cmd['scope'] = $scope;
-		}
-		if(!empty($jsMode) && is_bool($jsMode)){
-			$cmd['jsMode'] = $jsMode;
-		}
-		if(!empty($verbose) && is_bool($verbose)){
-			$cmd['verbose'] = $verbose;
-		}
-		$cmdResult = $this->command($cmd);
-		if($cmdResult['ok'] == 1){
-			$this->selectCollection($outputCollection);
-			$result = $this->find(); 	
-		}else{
-			return false;
-		}
-		if(isset($keeptemp) && $keeptemp==false) $this->mongo->$dbname->dropCollection($out);//删除集合
-		return $result;
-	}
-	
+//
+//	public function mapReduce($map, $reduce, $outputCollection = '',$query = null, $sort = null, $limit = null, $keeptemp = true, $finalize = null, $scope = null, $jsMode = true, $verbose = true){
+//		if(empty($map) || empty($reduce)) return false;
+//		if(empty($outputCollection)) $outputCollection = 'tmp_mr_res_'.$this->collection->getName();
+//		$cmd = array('mapreduce'=>$this->collection->getName(),
+//					'map'=>$map,
+//					'reduce'=>$reduce,
+//					'out'=>$outputCollection);
+//	    if(!empty($query) && is_array($query)){
+//			$cmd['query'] = $query;
+//		}
+//		if(!empty($sort) && is_array($sort)){
+//			$cmd['sort'] = $query;
+//		}
+//		if(!empty($limit) && is_int($limit) && $limit>0){
+//			$cmd['limit'] = $limit;
+//		}
+//		if(!empty($keeptemp) && is_bool($keeptemp)){
+//			$cmd['keeptemp'] = $keeptemp;
+//		}
+//		if(!empty($finalize)){
+//			$finalize = new Mongocode($finalize);
+//			$cmd['finalize'] = $finalize;
+//		}
+//		if(!empty($scope)){
+//			$cmd['scope'] = $scope;
+//		}
+//		if(!empty($jsMode) && is_bool($jsMode)){
+//			$cmd['jsMode'] = $jsMode;
+//		}
+//		if(!empty($verbose) && is_bool($verbose)){
+//			$cmd['verbose'] = $verbose;
+//		}
+//		$cmdResult = $this->command($cmd);
+//		if($cmdResult['ok'] == 1){
+//			$this->selectCollection($outputCollection);
+//			$result = $this->find();
+//		}else{
+//			return false;
+//		}
+//		if(isset($keeptemp) && $keeptemp==false) $this->mongo->$dbname->dropCollection($out);//删除集合
+//		return $result;
+//	}
+//
 	
 	/**
 	 * 按$key去重复

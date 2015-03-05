@@ -37,6 +37,10 @@ class indexController extends \components\BaseController {
         $url = $this->createUrl('/index/index/index');
         $pager = new \extensions\Library\pagerInit();
         $this->data['pageHtml'] = $pager->pager($count[0]['count'], $pagesize, $url);
+
+
+        $imgService = new \src\service\image\mongoService();
+        $this->data['image'] = $imgService->getNew();
         $this->assign('data', $this->data);
         $this->display = true;
         $this->setTpl('index');
@@ -91,6 +95,7 @@ class indexController extends \components\BaseController {
                 if(!in_array($v, $tags)) $tags[] = $v;
             }
         }
+
         $this->data['tagList'] = $tags;
         $this->data['detail'] = $detail['result'];
         $this->setTpl('detail');
