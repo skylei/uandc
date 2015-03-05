@@ -7,10 +7,20 @@
  * Time: 21:23
  */
 namespace web\controller\image;
-class picController extends \components\BaseController {
+class imageController extends \components\BaseController {
 
     public function run(){
 
+    }
+
+    /*
+     * 显示上传图片模版
+     * */
+    public function indexAction(){
+        $data['basePath'] = $this->getBasePath();
+        $this->assign('data', $data);
+        $this->setTpl('image');
+        $this->show();
     }
 
     /*

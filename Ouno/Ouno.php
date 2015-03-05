@@ -270,8 +270,9 @@ class Ouno extends BaseComponent{
             if(self::config('MODULE'))
                 $this->container['module'] = $_GET['m'] = isset($_GET['m']) ? $_GET['m'] : 'index';
             $this->container['controller'] = $_GET['c'] = isset($_GET['c']) ? $_GET['c'] : 'index';
-            $this->container['action'] = $_GET['a'] = !isset($_GET['a']) ? $_GET['a'] : 'index';
+            $this->container['action'] = $_GET['a'] = isset($_GET['a']) ? $_GET['a'] : 'index';
         }
+
         $controller =  self::config('CONTROLER_NAMESPACE') . '\\' . $this->container['module'] . '\\' .$this->container['controller'] .'Controller';
         if(!class_exists( $controller)){
             throw new \Exception("controller $controller inexistance");
@@ -280,7 +281,8 @@ class Ouno extends BaseComponent{
         $controller = new $controller;
         $this->container['action'] =  $this->container['action'].'Action';
         if(!method_exists($controller,  $this->container['action']) ){
-            OunoLog::userLog('controller inexistence');
+
+            OunoLog::userLog('controller inexistence');//@todo
         }
 
         call_user_func(array($controller, $this->container['action']));
@@ -576,12 +578,12 @@ class Controller extends BaseComponent{
 
     public function setTpl($file){//false返回不输出
         if(Ouno::config('MODULE'))
-            $file = $_GET['m'] . DIRECTORY_SEPARATOR . $file . Ouno::config('VIEW_POSTFIX');
+            $file = $_GET['m'] . DIRECTORY_SEPARATOR . $_GET['c'] .DIRECTORY_SEPARATOR . $file . Ouno::config('VIEW_POSTFIX');
         else
-            $file = $file . '.' . Ouno::config('VIEW_POSTFIX');
-
-        if(!file_exists(APP_PATH . Ouno::config('TEMPLATE_PATH'). DIRECTORY_SEPARATOR . $file))
-            Ouno::error('template not exist');
+            $file =  $_GET['c'] .DIRECTORY_SEPARATOR . $file . '.' . Ouno::config('VIEW_POSTFIX');
+        $realFile = APP_PATH . Ouno::config('TEMPLATE_PATH'). DIRECTORY_SEPARATOR . $file;
+        if(!file_exists($realFile))
+            Ouno::error($realFile . 'template not exist');
         $this->tpl = $file;
     }
 
