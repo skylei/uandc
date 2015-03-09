@@ -19,7 +19,6 @@ class imageInit {
 	 */
 	public function make_thumb($source, $newname, $width = 100, $height = 100, $isauto = true) {
 		if (!file_exists($source)) return false;
-        echo $source . "<br>";
 		$image_info = $this->get_img_info($source); //获取原始图片信息
         if ($image_info['type'] == 'bmp') return false;
 		list($imagecreate, $imagecopyre) = $this->get_image_create($image_info['type']); //获取创建图像和拷贝图像的函数
@@ -61,7 +60,6 @@ class imageInit {
 			/* 拷贝和创建图像 */
 			$imagecopyre($thumb, $source, 0, 0, $src_x, $src_y, $width, $height, $image_info['width'], $image_info['height']);
 		}
-        var_dump($image_info['type']);
 		$result = $this->make($image_info['type'], $thumb, $newname);
 		if (!$result) return array(); //缩略图创建失败
 		imagedestroy($thumb);

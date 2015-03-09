@@ -1,0 +1,139 @@
+<{include "Common/aheader.html"}>
+<div class="content-uh" style="background:#f6f6f6">
+		<input id="tab1" type="radio" class="tabsinput" name="tabs" checked>
+		<label for="tab1">文章</label>
+		<input id="tab2" type="radio" class="tabsinput" name="tabs">
+		<label for="tab2">轻博客</label>
+		<input id="tab3" type="radio" class="tabsinput" name="tabs">
+		<label for="tab3">留言</label>
+		<input id="tab4" type="radio" class="tabsinput" name="tabs">
+		<label for="tab4">评论</label>	
+	<section id="content1">
+		<{foreach $data['art'] as $art}>
+		<div class="pbox">
+			<div class="title">
+				<span><{$art['title']}></span>
+				<span>---</span>
+				<span><{$art['create_time']|date_format}></span>
+				<div class="doright">
+					<a href="javascript:void(0);" onclick=del(this) t="art" url="<{$data['delUrl']}>/id/<{$art['_id']}>">
+						<span class="icon">Â</span>
+					</a>
+				</div>
+				<div class="doright">
+					<a href="<{$data['urls']['edit']}>/id/<{$art['id']}>">
+						<span class="icon">></span>
+					</a>
+				</div>
+			</div>
+			<div class="content">
+				<p><{$art['content']|truncate:"303":"..."}></p>
+			</div>
+		</div>
+		<{/foreach}>
+
+	</section>
+	<section id="content2">
+			<{foreach $data['mblog'] as $list}>
+			<div class="avatar">
+			<p> <img src="/app/static/images/usericon/crab.jpg" /></p></div>
+			<div class="pbox">
+			<div class="front">	</div>
+			<div class="micbox">
+				<div class="title">
+					<{$list['title']}>
+					<div class="doright">
+					<a href="javascript:void(0);" onclick=del(this) t="art" url="<{$data['url']['delArt']}>/id/<{$art['_id']}>">
+						<span class="icon">Â</span>
+					</a>
+					</div>
+					<div class="doright"><span class="icon">></span>
+					</div>
+				</div>
+				<img src="/app/static/images/site/usericon.jpg" class="bimg" style="display:none" />
+				<main>
+				<{if $list['imgpath']}>
+				<div class="lpart"><img src="<{$list['imgpath']}>" width="220" height="205"/></div>
+				<div class="rpart"><{$list['content']|truncate:"500"}></div>
+				<{else}>
+				<div class="onlyword"><{$list['content']}></div>
+				<{/if}>
+				</main>
+				<div class="info"><span1><{$list['author']}></span1></div>
+			</div>
+			</div>
+			<{/foreach}>
+	</section>
+	<section id="content3">
+		<div class="text">
+			<table  border="1px" cellspacing="0px" style="border-collapse:collapse">
+			  <tr>
+				<th class="table-id">id</th>
+				<th class="table-username">用户昵称</th>
+				<th class="table-email">email</th>
+				<th class="table-content">内容</th>
+				<th class="table-time">时间</th>
+				<th class="table-reply">回复</th>
+				<th class="table-action">操作</th>
+			  </tr>
+			<{foreach $data['comment'] as $key=>$val}>
+			  <tr>
+				<td><{$val['id']}></td>
+				<td><{$val['username']}></td>
+				<td><{$val['email']}></td>
+				<td><{$val['content']|truncate:60:"..."}></td>
+				<td><{$val['create_time']|date_format:"Y-m-d"}></td>
+				<td><{$val['reply']}></td>
+				<td class="table-action">删除 / 置顶</td>
+			  </tr>
+			<{/foreach}>
+            </table>
+		</div>
+	</section>
+</div>
+<script>
+$(".title").hover(function(){
+	$doright = $(this).children(".doright");
+	$(this).css("background","#faa");
+	$doright.css('display','inline');
+})
+$(".title").mouseleave(function(){
+	$doright = $(this).children(".doright");
+	$(this).css("background","");
+	$doright.css('display','none');
+})
+function del(obj){
+	var ensure=confirm("删除不可逆，数据无价");
+	
+	if(ensure){
+		var a = $(obj);
+
+		var url = a.attr('url');
+		var t = a.attr('t');
+		alert(url);
+		$.get(url, { type: t}, function(data){
+			alert(data);
+			var jdata =  eval('(' + data + ')');
+			if(jdata.status == true){
+				window.location.reload();	
+			}else{
+				alert('休息一下,哪里出错了!');
+			}
+		})
+	}
+}
+
+$("#left-write").click(function(){
+	var url = "<{$data['urls']['addArt']}>";
+	$.get(url,function(data){
+		$(".content-uh").replaceWith(data);
+	
+	});
+	
+});
+
+
+</script>
+<script type="text/javascript" src="<{$data['basePath']}>/static/plugin/wmd/wmd.js"></script>
+</body>
+</html>

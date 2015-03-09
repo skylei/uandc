@@ -31,6 +31,8 @@ class imageController extends \components\BaseController {
 
         $this->assign('basePath', $basepath);
         $this->assign('images',$images);
+        $data['basePath'] = $this->getBasePath();
+        $this->assign('data', $data);
         $this->setTpl('image');
         $this->show();
     }
