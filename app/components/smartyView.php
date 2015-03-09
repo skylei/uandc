@@ -17,7 +17,7 @@ class smartyView extends \Ouno\BaseComponent{
         \Ouno\Ouno::$_classes['Smarty'] = APP_PATH . $smartyPath . '/Smarty.class.php';
 //        Ouno::$_Classes['Smarty_Internal_Data'] = $smartyPath . '/sysplugins/smarty_internal_data.php';
         $this->viewObj = new \Smarty();
-//        $this->viewObj->error_reporting = E_ALL & ~E_NOTICE;
+        $this->viewObj->error_reporting = E_ALL & ~E_NOTICE;
         $this->viewObj->compile_dir = APP_PATH . \Ouno\Ouno::config("SMARY_COMPILE");
         $this->viewObj->cache_dir =  APP_PATH . \Ouno\Ouno::config("SMARTY_CACHE_DIR");
         $this->viewObj->setTemplateDir(APP_PATH . \Ouno\Ouno::config('TEMPLATE_PATH'));

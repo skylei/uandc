@@ -265,15 +265,16 @@ class Ouno extends BaseComponent{
                 $this->container['module'] = isset($argv[1]) ? $argv[1] : 'index';
             $this->container['controller'] = isset($argv[2]) ? $argv[2] : 'index';
             $this->container['action'] = isset($argv[3]) ? $argv[3] : 'index';
+            $controller =  self::config('COMMAND_NAMESPACE') . '\\' . $this->container['module'] . '\\' .$this->container['controller'] .'Controller';
         }else {
             if (self::config('URI') == 'PATH') $this->getRequest();
             if(self::config('MODULE'))
                 $this->container['module'] = $_GET['m'] = isset($_GET['m']) ? $_GET['m'] : 'index';
             $this->container['controller'] = $_GET['c'] = isset($_GET['c']) ? $_GET['c'] : 'index';
             $this->container['action'] = $_GET['a'] = isset($_GET['a']) ? $_GET['a'] : 'index';
+            $controller =  self::config('CONTROLER_NAMESPACE') . '\\' . $this->container['module'] . '\\' .$this->container['controller'] .'Controller';
         }
 
-        $controller =  self::config('CONTROLER_NAMESPACE') . '\\' . $this->container['module'] . '\\' .$this->container['controller'] .'Controller';
         if(!class_exists( $controller)){
             throw new \Exception("controller $controller inexistance");
         }
@@ -328,12 +329,14 @@ class Ouno extends BaseComponent{
                 $classFile = APP_PATH . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, ltrim($className, '\\')) . '.php';
                 if (is_file($classFile) && !isset(self::$_import[$className]))
                     require($classFile);
+
             }else{//路径
                 self::$includePath = Ouno::config('AUTO_LOAD_PATH');//array
                 $include = '';
                 foreach (self::$includePath as $name => $path) {
                     $include .= $path . PATH_SEPARATOR ;
                 }
+
                 set_include_path($include . get_include_path());
                 include($className . '.php');
             }
@@ -498,7 +501,27 @@ class Ouno extends BaseComponent{
     }
 }
 
+/*
+ * cli模式下的命令基类
+ *
+ * */
+class Console extends BaseComponent{
 
+    /**
+     * 构造函数，初始化视图实例，调用hook
+     */
+    public function __construct(){
+        $this->run();
+
+    }
+
+    /*
+     * 默认前置方法
+     * */
+    public function run(){
+
+    }
+}
 
 
 /*
