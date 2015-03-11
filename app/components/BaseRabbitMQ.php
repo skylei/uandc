@@ -9,14 +9,15 @@ namespace components;
 class BaseRabbitMQ{
 
 
-    /*
-     * @var public 持有链接
-     * */
-    public $conn;
+
     /*
      * @var $channel
      * */
     public $channel;
+    /*
+     * @var public 持有链接
+     * */
+    public $conn;
 
     public static $_instance = array();
 
