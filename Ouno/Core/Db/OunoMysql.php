@@ -5,7 +5,7 @@
  * Date: 2014/10/29
  * Time: 18:23
  */
-namespace Ouno\Core\DB;
+namespace Ouno\Core\Db;
 class OunoMysql  extends \Ouno\BaseComponent{
 
     private static $db;
@@ -48,7 +48,7 @@ class OunoMysql  extends \Ouno\BaseComponent{
             $this->linkw = mysql_connect($config[0]['HOST'], $config[0]['USERNAME'], $config[0]['PASSWORD']);
         }
         mysql_query('SET NAMES ' . $config[0]['CHARSET'], $this->linkw);
-        mysql_select_db ( $config[0]['DBNAME'] ,  $this->linkw) or die ( "Can not  use {$config[0]['DBNAME']} : '" . $this->error());
+        mysql_select_db ( $config[0]['DBNAME'] ,  $this->linkw) or die ( "Can not  use {$config[0]['DBNAME']} : '" . $this->error(&$this->linkw));
         return $this->linkw;
     }
 
@@ -59,7 +59,7 @@ class OunoMysql  extends \Ouno\BaseComponent{
         else
             $this->linkr = mysql_connect($config[$i]['HOST'], $config[$i]['USERNAME'], $config[$i]['PASSWORD']);
         mysql_query('SET NAMES ' . $config[0]['CHARSET'], $this->linkr);
-        mysql_select_db ( $config[0]['DBNAME'] ,  $this->linkr) or die ( "Can not  use {$config[0]['DBNAME']} : '" . $this->error());
+        mysql_select_db ( $config[0]['DBNAME'] ,  $this->linkr) or die ( "Can not  use {$config[0]['DBNAME']} : '" . $this->error(&$this->linkr));
         return $this->linkr;
     }
 
@@ -69,7 +69,7 @@ class OunoMysql  extends \Ouno\BaseComponent{
         if($result)
             return $this->fetchResult($query, $all);
         else
-            $this->error();
+            $this->error(&$this->linkr);
     }
 
     public function execute($sql, $slave = false){//默认主服务器执行
@@ -79,7 +79,7 @@ class OunoMysql  extends \Ouno\BaseComponent{
         if($query){
             return mysql_affected_rows ($link);
         }else{
-            $this->error();
+            $this->error(&$link);
         }
     }
 
@@ -148,9 +148,9 @@ class OunoMysql  extends \Ouno\BaseComponent{
         return  $this->execute($this->lastSql);
     }
 
-    public function error(){
+    public function error($link){
 
-        $type = $this->linkw ? 'marster' : 'slave';
+        $type = ($this->linkw === $link) ? 'marster' : 'slave';
         \Ouno\OunoLog::logSql(mysql_error(), $this->table, $type);
     }
 
@@ -162,7 +162,9 @@ class OunoMysql  extends \Ouno\BaseComponent{
 
     public function trans_start(){}
 
-    public function tracs_commit(){}
+    public function commit(){}
+	
+	public function rollback{}
 
     public function escape($string){
         return mysql_escape_string($string);

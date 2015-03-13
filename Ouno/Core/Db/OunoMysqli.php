@@ -5,8 +5,8 @@
  * Date: 2014/10/29
  * Time: 18:23
  */
-namespace Ouno\Core\DB;
-class OunoMysql  extends \Ouno\BaseComponent{
+namespace Ouno\Core\Db;
+class OunoMysqli  extends \Ouno\BaseComponent{
 
     /*
      * @var 主服务的连接
@@ -54,6 +54,7 @@ class OunoMysql  extends \Ouno\BaseComponent{
             $link = $this->connectM($this->config);
             if($link)
                 $this->linkr = $this->linkw;
+				$this->linkr->autocommit(true);
         }else{
             $this->connectM($this->config);
             $this->connectS($this->config);
@@ -76,7 +77,7 @@ class OunoMysql  extends \Ouno\BaseComponent{
         if($this->linkw->connect_errno)
             $this->error($this->linkw->connect_error);
         if($config[0]['AUTO_COMMIT'])
-            $this->linkr->autocommit(true);
+            $this->linkw->autocommit(true);
         return true;
     }
 
@@ -102,7 +103,7 @@ class OunoMysql  extends \Ouno\BaseComponent{
      * */
     public function query($sql, $result = true, $mode = MYSQLI_NUM){
         $this->lastSql = $sql;
-        $query = $this->linkr->query($this->lastSql, $this->linkr);
+        $query = $this->linkr->query($this->lastSql);
         if($this->linkr->errno)
             return $this->error($this->linkw->error_list);
         return $query->fetch_array($mode);
