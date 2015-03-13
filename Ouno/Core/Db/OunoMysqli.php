@@ -113,14 +113,15 @@ class OunoMysqli  extends \Ouno\BaseComponent{
      * 执行一条sql语句
      * @param string $sql
      * @param boolean $slave
+	 * @return boolean
      * */
     public function execute($sql, $slave = false){//默认主服务器执行
         $this->lastSql = $sql;
         $link = $slave ? $this->linkr : $this->linkw;
-        $query = $link->real_query($sql, $link);
+        $query = $link->real_query($sql);
         if($link->errno)
             $this->error($link->error_list);
-        return $query;//@todo
+        return $query;
     }
 
     /*
@@ -281,6 +282,10 @@ class OunoMysqli  extends \Ouno\BaseComponent{
                 $this->linkr->rollback();
         }
     }
+	
+	public function close($link){
+		$link->close();
+	}
 
     /*
      * 转意特殊字符

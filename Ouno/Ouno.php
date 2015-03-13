@@ -254,6 +254,7 @@ class Ouno extends BaseComponent{
         session_start();
         Ouno::$_classes = array(
             "Ouno\\Core\\Db\\OunoMysql"=> BASE_DIR . "/Ouno/Core/Db/OunoMysql.php",
+			"Ouno\\Core\\Db\\OunoMysqli"=> BASE_DIR . "/Ouno/Core/Db/OunoMysqli.php",
             "Ouno\\Core\\Db\\OunoMongo"=> BASE_DIR . "/Ouno/Core/Db/OunoMongo.php",
             "Ouno\\Core\\Db\\AbstractDb"=> BASE_DIR . "/Ouno/Core/Db/AbstractDb.php",
         );
@@ -378,7 +379,6 @@ class Ouno extends BaseComponent{
             $message .= "#date : " . date('Y-m-d H:i:s', time());
             $message .= " #message:". $msg . " #file: ". $errorFile . "#line: ". $errorLine;
             $trace = debug_backtrace();
-            //echo "<pre>"; var_dump($trace) ;echo "</pre>";
             $traceStr = '#(strace)';
             foreach(array_slice($trace, 1, Ouno::config('ERROR_LEVE', 5) ) as $key=>$val){
                 $traceStr .= "#";
@@ -742,8 +742,7 @@ class Dao extends  BaseComponent
     public function __construct()
     {
         $driver = Ouno::config('DB_DRIVER');
-//        new \OunoMysql(array());exit;
-        $namespace = 'Ouno\\Core\Db\\';
+        $namespace = 'Ouno\\Core\\Db\\';
         $daoClass = $namespace . $driver;
         $this->db = new $daoClass(Ouno::config('DB'));
         $this->db->table = $this->table;
