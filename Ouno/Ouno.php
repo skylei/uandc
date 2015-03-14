@@ -6,15 +6,6 @@
  * Time: 16:05
  */
 namespace Ouno;
-/*
- * 获取和设置配置参数 支持批量定义
- * 如果$key是关联型数组，则会按K-V的形式写入配置
- * 如果$key是数字索引数组，则返回对应的配置数组
- * @param string|array $key 配置变量
- * @param array|null $value 配置值
- * @return array|null
- **/
-
 
 /*
  * 基类，核心文件均继承自该类
@@ -146,6 +137,7 @@ class OunoList implements \ArrayAccess, \Countable, \IteratorAggregate{
     {
         return new \ArrayIterator($this->data);
     }
+
 
     /*
      * 添加到迭代器中

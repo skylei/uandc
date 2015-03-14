@@ -63,7 +63,7 @@ return $Ouno_conf = array(
 
     'VIEW_STATIC_PATH'=> '/runtime/static',
 
-    'DB_DRIVER' => 'OunoMysql',
+    'DB_DRIVER' => 'OunoMysqli',
     'MODULE'=> true,
 
     'VIEW_POSTFIX'=> '.html',
