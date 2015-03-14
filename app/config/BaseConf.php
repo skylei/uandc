@@ -6,16 +6,29 @@ return $Ouno_conf = array(
         'library'=>'\\Ouno\\Core\\Library',
         'db'=>' \\Ouno\\Core\\Db',
     ),
+//    'DB'=>array(
+//        0=>array(
+//        'HOST'=>'127.0.0.1',
+//        'DBNAME'=>'crab',
+//        'PORT'=>'3306',
+//        'USERNAME'=>'root',
+//        'PASSWORD'=>'123456',
+//        'CHARSET' => 'utf8',
+//        'DRIVER'=>'OunoMysql',
+//        'PCONNECT'=>false,
+//        )
+//    ),
     'DB'=>array(
         0=>array(
-        'HOST'=>'127.0.0.1',
-        'DBNAME'=>'crab',
-        'PORT'=>'3306',
-        'USERNAME'=>'root',
-        'PASSWORD'=>'123456',
-        'CHARSET' => 'utf8',
-        'DRIVER'=>'OunoMysql',
-        'PCONNECT'=>false,
+            'HOST'=>'127.0.0.1',
+            'DB'=>'crab',
+            'PORT'=>'3306',
+            'USERNAME'=>'root',
+            'PASSWORD'=>'craber234',
+            'CHARSET' => 'utf8',
+            'DRIVER'=>'OunoMysqli',
+            'AUTO_COMMIT'=>true,
+            // 'PCONNECT'=>false,
         )
     ),
     'MONGO'=>array(
