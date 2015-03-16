@@ -269,14 +269,16 @@ class Ouno extends BaseComponent{
         }
 
         if(!class_exists( $controller)){
-            throw new \Exception("controller $controller inexistance");
+            if(Ouno::config('DEBUG'))
+                throw new \Exception("controller $controller inexistance");
+            else
+                OunoError::error403();
         }
 
         $controller = new $controller;
         $this->container['action'] =  $this->container['action'].'Action';
         if(!method_exists($controller,  $this->container['action']) ){
-
-            OunoLog::userLog('controller inexistence');//@todo
+            OunoError::error403();
         }
 
         call_user_func(array($controller, $this->container['action']));
@@ -829,6 +831,29 @@ class OunoLog extends BaseComponent{
         $logStr .=  (php_sapi_name() == 'cli') ? "\n\r#" : '<br />#';
     }
 
+
+}
+
+/*
+ * 错误处理页面
+ * */
+class OunoError{
+
+    public static function error404(){
+        if(php_sapi_name() == 'cli')
+            echo "404 ont found page\n\r";
+        else
+            include('/Ouno/Tpl/404.html');
+        exit;
+    }
+
+    public static function error403(){
+        if(php_sapi_name() == 'cli')
+            echo "403 forbbiden \n\r";
+        else
+            include('/Ouno/Tpl/403.html');
+        exit;
+    }
 
 }
 

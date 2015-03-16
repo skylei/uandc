@@ -16,9 +16,9 @@ class BaseDao extends \Ouno\Dao{
     }
 
     public function count($where = ''){//通过
-        $where = $where ? " where ". $where : '';
+        $where = $where ?  $where : '';
         $sql = "select count(*) as count from " . $this->table . $where;
-        return $this->db->query($sql);
+        return $this->db->queryRow($sql);
     }
 
 }

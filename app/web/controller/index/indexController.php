@@ -33,12 +33,10 @@ class indexController extends \components\BaseController {
         $this->data['searchUrl'] = $this->createUrl('/index/index/search');
         $cate = $cate ? "cate = ' $cate '" : '';
         $count = $this->getIndexService()->artCount($cate);
-        $this->data['pageCount'] = ceil($count[0]['count'] / $pagesize);
+        $this->data['pageCount'] = ceil($count['count'] / $pagesize);
         $url = $this->createUrl('/index/index/index');
         $pager = new \extensions\Library\pagerInit();
-        $this->data['pageHtml'] = $pager->pager($count[0]['count'], $pagesize, $url);
-
-
+        $this->data['pageHtml'] = $pager->pager($count['count'], $pagesize, $url);
         // $imgService = new \src\service\image\mongoService();
         // $this->data['image'] = $imgService->getNew();
         $this->assign('data', $this->data);
@@ -87,7 +85,7 @@ class indexController extends \components\BaseController {
         $tagList= $this->getIndexService()->getTagList($tags['tags']);
         $this->data['comment'] = $this->getIndexService()->getComment($id);
         $count = $this->getIndexService()->artCommentNum($id);
-        $this->data['commentCount'] = $count[0]['count'];
+        $this->data['commentCount'] = $count['count'];
         $tags = array();
         foreach($tagList as $key=>$val){
             $list = explode(' ', $val['tags']);

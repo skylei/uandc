@@ -120,7 +120,8 @@ class indexService extends \Ouno\Service {
 	}
 
     public function getComment($id){
-        return \Ouno\Ouno::dao('comment', 'index')->db->findAll("art_id =$id ");
+        $condition['id'] = array('value'=>$id, 'operator'=>'=');
+        return \Ouno\Ouno::dao('comment', 'index')->db->findAll($condition);
     }
 
 	public function updateComment($cid, $type){

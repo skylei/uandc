@@ -57,4 +57,15 @@ class mongoService{
         $skip = 0;
         return $this->getDao('image', 'mongo')->getAll($query, $sort, $skip, $limit);
     }
+
+    /*
+     * 获取相关评论
+     * @param array $query
+     * @return array | false
+     * */
+    public function getComments($query){
+        return $this->getDao('image', 'mongo')->getAll($query);
+    }
+
+
 }

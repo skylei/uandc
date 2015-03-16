@@ -83,6 +83,17 @@ class BaseController extends \Ouno\Controller {
         return  \Ouno\Ouno::config('BASEURL');
     }
 
+    /*
+     * 返回404页面
+     * */
+    protected function return_404(){
+        \Ouno\OunoError::error404();
+    }
 
-
+    /*
+     * 返回403页面
+     * */
+    protected function return_403(){
+        \Ouno\OunoError::error403();
+    }
 }

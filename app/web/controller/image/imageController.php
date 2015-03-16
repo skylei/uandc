@@ -69,10 +69,63 @@ class imageController extends \components\BaseController {
     }
 
     /*
+     *图片详情页
+     * */
+    public function detailAction(){
+        $_id = $this->_get('_id');
+        if(!$_id)
+            $this->return_403();
+        $_id = new \mongoId($_id);
+
+        $detail = $this->getIService()->getOne(array('_id'=>$_id));
+        if($detail){
+            $data['comments'] = $this->getIService()->getComments(array('file_ids'=>$detail['_id']));
+            $data['images'] = $this->getIService()->getAlbumImages($detail['album'], $limit = 10);
+        }
+//        var_dump($data['images']);exit;
+        $data['detail'] = $detail;
+        $this->assign('data', $data);
+        $this->setTpl('imagedetail');
+        $this->show();
+    }
+
+    /*
+     * 异步获取评论
+     * */
+    public function getAnyncComemntAction(){
+        $_id = $this->_get('_id');
+        if(!$_id)
+            $this->ajax_return(false, 'lose param id');
+        $_id = new \mongoId($_id);
+        $detail = $this->getIService()->getOne(array('_id'=>$_id));
+        $comments = $this->getIService()->getComments(array('file_ids'=>$detail['_id']));
+        $html = '';
+        if($html){
+            echo $html;
+            exit;
+        }
+        foreach($comments as $key=>$val){
+            $html = '<div class="comment-icon"> <img src=""/> </div>';
+            $html .= '    <div class="comment-userinfo">';
+            $html .= '        <span class="nick">螃蟹在晨跑</span>';
+            $html .= '        <span class="add-time">2015-03-15</span>';
+            $html .= '    </div>';
+            $html .= '    <div class="comment-content">';
+            $html .= '        <p>螃蟹快跑啊第三方的法定书法大赛</p>';
+            $html .= '    </div>';
+        }
+        echo $html;
+        exit;
+    }
+
+    /*
      * 获取推荐图片
      * */
     private function getRecommend(){
 
+    }
+
+    public function addComment(){
 
     }
 

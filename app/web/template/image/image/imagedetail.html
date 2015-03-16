@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script type="text/javascript" src="/app/static/js/jquery.min.js"></script>
+    <style>
+        .row{
+            width:100%;
+            height:10px;
+        }
+        .img-pannel{
+            position: relative;
+            margin: 10px auto;
+            width:1024px;
+            height:100px;
+            background: #56D5FA;
+        }
+
+        .img-main{
+            position: relative;
+            margin: 0px auto;
+            width:1024px;
+            display: block;
+        }
+
+        .img-main .img-show{
+            margin:1px;
+            width:100%;
+            text-align: center;
+            vertical-align:middle;
+            overflow: hidden;
+        }
+        .img-main .img-show img{
+            max-width: 100%;
+        }
+        .img-list{
+            position: relative;
+            margin: 10px auto;
+            width:1024px;
+            border-top:1px solid #56D5FA;
+            text-align: center;
+            overflow: hidden;
+        }
+        .img-list .list-item {
+            width:120px;
+            height:120px;
+            background: #56D5FA;
+            overflow: hidden;
+            display: inline;
+        }
+        .img-comment{
+            position: relative;
+            margin: 20px auto;
+            width:1024px;
+            height:300px;
+            display: block;
+        }
+
+        .img-comment .comment-list{
+            margin-top:10px;
+            width: 100%;
+            display: inline-block;
+        }
+
+        .img-comment .comment-list .comment-icon{
+            float: left;
+            margin:0 20px;
+            width:50px;
+            height:50px;
+            border:1px solid #faa;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+        .img-comment .comment-list .comment-userinfo{
+            float: left;
+            width:900px;
+            height:50px;
+        }
+
+        .img-comment .comment-list .comment-content{
+            float:left;
+            width:100%;
+            text-align: left;
+        }
+        .comment-content p{
+            margin-left:80px;
+            width: 80%;
+            height:200px；
+            border:1px solid#0099CC;
+        }
+        .img-comment .add-comment{
+            margin-top: 20px;
+            width:100px;
+            padding:20px;
+        }
+        .add-comment textarea{
+            line-height: 24px;
+            padding: 20px;
+            border:1px solid#0099CC;
+        }
+        .add-comment input{
+            padding:10px;
+            line-height: 24px;
+            width: 400px;
+            border:1px solid#0099CC;
+        }
+        .nick{display: block; padding:5px 10px 5px 10px;font-size: 20px;color:#0099CC}
+        .add-time{padding-left:10px; color:#666666}
+    </style>
+</head>
+<body>
+<div class="img-pannel"></div>
+<div class="img-main">
+    <div class="img-show">
+        <img src="/index.php/image/image/show/id/<{$data['detail']['_id']}>" id="show" />
+    </div>
+
+</div>
+
+<div class="img-list">
+    <{foreach $data['images'] as $key=>$val}>
+    <div class="list-item"><img src="/app<{$val['thumbfile']}>" data="<{$val['_id']}>"/></div>
+    <{/foreach}>
+    <div class="list-item"></div>
+    <div class="list-item"></div>
+    <div class="list-item"></div>
+</div>
+<div class="row"></div>
+<div class="img-comment">
+    <div class="comment-list">
+        <div class="comment-icon"> <img src=""/> </div>
+        <div class="comment-userinfo">
+            <span class="nick">螃蟹在晨跑</span>
+            <span class="add-time">2015-03-15</span>
+        </div>
+        <div class="comment-content">
+            <p>螃蟹快跑啊第三方的法定书法大赛</p>
+        </div>
+        <div class="comment-icon"> <img src=""/> </div>
+        <div class="comment-userinfo">
+            <span class="nick">螃蟹在晨跑</span>
+            <span class="add-time">2015-03-15</span>
+        </div>
+        <div class="comment-content">
+            <p>螃蟹快跑啊第三方的法定书法大赛</p>
+        </div>
+
+    </div>
+    <br>
+    <div class="add-comment">
+        <form action="/index.php/image/image/addcomment/_id/<{$detail['_id']}>" method="post">
+           <textarea name="content"  rows="3" cols="52"></textarea>
+           <input type="text" name="username" placeholder="您的昵称" />
+           <input type="text" name="email" placeholder="crab@running.com" />
+            <input type="submit" value="submit" />
+        </form>
+    </div>
+</div>
+<script>
+    $(".list-item").click(function(){
+        var img = $(this).children("img");
+        var id = img.attr('data');
+        var src = "/index.php/image/image/show/id/" + id;
+        $("#show").attr('src', src);
+        var url = "/index.php/image/image/getAnyncComemnt/_id/" + id;
+        $.get(url, function(data){
+            $(".comment-list").html(data);
+        });
+    });
+</script>
+</body>
+</html>

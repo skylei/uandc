@@ -96,17 +96,29 @@ class OunoMysqli  extends \Ouno\BaseComponent{
     }
 
     /*
+     * 查询并返回单条记录
+     * */
+    public function queryRow($sql, $mode = MYSQLI_ASSOC){
+        $this->lastSql = $sql;
+        $query = $this->linkr->query($this->lastSql);
+        if($this->linkr->errno)
+            return $this->error($this->linkw->error);
+        return $query->fetch_array($mode);
+
+    }
+
+    /*
      * 查询并返回结果
      * @param string $sql
      * @param boolean $result
      * @param int $mode
      * */
-    public function query($sql, $result = true, $mode = MYSQLI_NUM){
+    public function query($sql, $result = true, $mode = MYSQLI_ASSOC){
         $this->lastSql = $sql;
         $query = $this->linkr->query($this->lastSql);
         if($this->linkr->errno)
-            return $this->error($this->linkw->error_list);
-        return $query->fetch_array($mode);
+            return $this->error($this->linkw->error);
+        return $this->fetchResult($query, $mode);
     }
 
     /*
@@ -120,7 +132,7 @@ class OunoMysqli  extends \Ouno\BaseComponent{
         $link = $slave ? $this->linkr : $this->linkw;
         $query = $link->real_query($sql);
         if($link->errno)
-            $this->error($link->error_list);
+            $this->error($link->error);
         return $query;
     }
 
@@ -144,7 +156,7 @@ class OunoMysqli  extends \Ouno\BaseComponent{
         if(is_array($where)) $where = $this->where($where);
         if(is_array($options)) $options = $this->parseOptions($options);
         $sql = sprintf($sql, $where, $options);
-        return $this->query($sql, $all = true, $all = false);
+        return $this->queryRow($sql);
     }
 
     /*
@@ -228,10 +240,10 @@ class OunoMysqli  extends \Ouno\BaseComponent{
      * @param string $string
      * @return void
      * */
-    public function error($string){
+    public function error($error){
 
         $type = $this->linkw ? 'marster' : 'slave';
-        \Ouno\OunoLog::logSql($string,  $this->table, $type);
+        \Ouno\OunoLog::logSql($error,  $this->table, $type);
     }
 
     public function findOneModify($where, $data, $options = ''){
@@ -320,24 +332,32 @@ class OunoMysqli  extends \Ouno\BaseComponent{
 
     }
 
-    public function fetchResult($query, $all = true){
+    /*
+     * 遍历结果返回数组
+     * @param object $query
+     * @return array | false
+     * */
+    public function fetchResult($query, $mode){
         if(!$query) return false;
         $data = array();
-        while($row = mysql_fetch_assoc($query )){
-            if($all == false){
-                $data = $row;
-                break;
-            }else{
-                $data[] = $row;
-            }
+        while($row =  $query->fetch_array($mode)){
+            $data[] = $row;
         }
-        mysql_free_result($query);
+        $this->free($query);
         return $data;
+    }
+
+    /*
+     * 释放结果集
+     * */
+    public function free($query){
+        $query->free();
     }
 
     /*
      * 解析sql 参数
      * @param string $param
+     * @return string
      * */
     public function parseParam($param, $fields ,$options){
         $sql = "SELECT %s FROM ". $this->table . " %s %s";
