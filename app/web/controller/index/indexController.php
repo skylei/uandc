@@ -36,9 +36,10 @@ class indexController extends \components\BaseController {
         $this->data['pageCount'] = ceil($count['count'] / $pagesize);
         $url = $this->createUrl('/index/index/index');
         $pager = new \extensions\Library\pagerInit();
+	var_dump($pager);exit;
         $this->data['pageHtml'] = $pager->pager($count['count'], $pagesize, $url);
-        // $imgService = new \src\service\image\mongoService();
-        // $this->data['image'] = $imgService->getNew();
+        $imgService = new \src\service\image\mongoService();
+        $this->data['image'] = $imgService->getNew();
         $this->assign('data', $this->data);
         $this->display = true;
         $this->setTpl('index');

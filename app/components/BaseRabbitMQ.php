@@ -28,7 +28,7 @@ class BaseRabbitMQ{
     public function __construct($config){
         define('AMQP_DEBUG', true);
         $this->config = array('HOSPT'=>'127.0.0.1', 'PORT'=>5672, 'USER'=>'guest', 'PASS'=>'guest');
-        $this->connect($this->config);
+        $this->connection($this->config);
         \Ouno\Ouno::registerAutoloader(__NAMESPACE__ . "\\BaseRabbitMQ::qLoader");
 
     }
@@ -61,9 +61,9 @@ class BaseRabbitMQ{
         $class =strtolower($className);
         if(strncmp($class, 'phpamqplib', 10) === 0){
             $classFile =  APP_PATH . '/app/extensions/' . $className .'.php';
-            if(!isset(queue::$instance[$className])){
+            if(!isset(self::$instance[$className])){
                 include($classFile);
-                queue::$instance[$className] = $className;
+                self::$instance[$className] = $className;
             }
         }
     }

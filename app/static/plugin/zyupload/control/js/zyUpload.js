@@ -46,16 +46,18 @@
 			 * 返回: 无
 			 */
 			
+
+			//add by crab
 			this.createHtml = function(){
 				var album;
 				$.ajax({
-                    url:'/index.php/ucenter/image/album',
-                    type:'get',
-                    async:false,
-                    success:function(data){
-                        album = data;
-                    }
-                });
+ 			                url:'http://www.uandc.cn/index.php/ucenter/image/album',
+                    			type:'get',
+                    			async:false,
+                    			success:function(data){
+                       			 album = data;
+                    		}
+                	});
 				alert(album);
 				var multiple = "";  // 设置多选的参数
 				para.multiple ? multiple = "multiple" : multiple = "";

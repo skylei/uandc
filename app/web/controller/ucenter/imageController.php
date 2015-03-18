@@ -30,7 +30,7 @@ class imageController extends \components\BaseUcenterController
         $mservice = new \src\service\ucenter\mongoService();
         $albumId = $this->_post("album", '');
         $album = array();
-        if(!$albumId){
+        if(!$albumId || $album == 'undefined' ){
             //创建默认相册
             $result = $mservice->createDefaultAlbum();
             var_dump($result);
@@ -50,9 +50,9 @@ class imageController extends \components\BaseUcenterController
         $basePath = APP_PATH . $path;
         $thumbPath = $basePath . 'thumb/';
         if(!is_dir($basePath))
-            @mkdir($basePath, 0777);
+            mkdir($basePath, 0777);
         if(!is_dir($thumbPath))
-            @mkdir($thumbPath, 0777);
+            mkdir($thumbPath, 0777);
         $postfix = substr($temp['type'], strrpos($temp['type'],'/') + 1);
         $filename =  $preFilename . '.'. $postfix;
         $prevThumbFilename = $preFilename . '_thumb';
@@ -121,8 +121,9 @@ class imageController extends \components\BaseUcenterController
      * ajax 获取相册
      * */
     public function albumAction(){
-        $mservice = new \src\service\ucenter\mongoService();
-        $albums = $mservice->getAlbum();
+//        $mservice = new \src\service\ucenter\mongoService();
+//        $albums = $mservice->getAlbum();
+$albums= '';
         $html = '<select name="album" class="upload-album">';
         if($albums){
             foreach($albums as $key=>$val){

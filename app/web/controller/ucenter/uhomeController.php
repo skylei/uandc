@@ -35,10 +35,10 @@ class uhomeController extends \components\BaseUcenterController{
         $pagesize = 20;
         $offset = $page * $pagesize;
         $count = $this->getArtService()->artCount();
-        $this->data['pageCount'] = ceil($count[0]['count'] / $pagesize);
+        $this->data['pageCount'] = ceil($count['count'] / $pagesize);
         $url = $this->createUrl('/ucenter/uhome/index');
-        $pager = new \extensions\library\pagerInit();
-        $this->data['pageHtml'] = $pager->pager($count[0]['count'], $pagesize, $url);
+        $pager = new \extensions\Library\pagerInit();
+        $this->data['pageHtml'] = $pager->pager($count['count'], $pagesize, $url);
         $this->data['delUrl'] = $this->createUrl('/ucenter/uhome/del');
         $this->data['art'] = $this->getArtService()->artList('', $offset, $pagesize);
         $this->data['comment'] = $this->getUService()->commentList(0,20);
@@ -66,7 +66,7 @@ class uhomeController extends \components\BaseUcenterController{
 	
 	public function myMblog(){
 		$res = \Ouno\Ouno::dao('mblog', 'Home')->getNew($query = array());
-		$this->data['mblog'] = \Ouno\Ouno::dao('mblog', 'Index')->db->findAll($query = array());
+		$this->data['mblog'] = \Ouno\Ouno::dao('mblog', 'index')->db->findAll($query = array());
 	}
 	
 	public function generalAction(){
@@ -208,7 +208,7 @@ class uhomeController extends \components\BaseUcenterController{
 	public function delAction(){
 		$id = $this->_get('id');
 		$type = $this->_get('type');
-        $res = \Ouno\Ouno::dao('article', 'Index')->db->delte(array('id'=>$id));
+        $res = \Ouno\Ouno::dao('article', 'index')->db->delte(array('id'=>$id));
 		if(!empty($res)){
 			$this->ajax_return(true,'success');
 		}else{
@@ -217,11 +217,11 @@ class uhomeController extends \components\BaseUcenterController{
 	}
 	
 	public function getArtService(){
-        return \Ouno\Ouno::service('index', 'Index');
+        return \Ouno\Ouno::service('index', 'index');
 	}
 
     public function getCommService(){
-        return \Ouno\Ouno::service('index', 'Index');
+        return \Ouno\Ouno::service('index', 'index');
     }
 	
 	private function getUService(){
