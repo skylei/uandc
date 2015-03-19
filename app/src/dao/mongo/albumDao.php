@@ -6,7 +6,6 @@
  * Time: 0:52
  */
 namespace src\dao\mongo;
-use components\BaseRabbitMQ;
 
 class albumDao extends \components\BaseMongoDao{
 	public $collection = 'album';
@@ -81,5 +80,4 @@ class albumDao extends \components\BaseMongoDao{
 
 }
 
-$rmq = BaseRabbitMQ::getInstance();
 ?>

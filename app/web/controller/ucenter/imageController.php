@@ -81,21 +81,24 @@ class imageController extends \components\BaseUcenterController
             $this->ajax_return(false, 'add mongo fail');
         }
 
-        $truePath = $file;
-        $showPath = 'http://www.uandc.cn/index.php/image/pic/show/id/' . $id;
-        //保险起见保留一张原图
+//        $truePath = $file;
+//        $showPath = 'http://www.uandc.cn/index.php/image/pic/show/id/' . $id;
+//        保险起见保留一张原图
+//        move_uploaded_file($temp['tmp_name'], $truePath);
+        $truePath = APP_PATH . $file;
         move_uploaded_file($temp['tmp_name'], $truePath);
+        echo $truePath;exit;
+        $showPath = 'http://www.uandc.cn/index.php/image/pic/show/id/' . $id;
         \Ouno\Ouno::import("/extensions/Library/image.init.php");
         $image = new \imageInit();
         $result = $image->make_thumb($truePath, $thumbPath . $prevThumbFilename,$width = 200,$height = 200);
         var_dump($result);
 
         $return = array('file_path'=>$showPath);
-        $truePath = APP_PATH . $file;
-        $showPath = 'http://www.uandc.cn/index.php/image/pic/show/id/' . $id;
-        //保险起见保留一张原图
-        move_uploaded_file($temp['tmp_name'], $truePath);
 
+        //保险起见保留一张原图
+//
+//
         $return = array('success'=>true, 'msg'=>'upload success!', 'file_path'=>$showPath);
 //        $return = array('success'=>true, 'msg'=>'upload success!', 'file_path'=>$truePath);
         echo json_encode($return);
@@ -121,9 +124,8 @@ class imageController extends \components\BaseUcenterController
      * ajax 获取相册
      * */
     public function albumAction(){
-//        $mservice = new \src\service\ucenter\mongoService();
-//        $albums = $mservice->getAlbum();
-$albums= '';
+        $mservice = new \src\service\ucenter\mongoService();
+        $albums = $mservice->getAlbum();
         $html = '<select name="album" class="upload-album">';
         if($albums){
             foreach($albums as $key=>$val){
