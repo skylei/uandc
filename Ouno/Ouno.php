@@ -179,7 +179,8 @@ class OunoList implements \ArrayAccess, \Countable, \IteratorAggregate{
  * */
 class Ouno extends BaseComponent{
 
-
+	public static $APP_PATH = 'app';
+	
     private static $includePath = array();
     /*
      * @var array $_import
@@ -201,15 +202,10 @@ class Ouno extends BaseComponent{
      * */
     public static $_config = array();
 
-
-    /*
-     * 构造函数，初始化配置参数
-     * */
-    public function __construct($config){
-        self::Config($config);
-        $this->run();
-    }
-
+	public function __construct(){
+	
+	}
+	
     public static function config($key, $value = ''){
         if($key && $value === ''){
             if(is_string($key))
@@ -222,34 +218,36 @@ class Ouno extends BaseComponent{
         }
         return null;
     }
-
+	
     /**
      * 获取单例
      * @param $config
      * @return object self
      */
-    public static function getInstance($config){
-        if(!(self::$_instance instanceof self)){
-            self::$_instance['Ouno'] = new self($config);
+    public static function getInstance(){
+        if(!(self::$_instance['Ouno'] instanceof self)){
+            self::$_instance['Ouno'] = new self();
         }
-        return self::$_instance;
+		
+        return self::$_instance['Ouno'];
     }
-
-
 
 
     /*
      * 运行框架
      * */
-    public function run(){
+    public function run($app_path, $config = 'default'){
 //        if(self::config('SESSION'))
         session_start();
         Ouno::$_classes = array(
-            "Ouno\\Core\\Db\\OunoMysql"=> BASE_DIR . "/Ouno/Core/Db/OunoMysql.php",
-			"Ouno\\Core\\Db\\OunoMysqli"=> BASE_DIR . "/Ouno/Core/Db/OunoMysqli.php",
-            "Ouno\\Core\\Db\\OunoMongo"=> BASE_DIR . "/Ouno/Core/Db/OunoMongo.php",
-            "Ouno\\Core\\Db\\AbstractDb"=> BASE_DIR . "/Ouno/Core/Db/AbstractDb.php",
+            "Ouno\\Core\\Db\\OunoMysql"=> __DIR__ . "/Core/Db/OunoMysql.php",
+			"Ouno\\Core\\Db\\OunoMysqli"=> __DIR__ . "/Core/Db/OunoMysqli.php",
+            "Ouno\\Core\\Db\\OunoMongo"=> __DIR__ . "/Core/Db/OunoMongo.php",
+            "Ouno\\Core\\Db\\AbstractDb"=> __DIR__ . "/Core/Db/AbstractDb.php",
         );
+		self::setAppPath($app_path);
+		$config = include_once($app_path . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . $config . ".php");
+		self::config($config);
         $this->init2Ehandle();
         spl_autoload_register(array('self', 'loader'));
         if(PHP_SAPI == 'cli'){
@@ -339,6 +337,19 @@ class Ouno extends BaseComponent{
         }
     }
 
+	public static function setAppPath($app_path){
+		self::$APP_PATH = $app_path;
+	}
+	
+	public static function getAppPath(){
+		return self::$APP_PATH;
+	}
+	
+	public static function addConfig($path){
+		$newConfig = self::import($path);
+		Ouno::config($newConfig);
+	}
+	
     /*
      * include加载，如果存在则加载
      * */

@@ -27,7 +27,6 @@ class httpServer{
 
     public function __contruct($config){
         $this->mimes = include('./mimes.php');
-        $config = empty($config) ? \Ouno\Ouno::config('SWOOLE_HTTP_SERVER') : $config;
         $config['IP'] = isset($config['IP']) ? $config['IP'] : '0.0.0.0';
         $config['PORT'] = isset($config['PORT']) ? $config['PORT'] : '9501';
         $set['work_num'] = isset($config['WORK_NUM']) ? $config['WORK_NUM'] : 4;
@@ -100,7 +99,7 @@ class httpServer{
             }
             try {
                 ob_start();
-                $result = $this->zphp->run();
+                $result = $this->Ouno->run();
                 if (null == $result) {
                     $result = ob_get_contents();
                 }
@@ -135,17 +134,29 @@ class httpServer{
     public function onClose($server, $client_id, $from_id){
         echo $from_id . "close";
     }
+	
+	public function onWorkerError(){
+	
+	}
+	
+	public function onWorkerStop(){
+	
+	}
+	
+	public function onOpen(){
+	
+	}
 
     /*
      * 开启worker
      * */
     public function onWorkerStart()
     {
-        //这里require zphp框架目录地址
+        //这里require Ouno框架目录地址
         opcache_reset();
         require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'Ouno' . DIRECTORY_SEPARATOR . 'Ouno.php';
-        ///home/wwwroot/www.zphp.com, 是应用的地址
-        $this->zphp = Ouno::run($this->webPath, false, $this->configPath);
+        ///home/wwwroot/www.Ouno.com, 是应用的地址
+        $this->Ouno = Ouno::run($this->webPath, false, $this->configPath);
         $params = func_get_args();
 //        echo "worker {$params[1]} start".PHP_EOL;
         $this->mimes = require 'mimes.php';
