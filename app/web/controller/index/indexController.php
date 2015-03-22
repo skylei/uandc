@@ -23,8 +23,7 @@ class indexController extends \components\BaseController {
      * */
 	public function indexAction()
     {
-        $page = $this->_get('page', 0);
-        $page = ( $page - 1 <= 0) ? 0 : $page - 1;
+        $page = $this->_get('page', 1);
         $pagesize = 20;
         $offset = $page * $pagesize;
         $cate = $this->_get('cate');
@@ -36,7 +35,6 @@ class indexController extends \components\BaseController {
         $this->data['pageCount'] = ceil($count['count'] / $pagesize);
         $url = $this->createUrl('/index/index/index');
         $pager = new \extensions\Library\pagerInit();
-	var_dump($pager);exit;
         $this->data['pageHtml'] = $pager->pager($count['count'], $pagesize, $url);
         $imgService = new \src\service\image\mongoService();
         $this->data['image'] = $imgService->getNew();

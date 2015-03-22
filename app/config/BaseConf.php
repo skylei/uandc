@@ -28,6 +28,7 @@ return $Ouno_conf = array(
             'CHARSET' => 'utf8',
             'DRIVER'=>'OunoMysqli',
             'AUTO_COMMIT'=>true,
+            'CHARSET'=>'utf8'
             // 'PCONNECT'=>false,
         )
     ),
@@ -74,4 +75,24 @@ return $Ouno_conf = array(
     'DAO_NAMESPACE'=>'\\src\\dao',
     'SERVICE_NAMESPACE'=>'\\src\\service',
     'COMMAND_NAMESPACE'=>'\\command',
+	'SWOOLE'=>array(
+		'HOST' => '0.0.0.0', //socket 监听ip
+        'PORT' => 8888, //socket 监听端口
+        // 'socket_adapter' => 'Swoole', //socket 驱动模块
+        // 'client_class' => 'socket\\Server', //socket 回调类
+        // swoole server config
+        'DEAMONIZE' => 0, //是否开启守护进程
+        'WORK_MODE' => 3,
+        'WORKER_NUM' => 8,
+        'MAX_REQUEST' => 1000,
+        'DISPATCH_MODE' => 2,
+        'TASK_WORKER_NUM' => 8,
+        'OPEN_LENGHT_CHECK' => true,
+        'PACKAGE_LENGHT_OFFSET' => 0,
+        // 'package_body_offset' => 4,
+        // 'package_length_type' => 'N'
+	
+	
+	),
+	
 );

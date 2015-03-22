@@ -72,18 +72,25 @@ class OunoMysqli  extends \Ouno\BaseComponent{
         return self::$_instance;
     }
 
+    /*
+     * 主mysql库连接
+     * @parma array $config
+     * @return boolean
+     * */
     public function connectM($config){
         $this->linkw =  new \mysqli($config[0]['HOST'], $config[0]['USERNAME'], $config[0]['PASSWORD'], $config[0]['DB']);
         if($this->linkw->connect_errno)
             $this->error($this->linkw->connect_error);
         if($config[0]['AUTO_COMMIT'])
             $this->linkw->autocommit(true);
+        $this->linkw->set_charset($config[0]['CHARSET']);
         return true;
     }
 
     /*
      * 从服务器连接
      * @apram array $config
+     * @return boolean
      * */
     public function connectS($config){
         $i = mt_rand(1, count($config));
@@ -92,6 +99,8 @@ class OunoMysqli  extends \Ouno\BaseComponent{
             return $this->error($this->linkw->connect_error);
         if($config[$i]['AUTO_COMMIT'])
             $this->linkr->autocommit(true);
+
+        $this->linkr->set_charset($config[$i]['CHARSET']);
         return true;
     }
 

@@ -252,7 +252,7 @@ class Ouno extends BaseComponent{
         );
         $this->init2Ehandle();
         spl_autoload_register(array('self', 'loader'));
-        if(php_sapi_name() == 'cli'){
+        if(PHP_SAPI == 'cli'){
             global $argv;
             if(self::config('MODULE'))
                 $this->container['module'] = isset($argv[1]) ? $argv[1] : 'index';
@@ -272,7 +272,7 @@ class Ouno extends BaseComponent{
             if(Ouno::config('DEBUG'))
                 throw new \Exception("controller $controller inexistance");
             else
-                OunoError::error403();
+                OunoError::error404();
         }
 
         $controller = new $controller;
@@ -310,6 +310,7 @@ class Ouno extends BaseComponent{
     }
 
     /*
+     * @TODO
      * @desc 自动加载类，依赖于配置文件
      * @param $className 加载的类名，文件名需和类名一致
      * @retrun include file;
@@ -406,7 +407,7 @@ class Ouno extends BaseComponent{
      * 打印错误
      * */
     public static function displayException($message){
-        if(php_sapi_name() == 'cli')
+        if(PHP_SAPI == 'cli')
             echo str_replace('#', "\n\r#", $message);
         else
             echo str_replace('#', '<br/>#', $message);
@@ -462,11 +463,13 @@ class Ouno extends BaseComponent{
             $path = str_replace($filter_param, '', $_SERVER['PATH_INFO']);
             $request = explode('/', trim($path, '/'));
         }
+
         $i = -1;
         if(self::config('MODULE')) {
             $_GET['m'] = !empty($request[++$i]) ? $request[$i] : 'index';
             unset($request[$i]);
         }
+
         $_GET['c'] = !empty($request[++$i]) ? $request[$i] : 'index';
         unset($request[$i]);
         $_GET['a'] = !empty($request[++$i]) ? $request[$i] : 'index';
@@ -479,7 +482,9 @@ class Ouno extends BaseComponent{
                 else
                     $value[] = $val;
             }
+
             if(count($key) !== count($value)) $value[] = '';
+
             if(count($key) === count($value)){
                 $get = array_combine($value, $key);
                 if (!empty($get)){
@@ -543,7 +548,7 @@ class Controller extends BaseComponent{
      */
     public function __construct(){
         $this->run();
-        if(php_sapi_name() != 'cli' || Ouno::config('ENABLE_VIEW')) {
+        if(PHP_SAPI != 'cli' || Ouno::config('ENABLE_VIEW')) {
             //模板引擎用户可自定义模板引擎
             if (Ouno::config('VIEW') == 'DEFAULT') {
                 $this->_view = OunoView::getInstance();
@@ -816,7 +821,7 @@ class OunoLog extends BaseComponent{
         $errorStr .= $traceStr;
         self::log($errorStr);
         if(Ouno::config('DEBUG')){
-            $lf = (php_sapi_name() == 'cli') ? "\n\r#" : '<br />#';
+            $lf = (PHP_SAPI == 'cli') ? "\n\r#" : '<br />#';
             echo str_replace('#', $lf, $errorStr);
         }
         exit;
@@ -828,7 +833,7 @@ class OunoLog extends BaseComponent{
     public static function userLog($msg){
         $logStr = "[USER_LOG]";
         $logStr .= "#mssage : $msg";
-        $logStr .=  (php_sapi_name() == 'cli') ? "\n\r#" : '<br />#';
+        $logStr .=  (PHP_SAPI == 'cli') ? "\n\r#" : '<br />#';
     }
 
 
@@ -840,7 +845,7 @@ class OunoLog extends BaseComponent{
 class OunoError{
 
     public static function error404(){
-        if(php_sapi_name() == 'cli')
+        if(PHP_SAPI == 'cli')
             echo "404 ont found page\n\r";
         else
             include('/Ouno/Tpl/404.html');
@@ -848,7 +853,7 @@ class OunoError{
     }
 
     public static function error403(){
-        if(php_sapi_name() == 'cli')
+        if(PHP_SAPI == 'cli')
             echo "403 forbbiden \n\r";
         else
             include('/Ouno/Tpl/403.html');
