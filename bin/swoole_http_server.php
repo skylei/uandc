@@ -9,7 +9,7 @@
  * Date: 2015/3/22
  * Time: 14:53
  */
-namespace bin;
+//namespace bin;
 
 use Ouno\Ouno;
 class httpServer{
@@ -25,7 +25,7 @@ class httpServer{
     private $logger;
     private $webRoot;
 
-    public function __contruct($config){
+    public function __construct($config){
         $this->mimes = include('./mimes.php');
         $config['IP'] = isset($config['IP']) ? $config['IP'] : '0.0.0.0';
         $config['PORT'] = isset($config['PORT']) ? $config['PORT'] : '9501';
@@ -65,7 +65,7 @@ class httpServer{
                     }
                 }
             }
-
+		
             if($_SERVER['PATH_INFO'] == '/favicon.ico') {
                 $response->header('Content-Type', $this->mimes['ico']);
                 $response->end('');
@@ -112,8 +112,8 @@ class httpServer{
             $response->end($result);
         });
 
-        self::$http = $http;
-        self::$http->start();
+        self::$httpServer = $http;
+        self::$httpServer->start();
 
     }
 
@@ -156,9 +156,10 @@ class httpServer{
         opcache_reset();
         require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'Ouno' . DIRECTORY_SEPARATOR . 'Ouno.php';
         ///home/wwwroot/www.Ouno.com, 是应用的地址
-        $this->Ouno = Ouno::run($this->webPath, false, $this->configPath);
+        $this->Ouno = Ouno::run(dirname(__DIR__) . '/app','BaseConf' );
         $params = func_get_args();
-//        echo "worker {$params[1]} start".PHP_EOL;
+        echo "worker {$params[1]} start".PHP_EOL;
+	var_dump($params);
         $this->mimes = require 'mimes.php';
     }
 
@@ -170,3 +171,6 @@ class httpServer{
 
 
 }
+
+
+$server = httpServer::getInstance();

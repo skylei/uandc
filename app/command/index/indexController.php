@@ -9,7 +9,8 @@ namespace command\index;
 class indexController{
 
     public function indexAction(){
-        $mq = new \components\BaseRabbitMQ(array());
-        var_dump($mq);
+        //$mq = new \components\BaseRabbitMQ(array());
+        //var_dump($mq);
+	return "this command index";
     }
 }

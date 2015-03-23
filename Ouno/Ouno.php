@@ -202,9 +202,7 @@ class Ouno extends BaseComponent{
      * */
     public static $_config = array();
 
-	public function __construct(){
 	
-	}
 	
     public static function config($key, $value = ''){
         if($key && $value === ''){
@@ -248,7 +246,12 @@ class Ouno extends BaseComponent{
 		self::setAppPath($app_path);
 		$config = include_once($app_path . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . $config . ".php");
 		self::config($config);
-        $this->init2Ehandle();
+        //$this->init2Ehandle();
+	if(self::$_config['EXCEPTION_HANDLE'])
+            set_exception_handler(array('\Ouno\Ouno', 'handleException'));
+        if(self::$_config['ERROR_HANDLE'])
+            set_error_handler(array('\Ouno\Ouno','handleError'),error_reporting());
+
         spl_autoload_register(array('self', 'loader'));
         if(PHP_SAPI == 'cli'){
             global $argv;
@@ -265,7 +268,6 @@ class Ouno extends BaseComponent{
             $this->container['action'] = $_GET['a'] = isset($_GET['a']) ? $_GET['a'] : 'index';
             $controller =  self::config('CONTROLER_NAMESPACE') . '\\' . $this->container['module'] . '\\' .$this->container['controller'] .'Controller';
         }
-
         if(!class_exists( $controller)){
             if(Ouno::config('DEBUG'))
                 throw new \Exception("controller $controller inexistance");
@@ -320,7 +322,7 @@ class Ouno extends BaseComponent{
         }else{
 
             if (strpos($className, '\\') !== false) {
-                $classFile = APP_PATH . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, ltrim($className, '\\')) . '.php';
+                $classFile = self::$APP_PATH . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, ltrim($className, '\\')) . '.php';
                 if (is_file($classFile) && !isset(self::$_import[$className]))
                     require($classFile);
 
@@ -354,7 +356,7 @@ class Ouno extends BaseComponent{
      * include加载，如果存在则加载
      * */
     public static function import($file){
-        $file = APP_PATH . $file;
+        $file = self::$APP_PATH . $file;
         if(file_exists($file) && !in_array($file, self::$_import)){
             self::$_import[] = $file;
             include $file;
@@ -614,7 +616,7 @@ class Controller extends BaseComponent{
             $file = $_GET['m'] . DIRECTORY_SEPARATOR . $_GET['c'] .DIRECTORY_SEPARATOR . $file . Ouno::config('VIEW_POSTFIX');
         else
             $file =  $_GET['c'] .DIRECTORY_SEPARATOR . $file . '.' . Ouno::config('VIEW_POSTFIX');
-        $realFile = APP_PATH . Ouno::config('TEMPLATE_PATH'). DIRECTORY_SEPARATOR . $file;
+        $realFile = Ouno::$APP_PATH . Ouno::config('TEMPLATE_PATH'). DIRECTORY_SEPARATOR . $file;
         if(!file_exists($realFile))
             Ouno::error($realFile . 'template not exist');
         $this->tpl = $file;
@@ -702,7 +704,7 @@ class OunoView extends BaseComponent{
         $this->display($file);
         $template = ob_get_contents();
         ob_end_clean();#清空缓存
-        $file = APP_PATH . Ouno::$_config['VIEW_STATIC_PATH'] . '/' . $file . $this->fileExtension;
+        $file = Ouno::$APP_PATH . Ouno::$_config['VIEW_STATIC_PATH'] . '/' . $file . $this->fileExtension;
         file_put_contents($file, $template);
     }
 
@@ -725,7 +727,7 @@ class OunoView extends BaseComponent{
      * @param $file string
      * */
     public function fetch($file){
-        $this->tpl = APP_PATH . rtrim(Ouno::config('TEMPLATE_PATH'), '/') . '/' . $file . $this->fileExtension;
+        $this->tpl = Ouno::$APP_PATH . rtrim(Ouno::config('TEMPLATE_PATH'), '/') . '/' . $file . $this->fileExtension;
         $template = str_replace(array("\n\r", "\t", " "), '', file_get_contents($this->tpl));
         return $template;
     }
@@ -802,7 +804,7 @@ class OunoLog extends BaseComponent{
      * */
     public static function log($msg = ''){
         $filename = date('Y-m-d', time()). 'runOuno.log';
-        if(!self::$_basePath) self::$_basePath = APP_PATH . Ouno::config('LOG_PATH') . '/' .$filename;
+        if(!self::$_basePath) self::$_basePath = Ouno::$APP_PATH . Ouno::config('LOG_PATH') . '/' .$filename;
         if(filesize(self::$_basePath) > self::$autoFlush)
             system("echo '' > " . self::$_basePath);
         file_put_contents(self::$_basePath, $msg, FILE_APPEND);
