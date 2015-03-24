@@ -235,8 +235,9 @@ class Ouno extends BaseComponent{
      * 运行框架
      * */
     public function run($app_path, $config = 'default'){
-//        if(self::config('SESSION'))
-        session_start();
+	echo $app_path;
+	if(self::config('SESSION'))
+        	session_start();
         Ouno::$_classes = array(
             "Ouno\\Core\\Db\\OunoMysql"=> __DIR__ . "/Core/Db/OunoMysql.php",
 			"Ouno\\Core\\Db\\OunoMysqli"=> __DIR__ . "/Core/Db/OunoMysqli.php",
@@ -255,7 +256,7 @@ class Ouno extends BaseComponent{
         spl_autoload_register(array('self', 'loader'));
         if(PHP_SAPI == 'cli'){
             global $argv;
-            if(self::config('MODULE'))
+            if(self::config('MODULE', true))
                 $this->container['module'] = isset($argv[1]) ? $argv[1] : 'index';
             $this->container['controller'] = isset($argv[2]) ? $argv[2] : 'index';
             $this->container['action'] = isset($argv[3]) ? $argv[3] : 'index';
@@ -270,10 +271,8 @@ class Ouno extends BaseComponent{
                 $this->container['module'] = $_GET['m'] = isset($_GET['m']) ? $_GET['m'] : 'index';
             $this->container['controller'] = $_GET['c'] = isset($_GET['c']) ? $_GET['c'] : 'index';
             $this->container['action'] = $_GET['a'] = isset($_GET['a']) ? $_GET['a'] : 'index';
-            $controller =  self::config('CONTROLER_NAMESPACE', '\\web\\controller') . '\\' 
-				. $this->container['module'] . '\\' .$this->container['controller'] .'Controller';
-			echo $controller;
-        }
+			$controller =  self::config('CONTROLER_NAMESPACE', '\\web\\controller') . '\\' . $this->container['module'] . '\\' .$this->container['controller'] .'Controller';
+		}
         if(!class_exists( $controller)){
             if(Ouno::config('DEBUG'))
                 throw new \Exception("controller $controller inexistance");
@@ -286,8 +285,8 @@ class Ouno extends BaseComponent{
         if(!method_exists($controller,  $this->container['action']) ){
             OunoError::error403();
         }
-
-        call_user_func(array($controller, $this->container['action']));
+		
+		call_user_func(array($controller, $this->container['action']));
         if(method_exists($controller, 'run_after'))
             call_user_func(array($controller, 'run_after'));
     }

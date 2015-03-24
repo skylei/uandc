@@ -20,20 +20,28 @@ class httpServer{
     public static $response;
     public static $wsfarme;
     public static $httpServer;
-    public $config = [];
+    public static $config = [];
+    public static $cofnig_name= 'default';
     private $mimes = [];
     private $logger;
     private $webRoot;
     private $staticFile;
 
-    public function __construct($config){
+    public function __construct($run_path, $conf_name){
         $this->mimes = include('./mimes.php');
+	$this->webRoot = $run_path;
+	$config = include($run_path . DIRECTORY_SEPARATOR . "config/" . $conf_name . ".php");
         $config['IP'] = isset($config['IP']) ? $config['IP'] : '0.0.0.0';
         $config['PORT'] = isset($config['PORT']) ? $config['PORT'] : '9501';
-        $set['work_num'] = isset($config['WORK_NUM']) ? $config['WORK_NUM'] : 4;
-        $set['deamonize'] = isset($config['DAEMONIZE']) ? $config['DEAMONIZE'] : 4;
-        $set['max_request'] = isset($config['MAX_REQUEST']) ? $config['MAX_REQUEST'] : 1000;
-        $this->webRoot = isset($config['SW_WEBROOT']) ? $config['SW_WEBROOT'] : __DIR__;
+        $config['WORK_NUM'] = isset($config['WORK_NUM']) ? $config['WORK_NUM'] : 4;
+        $config['DEAMONIZE'] = isset($config['DAEMONIZE']) ? $config['DAEMONIZE'] : 1;
+        $config['MAX_REQUEST'] = isset($config['MAX_REQUEST']) ? $config['MAX_REQUEST'] : 1000;
+	$set = array(
+		"work_num"=>$config['WORK_NUM'],
+		"deamonize"=>$config['DEAMONIZE'],
+		"max_request"=>$config['MAX_REQUEST'],	
+	);
+	self::$config;
         //swoole_websocket_server继承自swoole_http_server继承自swoole_server
         $http = new swoole_websocket_server($config['IP'], $config['PORT']);
         $http->set($set);
@@ -55,7 +63,6 @@ class httpServer{
             httpServer::$request = $request;
             httpServer::$response = $response;
             $_SERVER['PATH_INFO'] = $request->server['path_info'];
-            var_dump($_SERVER);
             if ($_SERVER['PATH_INFO'] == '/') {
                 if (!empty($this->defaultFiles)) {
                     foreach ($this->defaultFiles as $file) {
@@ -99,9 +106,15 @@ class httpServer{
                     return;
                 }
             }
+
+	   // $response->end($_SERVER['PATH_INFO']) ;
+		
             try{
                 ob_start();
-                $result = $this->Ouno->run();
+                $result = $this->Ouno->run($this->webRoot,'BaseConf');
+				var_dump($result);	
+            	$response->end($result. "+++response");
+
                 if (null == $result) {
                     $result = ob_get_contents();
                 }
@@ -109,7 +122,6 @@ class httpServer{
             }catch (Exception $e){
                 $result = json_encode($e->getTrace());
             }
-
             $response->status(200);
             $response->end($result);
         });
@@ -121,10 +133,10 @@ class httpServer{
     /*
      * 获取实例
      * */
-    public static function getInstance($config = array())
+    public static function getInstance($run_path, $conf_name)
     {
         if (!self::$instance) {
-            self::$instance = new HttpServer($config);
+            self::$instance = new HttpServer($run_path, $conf_name);
         }
         return self::$instance;
     }
@@ -157,21 +169,21 @@ class httpServer{
         opcache_reset();
         require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'Ouno' . DIRECTORY_SEPARATOR . 'Ouno.php';
         ///home/wwwroot/www.Ouno.com, 是应用的地址
-        $this->Ouno = Ouno::run(dirname(__DIR__) . '/app','BaseConf' );
+        $this->Ouno = Ouno::getInstance();
         $params = func_get_args();
         echo "worker {$params[1]} start".PHP_EOL;
-		var_dump($params);
         $this->mimes = require 'mimes.php';
     }
 
     private function getStaticFile($file, $path = 'webroot')
     {
-        return $this->webPath . DIRECTORY_SEPARATOR . $path . $file;
+        return $this->webRoot . DIRECTORY_SEPARATOR . $path . $file;
     }
 
 
 
 }
 $config = array();
-
-$server = httpServer::getInstance($config);
+$runpath = dirname(__DIR__) . DIRECTORY_SEPARATOR . "app";  
+$confname = "BaseConf";
+$server = httpServer::getInstance($runpath, $confname);
