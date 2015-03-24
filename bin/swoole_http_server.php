@@ -24,6 +24,7 @@ class httpServer{
     private $mimes = [];
     private $logger;
     private $webRoot;
+    private $staticFile;
 
     public function __construct($config){
         $this->mimes = include('./mimes.php');
@@ -54,6 +55,7 @@ class httpServer{
             httpServer::$request = $request;
             httpServer::$response = $response;
             $_SERVER['PATH_INFO'] = $request->server['path_info'];
+            var_dump($_SERVER);
             if ($_SERVER['PATH_INFO'] == '/') {
                 if (!empty($this->defaultFiles)) {
                     foreach ($this->defaultFiles as $file) {
@@ -97,14 +99,14 @@ class httpServer{
                     return;
                 }
             }
-            try {
+            try{
                 ob_start();
                 $result = $this->Ouno->run();
                 if (null == $result) {
                     $result = ob_get_contents();
                 }
                 ob_end_clean();
-            }  catch (Exception $e) {
+            }catch (Exception $e){
                 $result = json_encode($e->getTrace());
             }
 
@@ -114,7 +116,6 @@ class httpServer{
 
         self::$httpServer = $http;
         self::$httpServer->start();
-
     }
 
     /*
@@ -159,7 +160,7 @@ class httpServer{
         $this->Ouno = Ouno::run(dirname(__DIR__) . '/app','BaseConf' );
         $params = func_get_args();
         echo "worker {$params[1]} start".PHP_EOL;
-	var_dump($params);
+		var_dump($params);
         $this->mimes = require 'mimes.php';
     }
 
@@ -171,6 +172,6 @@ class httpServer{
 
 
 }
+$config = array();
 
-
-$server = httpServer::getInstance();
+$server = httpServer::getInstance($config);

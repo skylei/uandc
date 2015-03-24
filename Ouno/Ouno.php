@@ -247,9 +247,9 @@ class Ouno extends BaseComponent{
 		$config = include_once($app_path . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . $config . ".php");
 		self::config($config);
         //$this->init2Ehandle();
-	if(self::$_config['EXCEPTION_HANDLE'])
+		if(self::config('EXCEPTION_HANDLE', true))
             set_exception_handler(array('\Ouno\Ouno', 'handleException'));
-        if(self::$_config['ERROR_HANDLE'])
+        if(self::config('ERROR_HANDLE', true))
             set_error_handler(array('\Ouno\Ouno','handleError'),error_reporting());
 
         spl_autoload_register(array('self', 'loader'));
@@ -259,14 +259,20 @@ class Ouno extends BaseComponent{
                 $this->container['module'] = isset($argv[1]) ? $argv[1] : 'index';
             $this->container['controller'] = isset($argv[2]) ? $argv[2] : 'index';
             $this->container['action'] = isset($argv[3]) ? $argv[3] : 'index';
-            $controller =  self::config('COMMAND_NAMESPACE') . '\\' . $this->container['module'] . '\\' .$this->container['controller'] .'Controller';
+            $controller =  self::config('COMMAND_NAMESPACE', '\\command') . '\\' .
+				$this->container['module'] . '\\' .$this->container['controller'] .'Controller';
         }else {
-            if (self::config('URI') == 'PATH') $this->getRequest();
-            if(self::config('MODULE'))
+            if (self::config('URI') == 'PATH'){
+				$this->getRequest();
+				echo "+++path++";
+			}
+            if(self::config('MODULE', true))
                 $this->container['module'] = $_GET['m'] = isset($_GET['m']) ? $_GET['m'] : 'index';
             $this->container['controller'] = $_GET['c'] = isset($_GET['c']) ? $_GET['c'] : 'index';
             $this->container['action'] = $_GET['a'] = isset($_GET['a']) ? $_GET['a'] : 'index';
-            $controller =  self::config('CONTROLER_NAMESPACE') . '\\' . $this->container['module'] . '\\' .$this->container['controller'] .'Controller';
+            $controller =  self::config('CONTROLER_NAMESPACE', '\\web\\controller') . '\\' 
+				. $this->container['module'] . '\\' .$this->container['controller'] .'Controller';
+			echo $controller;
         }
         if(!class_exists( $controller)){
             if(Ouno::config('DEBUG'))
@@ -320,11 +326,10 @@ class Ouno extends BaseComponent{
             if(!isset(self::$_import[$className]) && file_exists(self::$_classes[$className]))
                 include(self::$_classes[$className]);
         }else{
-
             if (strpos($className, '\\') !== false) {
                 $classFile = self::$APP_PATH . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, ltrim($className, '\\')) . '.php';
-                if (is_file($classFile) && !isset(self::$_import[$className]))
-                    require($classFile);
+				if (is_file($classFile) && !isset(self::$_import[$className]))
+                    include($classFile);
 
             }else{//路径
                 self::$includePath = Ouno::config('AUTO_LOAD_PATH');//array
@@ -434,7 +439,7 @@ class Ouno extends BaseComponent{
      * @throw dao inexistance
      * */
     public static function dao($daoName, $group = ''){
-        $dao = Ouno::config('DAO_NAMESPACE');
+        $dao = Ouno::config('DAO_NAMESPACE', '\\src\\dao');
         if($group)
             $dao .= '\\' . $group;
         $dao .= '\\' . $daoName . 'Dao';
@@ -563,7 +568,7 @@ class Controller extends BaseComponent{
         $this->run();
         if(PHP_SAPI != 'cli' || Ouno::config('ENABLE_VIEW')) {
             //模板引擎用户可自定义模板引擎
-            if (Ouno::config('VIEW') == 'DEFAULT') {
+            if (!Ouno::config('VIEW')) {
                 $this->_view = OunoView::getInstance();
             } else {
                 $view = Ouno::config('VIEW');
@@ -584,19 +589,21 @@ class Controller extends BaseComponent{
      * */
     public function createUrl($url = '',$param = array(),  $type = 'url'){
         $baseUrl = explode('index.php', $_SERVER['PHP_SELF']);
-        $newUrl =  Ouno::config('BASEURL');
+        $newUrl =  Ouno::config('BASEURL', Ouno::$APP_PATH);
         $paramStr = '';
         if($type == 'url'){
-            $newUrl .= $baseUrl[0] . 'index.php';
+            $newUrl .= $baseUrl[0];
+			$newUrl .= Ouno::config('REWRITE') ? '' : 'index.php';
         }else {
             $newUrl .= rtrim($baseUrl[0], '/');
-
         }
+		
         if(!empty($param) && is_array($param)){
             foreach($param as $key => $val){
                 $paramStr .= '/' . $key . '/' . $val;
             }
         }
+		
         $newUrl .= rtrim($url, '/') . $paramStr;
         $newUrl =  rtrim($newUrl, '/');
         return $newUrl;
@@ -727,7 +734,8 @@ class OunoView extends BaseComponent{
      * @param $file string
      * */
     public function fetch($file){
-        $this->tpl = Ouno::$APP_PATH . rtrim(Ouno::config('TEMPLATE_PATH'), '/') . '/' . $file . $this->fileExtension;
+        $this->tpl = Ouno::$APP_PATH . rtrim(Ouno::config('TEMPLATE_PATH', '/web/template'), '/') 
+			. '/' . $file . $this->fileExtension;
         $template = str_replace(array("\n\r", "\t", " "), '', file_get_contents($this->tpl));
         return $template;
     }
@@ -753,7 +761,7 @@ class Dao extends  BaseComponent
 
     public function __construct()
     {
-        $driver = Ouno::config('DB_DRIVER');
+        $driver = Ouno::config('DB_DRIVER', 'OunoMysqli');
         $namespace = 'Ouno\\Core\\Db\\';
         $daoClass = $namespace . $driver;
         $this->db = new $daoClass(Ouno::config('DB'));
@@ -804,10 +812,14 @@ class OunoLog extends BaseComponent{
      * */
     public static function log($msg = ''){
         $filename = date('Y-m-d', time()). 'runOuno.log';
-        if(!self::$_basePath) self::$_basePath = Ouno::$APP_PATH . Ouno::config('LOG_PATH') . '/' .$filename;
-        if(filesize(self::$_basePath) > self::$autoFlush)
-            system("echo '' > " . self::$_basePath);
-        file_put_contents(self::$_basePath, $msg, FILE_APPEND);
+        if(!self::$_basePath) 
+			self::$_basePath = Ouno::$APP_PATH . Ouno::config('LOG_PATH', '/runtime/log');
+		if(!is_dir(self::$_basePath))
+			mkdir(self::$_basePath, 0777, true);
+		$file = self::$_basePath . '/' .$filename;
+        if(file_exists($file) && filesize($file) > self::$autoFlush)
+            system("echo '' > " . $file);
+        file_put_contents($file, $msg, FILE_APPEND);
     }
 
     /*
