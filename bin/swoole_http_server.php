@@ -111,10 +111,7 @@ class httpServer{
 		
             try{
                 ob_start();
-                $result = $this->Ouno->run($this->webRoot,'BaseConf');
-				var_dump($result);	
-            	$response->end($result. "+++response");
-
+                $result = $this->Ouno->run($this->webRoot,'swoole');
                 if (null == $result) {
                     $result = ob_get_contents();
                 }
@@ -185,5 +182,5 @@ class httpServer{
 }
 $config = array();
 $runpath = dirname(__DIR__) . DIRECTORY_SEPARATOR . "app";  
-$confname = "BaseConf";
+$confname = "swoole";
 $server = httpServer::getInstance($runpath, $confname);

@@ -11,6 +11,7 @@ class indexController{
     public function indexAction(){
         //$mq = new \components\BaseRabbitMQ(array());
         //var_dump($mq);
+	echo "this is test echo ";
 	return "this command index";
     }
 }
