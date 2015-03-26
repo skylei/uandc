@@ -235,7 +235,6 @@ class Ouno extends BaseComponent{
      * 运行框架
      * */
     public function run($app_path, $config = 'default'){
-	echo $app_path;
 	if(self::config('SESSION'))
         	session_start();
         Ouno::$_classes = array(
@@ -522,13 +521,24 @@ class Ouno extends BaseComponent{
  *
  * */
 class Console extends BaseComponent{
-
+        
+     /**
+      * @var $view 
+      */
+      public static $view;    
+	
+     /**
+      *  
+      */
+     
+		
     /**
      * 构造函数，初始化视图实例，调用hook
      */
     public function __construct(){
         $this->run();
-
+	if(Ouno::config('VIEW'))
+		OunoView::getInstance();
     }
 
     /*
