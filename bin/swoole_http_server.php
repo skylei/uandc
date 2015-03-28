@@ -107,7 +107,6 @@ class httpServer{
                 }
             }
 
-	   // $response->end($_SERVER['PATH_INFO']) ;
 		
             try{
                 ob_start();
@@ -117,7 +116,12 @@ class httpServer{
                 }
                 ob_end_clean();
             }catch (Exception $e){
-                $result = json_encode($e->getTrace());
+		$result = $e->getMessage();
+		$response->end($result);
+		//$result = $e->getTrace();	
+		//$result = json_encode($e->getTrace());
+		//$result = $e->getTrace();
+		//var_dump($result);
             }
             $response->status(200);
             $response->end($result);

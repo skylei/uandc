@@ -7,7 +7,7 @@
  */
 namespace components;
 
-use Ouno\Cache\Redis;
+//use \Ouno\Cache\redis;
 
 class BaseRedisDao{
 
@@ -18,8 +18,14 @@ class BaseRedisDao{
     public $db;
 
     public function __construct($config){
-        $this->db = new \Ouno\Cache\Redis($config);
-        $this->db->select($config['DB']);
+	$config = array(
+	    "DB"=>0,
+	    "HOST"=>"127.0.0.1",
+	    "PORT"=>"6379",
+	    "TIMEOUT"=>"10",
+	);
+        $this->db = new \Ouno\Cache\Oredis($config);
+	$this->db->selectdb($config['DB']);
 
     }
 

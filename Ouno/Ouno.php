@@ -244,6 +244,7 @@ class Ouno extends BaseComponent{
 			"Ouno\\Core\\Db\\OunoMysqli"=> __DIR__ . "/Core/Db/OunoMysqli.php",
             "Ouno\\Core\\Db\\OunoMongo"=> __DIR__ . "/Core/Db/OunoMongo.php",
             "Ouno\\Core\\Db\\AbstractDb"=> __DIR__ . "/Core/Db/AbstractDb.php",
+ 	    "Ouno\\Cache\\Oredis"=>__DIR__ . "/Cache/Oredis.php",
         );
 
         //$this->init2Ehandle();
@@ -323,7 +324,7 @@ class Ouno extends BaseComponent{
                 include(self::$_classes[$className]);
         }else{
             if (strpos($className, '\\') !== false) {
-                $classFile = self::$APP_PATH . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, ltrim($className, '\\')) . '.php';
+                $classFile = self::$APP_PATH . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, ltrim($className, '\\')) . '.php';echo $classFile . "++++\r\n";
 				if (is_file($classFile) && !isset(self::$_import[$className]))
                     include($classFile);
 
