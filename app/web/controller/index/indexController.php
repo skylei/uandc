@@ -25,7 +25,7 @@ class indexController extends \components\BaseController {
     {
         $page = $this->_get('page', 1);
         $pagesize = 20;
-        $offset = $page * $pagesize;
+        $offset = ($page - 1) * $pagesize;
         $cate = $this->_get('cate');
         $this->data['artList'] = $this->getIndexService()->artList($cate, $offset, $pagesize);
         $this->data['detailUrl'] = $this->createUrl('/index/index/detail');

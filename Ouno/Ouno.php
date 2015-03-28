@@ -202,8 +202,7 @@ class Ouno extends BaseComponent{
      * */
     public static $_config = array();
 
-	
-	
+
     public static function config($key, $value = ''){
         if($key && $value === ''){
             if(is_string($key))
@@ -235,7 +234,10 @@ class Ouno extends BaseComponent{
      * 运行框架
      * */
     public function run($app_path, $config = 'default'){
-	if(self::config('SESSION'))
+        self::setAppPath($app_path);
+        $config = include_once($app_path . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . $config . ".php");
+        self::config($config);
+	    if(self::config('SESSION'))
         	session_start();
         Ouno::$_classes = array(
             "Ouno\\Core\\Db\\OunoMysql"=> __DIR__ . "/Core/Db/OunoMysql.php",
@@ -243,9 +245,7 @@ class Ouno extends BaseComponent{
             "Ouno\\Core\\Db\\OunoMongo"=> __DIR__ . "/Core/Db/OunoMongo.php",
             "Ouno\\Core\\Db\\AbstractDb"=> __DIR__ . "/Core/Db/AbstractDb.php",
         );
-		self::setAppPath($app_path);
-		$config = include_once($app_path . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . $config . ".php");
-		self::config($config);
+
         //$this->init2Ehandle();
 		if(self::config('EXCEPTION_HANDLE', true))
             set_exception_handler(array('\Ouno\Ouno', 'handleException'));
@@ -264,7 +264,6 @@ class Ouno extends BaseComponent{
         }else {
             if (self::config('URI') == 'PATH'){
 				$this->getRequest();
-				echo "+++path++";
 			}
             if(self::config('MODULE', true))
                 $this->container['module'] = $_GET['m'] = isset($_GET['m']) ? $_GET['m'] : 'index';
@@ -314,7 +313,6 @@ class Ouno extends BaseComponent{
     }
 
     /*
-     * @TODO
      * @desc 自动加载类，依赖于配置文件
      * @param $className 加载的类名，文件名需和类名一致
      * @retrun include file;
@@ -499,7 +497,8 @@ class Ouno extends BaseComponent{
                     $value[] = $val;
             }
 
-            if(count($key) !== count($value)) $value[] = '';
+            if(count($key) !== count($value))
+                $value[] = '';
 
             if(count($key) === count($value)){
                 $get = array_combine($value, $key);
@@ -571,7 +570,7 @@ class Controller extends BaseComponent{
     public $baseUrl = '';
 
     /**
-     * 构造函数，初始化视图实例，调用hook
+     * 构造函数，初始化视图实例，调用
      */
     public function __construct(){
         $this->run();
@@ -583,6 +582,7 @@ class Controller extends BaseComponent{
                 $view = Ouno::config('VIEW');
                 $this->_view = new $view;
             }
+
             $this->baseUrl = Ouno::config('BASEURL');
         }
     }
@@ -598,7 +598,7 @@ class Controller extends BaseComponent{
      * */
     public function createUrl($url = '',$param = array(),  $type = 'url'){
         $baseUrl = explode('index.php', $_SERVER['PHP_SELF']);
-        $newUrl =  Ouno::config('BASEURL', Ouno::$APP_PATH);
+        $newUrl = $this->baseUrl;
         $paramStr = '';
         if($type == 'url'){
             $newUrl .= $baseUrl[0];

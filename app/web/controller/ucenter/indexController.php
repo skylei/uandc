@@ -37,12 +37,14 @@ class indexController extends \components\BaseUcenterController {
 		$password = $this->_post('password');
         $remember = $this->_post('remember', false);
 		$ip = $this->getIp();
+        $this->display = false;
 		$check = $this->getUService()->getUser($username,$password, $remember, $ip);
 		if ($check) {
 			$this->redirect('/ucenter/uhome/index');
 		}else{
             $this->redirect('/ucenter/index/login');
 		}
+        exit;
 	}
 	
 

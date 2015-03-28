@@ -1,11 +1,10 @@
 <?php
-global $Ouno_conf;
 return $Ouno_conf = array(
-    'AUTO_LOAD_PATH'=>array(
-        'components'=>'\\components',//自动加载
-        'library'=>'\\Ouno\\Core\\Library',
-        'db'=>' \\Ouno\\Core\\Db',
-    ),
+//    'AUTO_LOAD_PATH'=>array(
+//        'components'=>'\\components',//自动加载
+//        'library'=>'\\Ouno\\Core\\Library',
+//        'db'=>' \\Ouno\\Core\\Db',
+//    ),
 //    'DB'=>array(
 //        0=>array(
 //        'HOST'=>'127.0.0.1',
@@ -18,6 +17,7 @@ return $Ouno_conf = array(
 //        'PCONNECT'=>false,
 //        )
 //    ),
+    'SESSION'=>true,
     'DB'=>array(
         0=>array(
             'HOST'=>'127.0.0.1',
