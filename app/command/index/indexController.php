@@ -6,8 +6,11 @@
  * Time: 21:16
  */
 namespace command\index;
-use \src\dao\redis\redisDao as rdao;
-class indexController extends \Ouno\Console{
+use \src\dao\redis\redisDao as rdao,
+    \components\BaseController;
+
+
+class indexController extends BaseController {
 
     public function indexAction(){
         //$mq = new \components\BaseRabbitMQ(array());

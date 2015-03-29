@@ -1,6 +1,12 @@
 <?php
-global $Ouno_conf;
-return $Ouno_conf = array(
+/**
+ * Created by PhpStorm.
+ * User: root
+ * Date: 2015/3/29
+ * Time: 14:25
+ */
+return array(
+    'SESSION'=>true,
     'DB'=>array(
         0=>array(
             'HOST'=>'127.0.0.1',
@@ -26,40 +32,8 @@ return $Ouno_conf = array(
     //
     'URI' => 'PATH',
     'LOG_PATH' => '/runtime',
-    'EXCEPTION_HANDLE'=>true,
-    'ERROR_HANDLE'=>true,
-    'ERROR_DISPLAY'=> true,
-    'EXCEPTION_DISPLAY'=> true,
-    'SERVICE_PATH'=> '/src/service',
-    'CONTROLLER_PATH'=>'/web/controller',//控制器
-
-    'TEMPLATE_PATH'=>'/web/template',
-    'DAO_PATH'=>'/src/dao',
-    'SERVER_PATH'=>'/src/server',
-    'RUN_TIME_PATH'=>'/runtime',
-    // view type
-    'VIEW' => '\\components\\smartyView',
-    //smarty config
-    'SMARTY_CACHE_DIR'=>'/runtime/smarty/smaryCache',
-    'SMARY_COMPILE'=> '/runtime/smarty/compile',
-    'SMARTY_PATH' => '/extensions/Smarty/libs',
-    'SMARTY_CACHE' => false,
-
-    'VIEW_STATIC_PATH'=> '/runtime/static',
-
-    'DB_DRIVER' => 'OunoMysqli',
-    'MODULE'=> true,
-
-    'VIEW_POSTFIX'=> '.html',
-    'DEBUG'=> true,
-    'BASEURL'=>'http://www.uandc.cn',
-
-    'CONTROLER_NAMESPACE'=>'\\web\\controller',
-    'DAO_NAMESPACE'=>'\\src\\dao',
-    'SERVICE_NAMESPACE'=>'\\src\\service',
-    'COMMAND_NAMESPACE'=>'\\command',
-	'SWOOLE'=>array(
-		'HOST' => '0.0.0.0', //socket 监听ip
+    'SWOOLE'=>array(
+        'HOST' => '0.0.0.0', //socket 监听ip
         'PORT' => 8888, //socket 监听端口
         // 'socket_adapter' => 'Swoole', //socket 驱动模块
         // 'client_class' => 'socket\\Server', //socket 回调类
@@ -74,8 +48,20 @@ return $Ouno_conf = array(
         'PACKAGE_LENGHT_OFFSET' => 0,
         // 'package_body_offset' => 4,
         // 'package_length_type' => 'N'
-	
-	
-	),
-	
+
+
+    ),
+    'RUN_MODE' => array(
+        'CLASS' => '\\components\\BaseServer',
+        'PARAM' => array(),
+    ),
+    'SERVER' => array(
+        'CLASS'=> '\\components\\BaseSocket',
+        'PARAM' => array(),
+    ),
+    'CLIENT' => array(
+        'CLASS'=> '\\components\\BaseClient',
+        'PARAM' => array(),
+    ),
+
 );

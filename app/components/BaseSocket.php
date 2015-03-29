@@ -28,9 +28,8 @@ class BaseSocket{
      * 并执行run　方法
      * @param arrat $config
      * */
-    public function __contruct($config){
-        echo "this is BaseSocket";
-        return;
+    public function __construct($config){
+
         $this->config = $config;
         $this->server = new \swoole_server($config['host'], $config['port'], $config['work_mode']);
         $this->server->set(array(

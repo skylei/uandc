@@ -6,12 +6,12 @@
  * Time: 14:35
  */
 namespace components;
-use Ouno\OFactory as OFactior;
-use Ouno\OFactory;
+use \Ouno\OFactory as OFactory;
 
 class BaseServer{
 
-    public function run($config){
+    public function run(){
+        echo "server run\r\n";
         $sconfig = \Ouno\Ouno::config("SERVER");
         $server = OFactory::getInstance($sconfig['CLASS'], $sconfig['PARAM']);
         $cconfig = \Ouno\Ouno::config("CLIENT");

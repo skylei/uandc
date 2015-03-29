@@ -147,7 +147,7 @@ class OunoList implements \ArrayAccess, \Countable, \IteratorAggregate{
      * */
     public function get($key, $defaul = null){
         if($this->has($key)){
-            $enable = is_object($this->data[$key]) && method_exists($this->data[$key], 'enable');
+            $enable = is_object($this->data[$key]) && method_exists($this->data[$key], '_invoke');
             $enable ? $this->data[$key]($this) : $this->data[$key];
         }
         return $defaul;
@@ -256,12 +256,10 @@ class Ouno extends BaseComponent{
         spl_autoload_register(array('self', 'loader'));
         if(PHP_SAPI == 'cli'){
             global $argv;
-            if(self::config('MODULE', true))
-                $this->container['module'] = isset($argv[1]) ? $argv[1] : 'index';
-            $this->container['controller'] = isset($argv[2]) ? $argv[2] : 'index';
-            $this->container['action'] = isset($argv[3]) ? $argv[3] : 'index';
-            $controller =  self::config('COMMAND_NAMESPACE', '\\command') . '\\' .
-				$this->container['module'] . '\\' .$this->container['controller'] .'Controller';
+            //@TODO
+            $console = new Console($argv);
+            $this->container = $console->container;
+            $controller = $console->controller;
         }else {
             if (self::config('URI') == 'PATH'){
 				$this->getRequest();
@@ -270,7 +268,9 @@ class Ouno extends BaseComponent{
                 $this->container['module'] = $_GET['m'] = isset($_GET['m']) ? $_GET['m'] : 'index';
             $this->container['controller'] = $_GET['c'] = isset($_GET['c']) ? $_GET['c'] : 'index';
             $this->container['action'] = $_GET['a'] = isset($_GET['a']) ? $_GET['a'] : 'index';
-			$controller =  self::config('CONTROLER_NAMESPACE', '\\web\\controller') . '\\' . $this->container['module'] . '\\' .$this->container['controller'] .'Controller';
+            //@todo
+			$controller =  self::config('CONTROLER_NAMESPACE', '\\web\\controller') . '\\' . $this->container['module']
+                . '\\' .$this->container['controller'] .'Controller';
 		}
         if(!class_exists( $controller)){
             if(Ouno::config('DEBUG'))
@@ -525,20 +525,31 @@ class Console extends BaseComponent{
      /**
       * @var $view 
       */
-      public static $view;    
-	
-     /**
-      *  
-      */
-     
+      public $controller;
+
+    /*
+     * @var $container
+     * */
+    public $container = [];
 		
     /**
-     * 构造函数，初始化视图实例，调用hook
+     * 构造函数，初始化视图实例，调用运行mode@TODO
      */
-    public function __construct(){
-        $this->run();
-	if(Ouno::config('VIEW'))
-		OunoView::getInstance();
+    public function __construct($argv){
+        if($mode = Ouno::config('RUN_MODE'))
+        {
+            $param = isset($mode['PARAM']) ? $mode['PARAM'] : '';
+            $runInstance = OFactory::getInstance($mode['CLASS'], $param);
+            if(method_exists($runInstance, 'run'))
+                $runInstance->run();
+        }
+
+        if(Ouno::config('MODULE', true))
+            $this->container['module'] = isset($argv[1]) ? $argv[1] : 'index';
+        $this->container['controller'] = isset($argv[2]) ? $argv[2] : 'index';
+        $this->container['action'] = isset($argv[3]) ? $argv[3] : 'index';
+        $this->controller =  Ouno::config('COMMAND_NAMESPACE', '\\command') . '\\' . $this->container['module']
+            . '\\' .$this->container['controller'] .'Controller';
     }
 
     /*
@@ -574,7 +585,6 @@ class Controller extends BaseComponent{
      * 构造函数，初始化视图实例，调用
      */
     public function __construct(){
-        $this->run();
         if(PHP_SAPI != 'cli' || Ouno::config('ENABLE_VIEW')) {
             //模板引擎用户可自定义模板引擎
             if (!Ouno::config('VIEW')) {
@@ -586,7 +596,11 @@ class Controller extends BaseComponent{
 
             $this->baseUrl = Ouno::config('BASEURL');
         }
+
+        $this->run();
     }
+
+    public function run(){}
 
     /*
      * 后置运行方法，默认加载，可自行重写改方法
@@ -595,7 +609,9 @@ class Controller extends BaseComponent{
 
     /*
      * 创建url
-     *
+     * @param string $url
+     * @param array $param
+     * @param string $type url or path
      * */
     public function createUrl($url = '',$param = array(),  $type = 'url'){
         $baseUrl = explode('index.php', $_SERVER['PHP_SELF']);
@@ -619,6 +635,11 @@ class Controller extends BaseComponent{
         return $newUrl;
     }
 
+    /*
+     * 向视图抛掷变量
+     * @param string $var 变量名
+     * @param mix $value
+     * */
     public function assign($var, $value){
 
         $this->_view->assign($var, $value);
@@ -628,6 +649,10 @@ class Controller extends BaseComponent{
         $this->_view->cleanCache();
     }
 
+    /*
+     * 设置渲染模版
+     * @param string $file
+     * */
     public function setTpl($file){//false返回不输出
         if(Ouno::config('MODULE'))
             $file = $_GET['m'] . DIRECTORY_SEPARATOR . $_GET['c'] .DIRECTORY_SEPARATOR . $file . Ouno::config('VIEW_POSTFIX');
@@ -639,6 +664,9 @@ class Controller extends BaseComponent{
         $this->tpl = $file;
     }
 
+    /*
+     * 向浏览器渲染模版
+     * */
     public function show(){
         if($this->display) {
             $this->_view->display($this->tpl, $this->display);
@@ -897,4 +925,37 @@ class OunoError{
 
 }
 
+/*
+ * 框架工厂
+ * */
+class OFactory{
 
+    private static $instances = [];
+
+    /*
+     * 产生实例的工厂方法
+     * @param string $class 类名
+     * @param string $function 方法名
+     * @param array $param
+     * @return unknow
+     * */
+    public static function getInstance($class, $param = array()){
+        echo $class . "\r\n";
+        if(!empty($param)){
+            if(isset(self::$instances[$class]) && self::$instances[$class]['param'] == $param)
+                return self::$instances[$class]['object'];
+            self::$instances[$class]['object'] =  new $class($param);
+            self::$instances[$class]['param'] = $param;
+            return self::$instances[$class]['object'];
+        }else{
+            if(isset(self::$instances[$class]['object']))
+                return self::$instances[$class]['object'];
+            self::$instances[$class]['object'] = new $class();
+            self::$instances[$class]['param'] = $param;
+            return self::$instances[$class]['object'];
+        }
+
+        return false;
+
+    }
+}
