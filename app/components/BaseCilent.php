@@ -9,7 +9,9 @@
 namespace components;
 class BaseClient{
 
-
+    public function __construct(){
+        echo "this is BaseClient";
+    }
 
 
 }

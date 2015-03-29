@@ -7,7 +7,7 @@
  */
 namespace command\index;
 use \src\dao\redis\redisDao as rdao;
-class indexController{
+class indexController extends \Ouno\Console{
 
     public function indexAction(){
         //$mq = new \components\BaseRabbitMQ(array());

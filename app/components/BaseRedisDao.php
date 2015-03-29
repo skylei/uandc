@@ -24,7 +24,8 @@ class BaseRedisDao{
 	    "PORT"=>"6379",
 	    "TIMEOUT"=>"10",
 	);
-        $this->db = new \Ouno\Cache\Oredis($config);
+
+    $this->db = new \Ouno\Cache\Oredis($config);
 	$this->db->selectdb($config['DB']);
 
     }

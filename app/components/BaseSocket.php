@@ -29,6 +29,8 @@ class BaseSocket{
      * @param arrat $config
      * */
     public function __contruct($config){
+        echo "this is BaseSocket";
+        return;
         $this->config = $config;
         $this->server = new \swoole_server($config['host'], $config['port'], $config['work_mode']);
         $this->server->set(array(
