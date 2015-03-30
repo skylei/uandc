@@ -12,10 +12,13 @@ class BaseServer{
 
     public function run(){
         echo "server run\r\n";
+	$cconfig = \Ouno\Ouno::config("CLIENT");
+        $client = OFactory::getInstance($cconfig['CLASS'], $cconfig['PARAM']);
+        var_dump($client);
         $sconfig = \Ouno\Ouno::config("SERVER");
         $server = OFactory::getInstance($sconfig['CLASS'], $sconfig['PARAM']);
-        $cconfig = \Ouno\Ouno::config("CLIENT");
-        $client = OFactory::getInstance($cconfig['CLASS'], $cconfig['PARAM']);
+	$server->setClient($client);
+	$server->run();
     }
 
 

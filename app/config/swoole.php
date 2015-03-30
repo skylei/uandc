@@ -34,7 +34,7 @@ return array(
     'LOG_PATH' => '/runtime',
     'SWOOLE'=>array(
         'HOST' => '0.0.0.0', //socket 监听ip
-        'PORT' => 8888, //socket 监听端口
+        'PORT' => 9501, //socket 监听端口
         // 'socket_adapter' => 'Swoole', //socket 驱动模块
         // 'client_class' => 'socket\\Server', //socket 回调类
         // swoole server config
@@ -57,11 +57,40 @@ return array(
     ),
     'SERVER' => array(
         'CLASS'=> '\\components\\BaseSocket',
-        'PARAM' => array(),
+        'PARAM' => array(
+	    'HOST' => '0.0.0.0', //socket 监听ip
+            'PORT' => 9501, //socket 监听端口
+            // 'socket_adapter' => 'Swoole', //socket 驱动模块
+            // 'client_class' => 'socket\\Server', //socket 回调类
+            // swoole server config
+            'DEAMONIZE' => 0, //是否开启守护进程
+            'WORK_MODE' => 3,
+            'WORKER_NUM' => 8,
+            'MAX_REQUEST' => 1000,
+            'DISPATCH_MODE' => 2,
+            'TASK_WORKER_NUM' => 8,
+            'OPEN_LENGHT_CHECK' => true,
+           'PACKAGE_LENGHT_OFFSET' => 0,
+        ),
     ),
     'CLIENT' => array(
         'CLASS'=> '\\components\\BaseClient',
-        'PARAM' => array(),
+        'PARAM' => array(
+             'HOST' => '0.0.0.0', //socket 监听ip
+            'PORT' => 9501, //socket 监听端口
+            // 'socket_adapter' => 'Swoole', //socket 驱动模块
+            // 'client_class' => 'socket\\Server', //socket 回调类
+            // swoole server config
+            'DEAMONIZE' => 0, //是否开启守护进程
+            'WORK_MODE' => 3,
+            'WORKER_NUM' => 8,
+            'MAX_REQUEST' => 1000,
+            'DISPATCH_MODE' => 2,
+            'TASK_WORKER_NUM' => 8,
+            'OPEN_LENGHT_CHECK' => true,
+           'PACKAGE_LENGHT_OFFSET' => 0,
+
+        ),
     ),
 
 );

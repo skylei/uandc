@@ -31,7 +31,8 @@ class BaseSocket{
     public function __construct($config){
 
         $this->config = $config;
-        $this->server = new \swoole_server($config['host'], $config['port'], $config['work_mode']);
+	var_dump($config);
+        $this->server = new \swoole_server($config['HOST'], $config['PORT'], $config['WORK_MODE']);
         $this->server->set(array(
             'reactor_num' => empty($config['reactor_num']) ? 2 : $config['reactor_num'], //reactor thread num
             'worker_num' => empty($config['worker_num']) ? 2 : $config['worker_num'], //worker process num
@@ -44,7 +45,6 @@ class BaseSocket{
             'daemonize' => empty($config['daemonize']) ? 0 : 1,
             )
         );
-        $this->run();
     }
 
     /*
@@ -55,11 +55,11 @@ class BaseSocket{
         $this->server->on('Connect', array($this->client, 'onConnect'));
         $this->server->on('Receive', array($this->client, 'onReceive'));
         $this->server->on('Close', array($this->client, 'onClose'));
-        $this->serv->on('Start', array($this->client, 'onStart'));
-        $this->serv->on('Connect', array($this->client, 'onConnect'));
-        $this->serv->on('Receive', array($this->client, 'onReceive'));
-        $this->serv->on('Close', array($this->client, 'onClose'));
-        $this->serv->on('Shutdown', array($this->client, 'onShutdown'));
+        $this->server->on('Shutdown', array($this->client, 'onShutdown'));
+	$this->server->on("task" , array($this->client, "onTask"));
+	$this->server->on("finish", array($this->client, "onFinish"));
+	//$this->server->on("WorkerError", array($this->client, "onWorkerError"));
+	/*
         $handlerArray = array(
             'onTimer',
             'onWorkerStart',
@@ -76,7 +76,8 @@ class BaseSocket{
                 $this->serv->on(str_replace('on', '', $handler), array($this->client, $handler));
             }
         }
-        $this->serv->start();
+	*/
+        $this->server->start();
     }
 
     /*
@@ -108,13 +109,13 @@ class BaseSocket{
 
     /*
      * 添加监听
-     * @param string $host 静听ip或域名
-     * @param int $port 监听端口
+     * @param string $HOST 静听ip或域名
+     * @param int $PORT 监听端口
      * @ty
      * */
-    function addListener($host, $port, $type)
+    function addListener($HOST, $PORT, $type)
     {
-        return $this->server->addlistener($host, $port, $type);
+        return $this->server->addlistener($HOST, $PORT, $type);
     }
 
 
@@ -135,14 +136,8 @@ class BaseSocket{
         $params = func_get_args();
         $serv = $params[0];
         echo 'server start, swoole version: ' . SWOOLE_VERSION . PHP_EOL;
-        $times = ZConfig::getField('socket', 'times');
 
         //设置定时器
-        if(!empty($times)) {
-            foreach ($times as $time) {
-                $serv->addtimer($time);
-            }
-        }
     }
 
 
@@ -155,7 +150,7 @@ class BaseSocket{
         $_data = $params[3];
         $serv = $params[0];
         $fd = $params[1];
-//        echo "from {$fd}: get data: {$_data}".PHP_EOL;
+	echo "from {$fd}: get data: {$_data}".PHP_EOL;
         $result = json_decode($_data, true);
         if(!is_array($result)) {
             return null;
