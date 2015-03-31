@@ -31,11 +31,12 @@ class BaseSocket{
     public function __construct($config){
 
         $this->config = $config;
-	var_dump($config);
+        echo "basesocket run " . PHP_EOL;
+        var_dump($config);
         $this->server = new \swoole_server($config['HOST'], $config['PORT'], $config['WORK_MODE']);
         $this->server->set(array(
-            'reactor_num' => empty($config['reactor_num']) ? 2 : $config['reactor_num'], //reactor thread num
-            'worker_num' => empty($config['worker_num']) ? 2 : $config['worker_num'], //worker process num
+            'reactor_num' => empty($config['reactor_num']) ? 4 : $config['reactor_num'], //reactor thread num
+            'worker_num' => empty($config['worker_num']) ? 4 : $config['worker_num'], //worker process num
             'task_worker_num' => empty($config['task_worker_num']) ? 2 : $config['task_worker_num'], //task worker process num
             'backlog' => empty($config['backlog']) ? 128 : $config['backlog'], //listen backlog));
             'max_request' => empty($config['max_request']) ? 1000 : $config['max_request'],
@@ -56,8 +57,8 @@ class BaseSocket{
         $this->server->on('Receive', array($this->client, 'onReceive'));
         $this->server->on('Close', array($this->client, 'onClose'));
         $this->server->on('Shutdown', array($this->client, 'onShutdown'));
-	$this->server->on("task" , array($this->client, "onTask"));
-	$this->server->on("finish", array($this->client, "onFinish"));
+	    $this->server->on("task" , array($this->client, "onTask"));
+	    $this->server->on("finish", array($this->client, "onFinish"));
 	//$this->server->on("WorkerError", array($this->client, "onWorkerError"));
 	/*
         $handlerArray = array(
@@ -119,10 +120,7 @@ class BaseSocket{
     }
 
 
-    function send($client_id, $data)
-    {
-        return $this->server->send($client_id, $data);
-    }
+
 
 
 

@@ -23,7 +23,7 @@ class BaseClient{
     const ERROR = -1;
 
     public function __construct(){
-        echo "this is BaseClient";
+        echo "this is BaseClient" . PHP_EOL;
     }
 
     public function onStart($server){

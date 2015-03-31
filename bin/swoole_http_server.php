@@ -36,12 +36,11 @@ class httpServer{
         $config['WORK_NUM'] = isset($config['WORK_NUM']) ? $config['WORK_NUM'] : 4;
         $config['DEAMONIZE'] = isset($config['DAEMONIZE']) ? $config['DAEMONIZE'] : 1;
         $config['MAX_REQUEST'] = isset($config['MAX_REQUEST']) ? $config['MAX_REQUEST'] : 1000;
-	$set = array(
-		"work_num"=>$config['WORK_NUM'],
-		"deamonize"=>$config['DEAMONIZE'],
-		"max_request"=>$config['MAX_REQUEST'],	
-	);
-	self::$config;
+        $set = array(
+            "work_num"=>$config['WORK_NUM'],
+            "deamonize"=>$config['DEAMONIZE'],
+            "max_request"=>$config['MAX_REQUEST'],
+        );
         //swoole_websocket_server继承自swoole_http_server继承自swoole_server
         $http = new swoole_websocket_server($config['IP'], $config['PORT']);
         $http->set($set);
