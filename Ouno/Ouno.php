@@ -222,11 +222,11 @@ class Ouno extends BaseComponent{
      * @return object self
      */
     public static function getInstance(){
-        if(!(self::$_instance['Ouno'] instanceof self)){
-            self::$_instance['Ouno'] = new self();
+        if(!(self::$_instance['\\Ouno\\Ouno'] instanceof self)){
+            self::$_instance['\\Ouno\\Ouno'] = new self();
         }
 		
-        return self::$_instance['Ouno'];
+        return self::$_instance['\\Ouno\\Ouno'];
     }
 
 
@@ -244,7 +244,7 @@ class Ouno extends BaseComponent{
 			"Ouno\\Core\\Db\\OunoMysqli"=> __DIR__ . "/Core/Db/OunoMysqli.php",
             "Ouno\\Core\\Db\\OunoMongo"=> __DIR__ . "/Core/Db/OunoMongo.php",
             "Ouno\\Core\\Db\\AbstractDb"=> __DIR__ . "/Core/Db/AbstractDb.php",
- 	    "Ouno\\Cache\\Oredis"=>__DIR__ . "/Cache/Oredis.php",
+ 	        "Ouno\\Cache\\Oredis"=> __DIR__ . "/Cache/Oredis.php",
         );
 
         //$this->init2Ehandle();
@@ -259,7 +259,6 @@ class Ouno extends BaseComponent{
             //@TODO
             $console = new Console($argv);
             $this->container = $console->container;
-            $controller = $console->controller;
         }else {
             if (self::config('URI') == 'PATH'){
 				$this->getRequest();
@@ -269,17 +268,19 @@ class Ouno extends BaseComponent{
             $this->container['controller'] = $_GET['c'] = isset($_GET['c']) ? $_GET['c'] : 'index';
             $this->container['action'] = $_GET['a'] = isset($_GET['a']) ? $_GET['a'] : 'index';
             //@todo
-			$controller =  self::config('CONTROLER_NAMESPACE', '\\web\\controller') . '\\' . $this->container['module']
+            $controllerNamespace = self::config('CONTROLER_NAMESPACE', '\\web\\controller');
+			$this->container['controllerClass'] = $controllerNamespace . '\\' . $this->container['module']
                 . '\\' .$this->container['controller'] .'Controller';
 		}
-        if(!class_exists( $controller)){
+        if(!class_exists( $this->container['controllerClass'])){
             if(Ouno::config('DEBUG'))
-                throw new \Exception("controller $controller inexistance");
+                throw new \Exception("controller " . $this->container['controllerClass'] . " inexistance");
             else
                 OunoError::error404();
         }
 
-        $controller = new $controller;
+        $controller = new $this->container['controllerClass'];
+        self::$_instance[$this->container['controllerClass']] = $controller;
         $this->container['action'] =  $this->container['action'].'Action';
         if(!method_exists($controller,  $this->container['action']) ){
             OunoError::error403();
@@ -344,6 +345,24 @@ class Ouno extends BaseComponent{
 	public static function setAppPath($app_path){
 		self::$APP_PATH = $app_path;
 	}
+
+    public function getController($controller){
+        if(isset(self::$_instance[$controller]))
+            return self::$_instance[$controller];
+        if(PHP_SAPI == 'cli')
+            $controller = self::config("COMMAND_NAMESPACE") . '\\' . $controller;
+        else
+            $controller = self::config("CONTROLLER_NAMESPACE") .'\\' . $controller;
+
+        if(!class_exists($controller))
+            if(Ouno::config('DEBUG'))
+                throw new \Exception("controller " . $this->container['controllerClass'] . " inexistance");
+            else
+                OunoError::error404();
+
+        self::$_instance[$controller] = new $controller;
+        return self::$_instance[$controller];
+    }
 	
 	public static function getAppPath(){
 		return self::$APP_PATH;
@@ -548,8 +567,10 @@ class Console extends BaseComponent{
             $this->container['module'] = isset($argv[1]) ? $argv[1] : 'index';
         $this->container['controller'] = isset($argv[2]) ? $argv[2] : 'index';
         $this->container['action'] = isset($argv[3]) ? $argv[3] : 'index';
-        $this->controller =  Ouno::config('COMMAND_NAMESPACE', '\\command') . '\\' . $this->container['module']
+        $controllerClass =  Ouno::config('COMMAND_NAMESPACE', '\\command') . '\\' . $this->container['module']
             . '\\' .$this->container['controller'] .'Controller';
+        $this->container['controllerClass'] = $controllerClass;
+
     }
 
     /*

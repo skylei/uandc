@@ -76,7 +76,7 @@ return array(
     'CLIENT' => array(
         'CLASS'=> '\\components\\BaseClient',
         'PARAM' => array(
-             'HOST' => '0.0.0.0', //socket 监听ip
+            'HOST' => '0.0.0.0', //socket 监听ip
             'PORT' => 9501, //socket 监听端口
             // 'socket_adapter' => 'Swoole', //socket 驱动模块
             // 'client_class' => 'socket\\Server', //socket 回调类
@@ -88,8 +88,9 @@ return array(
             'DISPATCH_MODE' => 2,
             'TASK_WORKER_NUM' => 8,
             'OPEN_LENGHT_CHECK' => true,
-           'PACKAGE_LENGHT_OFFSET' => 0,
-
+            'PACKAGE_LENGHT_OFFSET' => 0,
+        ),
+        'TIMER'=> array(
         ),
     ),
 

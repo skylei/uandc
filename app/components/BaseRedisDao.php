@@ -17,6 +17,9 @@ class BaseRedisDao{
 
     public $db;
 
+    /*
+     * @param array $config
+     * */
     public function __construct($config){
 	$config = array(
 	    "DB"=>0,
