@@ -21,15 +21,9 @@ class BaseRedisDao{
      * @param array $config
      * */
     public function __construct($config){
-	$config = array(
-	    "DB"=>0,
-	    "HOST"=>"127.0.0.1",
-	    "PORT"=>"6379",
-	    "TIMEOUT"=>"10",
-	);
 
-    $this->db = new \Ouno\Cache\Oredis($config);
-	$this->db->selectdb($config['DB']);
+        $this->db = new \Ouno\Cache\Oredis($config);
+	    $this->db->selectdb($config['DB']);
 
     }
 

@@ -14,7 +14,6 @@ class BaseServer{
         echo "server run\r\n";
 	    $cconfig = \Ouno\Ouno::config("CLIENT");
         $client = OFactory::getInstance($cconfig['CLASS'], $cconfig['PARAM']);
-        var_dump($client);
         $sconfig = \Ouno\Ouno::config("SERVER");
         $server = OFactory::getInstance($sconfig['CLASS'], $sconfig['PARAM']);
 	    $server->setClient($client);

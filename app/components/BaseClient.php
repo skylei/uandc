@@ -67,7 +67,7 @@ class BaseClient{
         if($data[0] == CHAT){
             $toId = \intval($data[1][0]);
             $msg = \strip_tags($data[1][1]);
-            $uid = $this->getRedis()->getUid($fd);
+            $uid = $this->getRedis()->getUiByFd($fd);
             if(empty($toId)){  //公共聊天
                 $this->sendToChannel($server, self::CHAT, array($uid, $msg, $toId));
             } else { //私聊

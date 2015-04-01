@@ -11,6 +11,8 @@ use components\BaseRedisDao;
 
 class redisDao extends BaseRedisDao{
 
+
+
     public function bindChanel($channel, $key, $value){
         $this->hash_add($channel, $key, $value);
     }
