@@ -20,8 +20,8 @@ class BaseRedisDao{
     /*
      * @param array $config
      * */
-    public function __construct($config){
-
+    public function __construct(){
+	$config = \Ouno\Ouno::config("REDIS");	
         $this->db = new \Ouno\Cache\Oredis($config);
 	    $this->db->selectdb($config['DB']);
 
@@ -51,12 +51,12 @@ class BaseRedisDao{
     }
 
     public function hash_add($hash, $key, $value){
-        return $this->db->hSet($hash, $key, $value);
+        return $this->db->redis->hSet($hash, $key, $value);
     }
 
 
     public function hash_get($hash, $key){
-        return $this->db->hGet($hash, $key);
+        return $this->db->redis->hGet($hash, $key);
     }
 
     public function hash_delete($hash, $key){
@@ -69,11 +69,11 @@ class BaseRedisDao{
     }
 
     public function hash_count($hash){
-        return $this->db->hLen($hash);
+        return $this->db->redis->hLen($hash);
     }
 
     public function hash_keys($hash){
-        return $this->db->hKeys($hash);
+        return $this->db->redis->hKeys($hash);
     }
 
 

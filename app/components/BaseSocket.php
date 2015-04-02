@@ -31,8 +31,7 @@ class BaseSocket{
     public function __construct($config){
 
         $this->config = $config;
-        echo "basesocket run " . PHP_EOL;
-        var_dump($config);
+        
         $this->server = new \swoole_server($config['HOST'], $config['PORT'], $config['WORK_MODE']);
         $this->server->set(array(
             'reactor_num' => empty($config['reactor_num']) ? 4 : $config['reactor_num'], //reactor thread num
@@ -78,7 +77,9 @@ class BaseSocket{
             }
         }
 	*/
+	echo "basesocket run1 " . PHP_EOL;
         $this->server->start();
+	echo "basesocket run2 " . PHP_EOL;
     }
 
     /*

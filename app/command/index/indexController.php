@@ -25,7 +25,6 @@ class indexController extends BaseController {
 	//$redis = new \redis();
 	//$redis->connect("127.0.0.1", "6379");
 	//$redis->select(2);
-	return
 	$rdao = new rdao($config); 
 	$rdao->set("k1", "11");	
 	echo $rdao->get('k1');

@@ -39,12 +39,13 @@ class BaseClient{
 
     public function OnConnect($server, $fd, $from_id){
         echo "onconneect" . $fd . PHP_EOL;
+
         $this->getRedis()->bindFdToUid($fd, 0);
     }
 
     public function getRedis(){
         $config = \Ouno\Ouno::config("REDIS");
-        return redisDao::getInstance($config);
+        return new redisDao();
     }
 
     /*
@@ -58,7 +59,7 @@ class BaseClient{
     {
         $data = json_decode($jdata);
         echo "onreveive" . $fd . "|" . $jdata . PHP_EOL;
-        $uid = $this->getRedis()->getUid($fd);
+        $uid = $this->getRedis()->getUidByFd($fd);
         $this->sendToChannel($server, $fd, self::CHAT, array($uid, "++receive++", $uid));
         return;
 
@@ -90,7 +91,7 @@ class BaseClient{
      * @return void
      * */
     public function onClose($server, $client_id, $from_id){
-        $uid = $this->getRedis()->getUid($client_id);
+        $uid = $this->getRedis()->getUidByFd($client_id);
         $this->getRedis()->delete($client_id, $uid);
         $this->sendToChannel($server, self::LOGOUT, array($uid));
     }
@@ -172,14 +173,14 @@ class BaseClient{
                 }
                 break;
             case self::HB:  //心跳处理
-                $uid = $this->getRedis()->getUid($fd);
+                $uid = $this->getRedis()->getUidByFd($fd);
                 $this->getRedis()->uphb($uid);
                 return null;
                 break;
             case self::CHAT:
                 $toId = \intval($result[1][0]);
                 $msg = \strip_tags($result[1][1]);
-                $uid = $this->getRedis()->getUid($fd);
+                $uid = $this->getRedis()->getUidByFd($fd);
                 if(empty($toId)) {  //公共聊天
                     $this->sendToChannel($serv, self::CHAT, array($uid, $msg, $toId));
                 } else { //私聊
