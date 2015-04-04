@@ -325,8 +325,8 @@ class Ouno extends BaseComponent{
                 include(self::$_classes[$className]);
         }else{
             if (strpos($className, '\\') !== false) {
-                $classFile = self::$APP_PATH . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, ltrim($className, '\\')) . '.php';echo $classFile . "++++\r\n";
-				if (is_file($classFile) && !isset(self::$_import[$className]))
+                $classFile = self::$APP_PATH . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, ltrim($className, '\\')) . '.php';
+		if (is_file($classFile) && !isset(self::$_import[$className]))
                     include($classFile);
 
             }else{//路径

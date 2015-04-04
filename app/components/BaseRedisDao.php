@@ -23,7 +23,7 @@ class BaseRedisDao{
     public function __construct(){
 	$config = \Ouno\Ouno::config("REDIS");	
         $this->db = new \Ouno\Cache\Oredis($config);
-	    $this->db->selectdb($config['DB']);
+	$this->db->selectdb($config['DB']);
 
     }
 

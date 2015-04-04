@@ -22,25 +22,30 @@ class BaseClient{
     const LOGOUT = 9;       //退出登录
     const ERROR = -1;
 
-    public function __construct(){
-        echo "this is BaseClient" . PHP_EOL;
-    }
+    
 
     public function onStart($server){
         $config = \Ouno\Ouno::config("SERVER");
+	/*
         if(!empty($config['TIMER'])) {
             foreach ($config['TIMER'] as $time) {
                 $server->addtimer($time);
             }
         }
+	*/
 
-	    echo "this is client start" . PHP_EOL;
+	 echo "client start" . PHP_EOL;
     }	
+   
 
+    /**
+     * bind fd to 0 user  
+     */
     public function OnConnect($server, $fd, $from_id){
         echo "onconneect" . $fd . PHP_EOL;
-
+	
         $this->getRedis()->bindFdToUid($fd, 0);
+
     }
 
     public function getRedis(){
@@ -48,6 +53,15 @@ class BaseClient{
         return new redisDao();
     }
 
+
+    /**
+     * here should write into log
+     *  
+     */
+    public function onOpen(swoole_websocket_server $server, $fd){
+	echo "open $fd";
+
+    }
     /*
      * 收到socket发来的信息
      * @param resource $server swoole server
@@ -55,32 +69,9 @@ class BaseClient{
      * @param int $from_id
      * @param string $jdata json data
      * */
-    public function onReceive($server, int $fd, int $from_id, string $jdata)
+    public function onReceive($server, $fd, $from_id, $jdata)
     {
-        $data = json_decode($jdata);
-        echo "onreveive" . $fd . "|" . $jdata . PHP_EOL;
-        $uid = $this->getRedis()->getUidByFd($fd);
-        $this->sendToChannel($server, $fd, self::CHAT, array($uid, "++receive++", $uid));
-        return;
-
-        if(!is_array($data))
-            return null;
-        if($data[0] == CHAT){
-            $toId = \intval($data[1][0]);
-            $msg = \strip_tags($data[1][1]);
-            $uid = $this->getRedis()->getUiByFd($fd);
-            if(empty($toId)){  //公共聊天
-                $this->sendToChannel($server, self::CHAT, array($uid, $msg, $toId));
-            } else { //私聊
-                $toInfo = $this->getRedis()->getFdByUid($toId);
-                if(!empty($toInfo)){
-                    $this->sendOne($server, $toInfo['fd'], self::CHAT, array($uid, $msg, $toId));
-                    $this->sendOne($server, $fd, self::CHAT, array($uid, $msg, $toId));
-                }
-            }
-        }else if($data[0] == ONLINE){
-
-        }
+            
     }
 
     /*
@@ -91,9 +82,7 @@ class BaseClient{
      * @return void
      * */
     public function onClose($server, $client_id, $from_id){
-        $uid = $this->getRedis()->getUidByFd($client_id);
-        $this->getRedis()->delete($client_id, $uid);
-        $this->sendToChannel($server, self::LOGOUT, array($uid));
+	echo "this is close" .PHP_EOL;
     }
 
     public function onWorkerStart($server, $worker_id){
@@ -108,101 +97,79 @@ class BaseClient{
 
     public function onTask()
     {
-
+	echo "Task";
     }
 
     function onFinish($serv, $task_id, $data){
-        
+    	echo "finish \r\n";    
     }
 
     public function onShutdown(){
 	    $params = func_get_args();
 	    var_dump($params);
     }
+    
+    /**
+     * the headle client send message not the recevie action 
+     */
+    public function onMessage($server, $fd, $data, $opcode, $fin) {
+    	echo "message from {$fd}:{$data},opcode:{$opcode},fin:{$fin}\n";
+	$message = json_decode($data, true);
+	if($message['type'] == 0){
+	    $indexController = $this->getController("\\command\\index\\index");	
+	    $loginUser = $indexController->checkLogin();
+	    if(!$loginUser){
+		$return = array(
+		    "active" => "login",
+		    "type"=> 1,
+		    "message" => "user haven't login, please login",
+		    "uid" => 0
+   		);
+		$this->server->push(json_encode($return));	
+	    }else{
+	        $return = array(
+		    "active" => "online",
+		    "type"=> 2,
+		    "message" => "user haven't login, please login",
+		    "uid" => $loginUser['userid'],
+		    "to_uid" => 0	
+   		);	
+		$this->sendToChannel($return, $channel = "ALL");
+	    }
 
-    function onMessage($client_id, $ws){
+	}else if($message['type'] == 1){
+	    if($message['to_uid']){
+		$to_fd = $this->getRedis->getFdByUid($message['to_uid']);
+		$sendMessage = array(
+		    "active"=> "sendOne",
+		    "type" => 2,
+		    "message"=> $message['message'],
+		    "to_uid" => $message['to_uid'],
+		    "uid" => $loginUser['userid']
+		); 
+		
+		$this->sendOne($sendMessage);
+	    }else{
+		$sendMessage = array(
+		    "active"=> "sendOne",
+		    "type" => 2,
+		    "message"=> $message['message'],
+		    "to_uid" => $message['to_uid'],
+		    "uid" => $loginUser['userid']
+		);
+	        $this->sendToChannel($sendMessage, $channel = "ALL");	
+	    } 
+	    
+	   	
+	}else if($message['type'] == 2){
 
+
+	}else if($message['type'] == 3){
+
+	}
+    	$server->push($fd, $data);
     }
 
-
-    /*
-     * 收到用户发来消息
-     * */
-    public function onReceiv2e()
-    {
-        $params = func_get_args();
-        $_data = $params[3];
-        $serv = $params[0];
-        $fd = $params[1];
-        echo "from {$fd}: get data: {$_data}".PHP_EOL;
-        $result = json_decode($_data, true);
-        if(!is_array($result)) {
-            return null;
-        }
-
-        switch ($result[0]) {
-            /*
-             *  array(
-             *        1, array(uid, token)
-             * )
-             * */
-            case self::LOGIN:
-                $routeResult = $this->_route(array(
-                    'a'=>'chat/main',
-                    'm'=>'check',
-                    'uid'=>$result[1][0],
-                    'token'=>$result[1][1],
-                ));
-
-                if($routeResult) {  //登录成功
-                    $uinfo = $this->getRedis()->get($result[1][0]);
-                    if (!empty($uinfo)) {  //已登录过
-                        $this->sendOne($serv, $uinfo['fd'], self::RELOGIN, []);
-                        $this->getRedis()->delete($uinfo['fd'], $result[1][0]);
-                        \swoole_server_close($serv, $uinfo['fd']);
-                    }
-
-                    /**
-                     * 加入到fd列表中
-                     */
-                    $this->getRedis()->add($result[1][0], $fd);
-                    $this->getRedis()->addFd($fd, $result[1][0]);
-                    $this->sendToChannel($serv, self::LOGIN_SUCC, $routeResult);
-                } else {       //登录失败
-                    $this->sendOne($serv, $fd, self::LOGIN_ERROR, array($routeResult, $result[1][0], $result[1][1]));
-                }
-                break;
-            case self::HB:  //心跳处理
-                $uid = $this->getRedis()->getUidByFd($fd);
-                $this->getRedis()->uphb($uid);
-                return null;
-                break;
-            case self::CHAT:
-                $toId = \intval($result[1][0]);
-                $msg = \strip_tags($result[1][1]);
-                $uid = $this->getRedis()->getUidByFd($fd);
-                if(empty($toId)) {  //公共聊天
-                    $this->sendToChannel($serv, self::CHAT, array($uid, $msg, $toId));
-                } else { //私聊
-                    $toInfo = $this->getRedis()->get($toId);
-                    if(!empty($toInfo)) {
-                        $this->sendOne($serv, $toInfo['fd'], self::CHAT, array($uid, $msg, $toId));
-                        $this->sendOne($serv, $fd, self::CHAT, array($uid, $msg, $toId));
-                    }
-                }
-                break;
-            case self::OLLIST:
-                $routeResult = $this->_route(array(
-                    'a'=>'chat/main',
-                    'm'=>'online',
-                ));
-                if(!empty($routeResult)) {
-                    $this->sendOne($serv, $fd, self::OLLIST, $routeResult);
-                }
-                break;
-
-        }
-    }
 
     /*
      * 想频道成员广播
@@ -249,12 +216,10 @@ class BaseClient{
         }
     }
 
-    public function executeController($param){
-
-
-
+   
+    public function getController($class, $param = array()){
+	return \Ouno\OFactory::getInstance($class, $param);
     }
-
 
 
 
