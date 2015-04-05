@@ -78,7 +78,7 @@ filter:Alpha(opacity=80); background:#fff;/*实现IE背景透明
 }
 .sidebar section{
 	float:left;
-	width:95%;
+	width:100%;
 	margin:10px 0 0 5%;
 	overflow:hidden;
 	
@@ -97,8 +97,7 @@ filter:Alpha(opacity=80); background:#fff;/*实现IE背景透明
 	background:url(/app/static/images/site/2.jpg) no-repeat;
 }
 .sidebar .side-info{
-	margin-top:20px;
-	padding:20px 10px 0px 10px;
+	padding:10px 0px 10px 0px;
 	width:100%;
 	height:100%;
 	color:#999;
@@ -118,16 +117,148 @@ filter:Alpha(opacity=80); background:#fff;/*实现IE背景透明
 	display:block;
 }
 .side-info .side-weibo{
-    width: 300px;
+    width: 310px;
     height: 667px;
 }
-    
+.side-info .im-login{
+    width:100%;
+    border:1px solid #faa;
+    height:300px;
+    margin:auto 0;
+    background:#fff;
+    text-align: center;
+}
+.im-login p{
+    margin-top:10px;
+    display: block;
+}
+.im-login p label{
+    margin-left:20px;
+}
+.im-login p input{
+    width:200px;
+    line-height:24px;
+}
+
+.im-login button{
+    padding:5px 10px 5px 10px;
+}
+.side-info .im-register{
+    width:100%;
+    border:1px solid #faa;
+    height:300px;
+    margin:auto 0;
+    background:#fff;
+    text-align: center;
+    display: none;
+}
 .side-info p{
 	width:100%;
 	line-height:22px;
 	font-size:12px;
 	overflow:hidden;
 }
+
+.side-info .im-chatroom{
+    width: 100%;
+    height: 100%;
+    border:1px solid #0099CC;
+}
+
+.hide{
+    display: none;
+}
+
+.im-chatroom .im-msgbox{
+    background: rgba(184,224,34, 0.3);
+    width: 310px;
+    height:70%;
+    border:1px solid #faa;
+    padding: 0px 5px 10px 5px;
+    overflow-y:scroll;
+    overflow-x: visible;
+}
+
+.im-msgbox ul{
+    list-style: none;
+    padding: 0;
+}
+.im-msgbox ul li{
+    margin-left: 5px;
+    padding-top:10px;
+    display:block;
+}
+.im-msgbox ul li p{
+    line-height: 18px;
+    overflow: visible;
+}
+.im-msgbox ul li p .im-user{
+    padd-right:5px;
+    color: #0ca3d2;
+    cursor: pointer;
+}
+.im-msgbox ul li p .im-content{
+    border:1px solid #74d2d9;
+    border-radius: 5px;
+    color:#222;
+    background: #fff;
+}
+.im-chatroom .send{
+    padding: 0;
+    color: #111;
+}
+
+.im-chatroom .user-list{
+    width: 100%;
+    display: none;
+}
+.user-list .top{
+    width: 100%;
+    height:20px;
+    border: 1px solid#74d2d9;
+    text-align: center;
+    color: #000088;
+    cursor: pointer;
+}
+
+.user-list ul{
+    list-style: none;
+}
+.user-list ul li{
+    display: inline-block;
+    height: 80px;
+    line-height: 50px;
+}
+.user-list ul li img{
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.send .im-menu{
+    display: inline;
+    height: 24px;
+    border-left: 1px solid#219EE2;
+    cursor: pointer;
+}
+.send .sendbox{
+    margin-left: 5px;
+    width: 310px;
+    border:1px solid #0099CC;
+    line-height: 28px;
+}
+.send .send-btn{
+    margin: 0px auto;
+    background: #A9E4E9;
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
+    border: 1px solid#219EE2;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
 #show-leftbar{
 	font-size:32px;
 }
@@ -140,8 +271,8 @@ filter:Alpha(opacity=80); background:#fff;/*实现IE背景透明
 .side-info .cate-art{
 	float:left;
 	/* margin: 0 1px 1px 0; */
-	width:85px;
-	height:85px;
+	width:95px;
+	height:95px;
 	line-height:85px;
 	text-align:center;
 	background-color:rgba(0, 0, 0, 0.5);
@@ -286,5 +417,7 @@ section p a:hover{
 	overflow:hidden
 }
 
-
+.clear{
+    clear: both;
+}
 

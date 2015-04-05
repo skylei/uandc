@@ -56,12 +56,12 @@ class BaseController extends \Ouno\Controller {
     /**
      * 返回ajax数据
      * @param mixed $data
-     * @param boolean $isSucc
+     * @param boolean $success
      * @param int $code
      */
-    public function ajax_return($isSucc, $data = '', $code = 0){
+    public function ajax_return($success, $data = '', $code = 0){
         $callback = isset($_GET['callback']) ? $_GET['callback'] : '';
-        $result = json_encode ( array ('status' => $isSucc, 'data' => $data , 'code' => $code) );
+        $result = json_encode ( array ('status' => $success, 'data' => $data , 'code' => $code) );
         if ($callback) {
             $result = $callback . '(' . $result . ')';
         }

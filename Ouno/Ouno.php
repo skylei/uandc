@@ -234,20 +234,20 @@ class Ouno extends BaseComponent{
      * 运行框架
      * */
     public function run($app_path, $config = 'default'){
+        Ouno::$_classes = array(
+            "Ouno\\Core\\Db\\OunoMysql"=> __DIR__ . "/Core/Db/OunoMysql.php",
+            "Ouno\\Core\\Db\\OunoMysqli"=> __DIR__ . "/Core/Db/OunoMysqli.php",
+            "Ouno\\Core\\Db\\OunoMongo"=> __DIR__ . "/Core/Db/OunoMongo.php",
+            "Ouno\\Core\\Db\\AbstractDb"=> __DIR__ . "/Core/Db/AbstractDb.php",
+            "Ouno\\Cache\\Oredis"=> __DIR__ . "/Cache/Oredis.php",
+        );
         self::setAppPath($app_path);
         $config = include_once($app_path . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . $config . ".php");
         self::config($config);
 	    if(self::config('SESSION'))
         	session_start();
-        Ouno::$_classes = array(
-            "Ouno\\Core\\Db\\OunoMysql"=> __DIR__ . "/Core/Db/OunoMysql.php",
-			"Ouno\\Core\\Db\\OunoMysqli"=> __DIR__ . "/Core/Db/OunoMysqli.php",
-            "Ouno\\Core\\Db\\OunoMongo"=> __DIR__ . "/Core/Db/OunoMongo.php",
-            "Ouno\\Core\\Db\\AbstractDb"=> __DIR__ . "/Core/Db/AbstractDb.php",
- 	        "Ouno\\Cache\\Oredis"=> __DIR__ . "/Cache/Oredis.php",
-        );
 
-        //$this->init2Ehandle();
+
 		if(self::config('EXCEPTION_HANDLE', true))
             set_exception_handler(array('\Ouno\Ouno', 'handleException'));
         if(self::config('ERROR_HANDLE', true))
@@ -303,6 +303,7 @@ class Ouno extends BaseComponent{
     public static function registerInstance($key, $instance){
         if(!isset(self::$_instance[$key]))
             self::$_instance[$key] = $instance;
+        return true;
     }
 
     /*
@@ -320,13 +321,19 @@ class Ouno extends BaseComponent{
      * @retrun include file;
      * */
     public static function loader($className){
-        if(isset(self::$_classes[$className]) ){
+
+        if(isset(self::$_instance[$className])) {
+            return self::$_instance[$className];
+
+        }else if(isset(self::$_classes[$className])){
             if(!isset(self::$_import[$className]) && file_exists(self::$_classes[$className]))
                 include(self::$_classes[$className]);
+
         }else{
             if (strpos($className, '\\') !== false) {
-                $classFile = self::$APP_PATH . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, ltrim($className, '\\')) . '.php';
-		if (is_file($classFile) && !isset(self::$_import[$className]))
+                $classFile = self::$APP_PATH . DIRECTORY_SEPARATOR .
+                    str_replace('\\', DIRECTORY_SEPARATOR, ltrim($className, '\\')) . '.php';
+		    if (is_file($classFile) && !isset(self::$_import[$className]))
                     include($classFile);
 
             }else{//路径
@@ -388,16 +395,6 @@ class Ouno extends BaseComponent{
     }
 
     /*
-     *初始化错误处理
-     * */
-    public function init2Ehandle(){
-        if(self::$_config['EXCEPTION_HANDLE'])
-            set_exception_handler(array('\Ouno\Ouno', 'handleException'));
-        if(self::$_config['ERROR_HANDLE'])
-            set_error_handler(array('\Ouno\Ouno','handleError'),error_reporting());
-    }
-
-    /*
     *设置PHP错误处理函数,写入日志文件
     */
     public static function handleError($errorCode, $msg = '', $errorFile = 'unkwon', $errorLine = 0){
@@ -433,12 +430,14 @@ class Ouno extends BaseComponent{
         $class = get_class($exception);
         $message .='#exception : ' .$class;
         $message .= '#(trace)' . $exception->getTraceAsString();
-        if(Ouno::config('EXCEPTION_DISPLAY')) self::displayException($message);
+        if(Ouno::config('EXCEPTION_DISPLAY'))
+            self::displayException($message);
         OunoLog::log($class, $message);
     }
 
     /*
      * 打印错误
+     * @param string $message
      * */
     public static function displayException($message){
         if(PHP_SAPI == 'cli')
@@ -454,15 +453,20 @@ class Ouno extends BaseComponent{
      * @return instance
      * @throw dao inexistance
      * */
-    public static function dao($daoName, $group = ''){
+    public static function dao($daoName, $group = '')
+    {
         $dao = Ouno::config('DAO_NAMESPACE', '\\src\\dao');
-        if($group)
+        if ($group)
             $dao .= '\\' . $group;
         $dao .= '\\' . $daoName . 'Dao';
-        if(class_exists($dao))
-            return new $dao;
-        else
+        if (class_exists($dao)){
+            if(isset(self::$_instance[$dao]))
+                return self::$_instance[$dao];
+            self::$_instance[$dao] = new $dao;
+            return self::$_instance[$dao];
+        }else {
             throw new \Exception("daogroup : $group daoname $dao inexistance");
+        }
     }
 
 
@@ -474,14 +478,18 @@ class Ouno extends BaseComponent{
      * @throw service inexistance
      * */
     public static  function service($serviceName, $group = ''){
-        $service = Ouno::config('SERVICE_NAMESPACE');
+        $service = Ouno::config('SERVICE_NAMESPACE', '\\src\\service');
         if($group)
             $service .= '\\' . $group;
         $service .= '\\' . $serviceName . 'Service';
-        if(class_exists($service))
-            return new $service;
-        else
+        if (class_exists($service)){
+            if(isset(self::$_instance[$service]))
+                return self::$_instance[$service];
+            self::$_instance[$service] = new $service;
+            return self::$_instance[$service];
+        }else {
             throw new \Exception("service group : [$group] service name [$service] inexistance");
+        }
     }
 
     /**
@@ -961,7 +969,6 @@ class OFactory{
      * @return unknow
      * */
     public static function getInstance($class, $param = array()){
-        echo $class . "\r\n";
         if(!empty($param)){
             if(isset(self::$instances[$class]) && self::$instances[$class]['param'] == $param)
                 return self::$instances[$class]['object'];

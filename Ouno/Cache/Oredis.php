@@ -79,8 +79,9 @@ class Oredis{
         $this->redis->delete($keys);
     }
 
+    //@todo
     public function close(){
-
+        return $this->redis->close();
     }
     
     public function selectdb($db){

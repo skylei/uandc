@@ -116,6 +116,10 @@ class OunoMysqli  extends \Ouno\BaseComponent{
 
     }
 
+    public function getListInserId($mode = 1){
+        return $mode  ? $this->linkw->insert_id : $this->linkr->insert_id;
+    }
+
     /*
      * 查询并返回结果
      * @param string $sql
@@ -162,8 +166,10 @@ class OunoMysqli  extends \Ouno\BaseComponent{
      * */
     public function findOne($where, $field = '*', $options = '' ){
         $sql = "SELECT " . $field . " FROM ". $this->table . " %s %s limit 0,1";
-        if(is_array($where)) $where = $this->where($where);
-        if(is_array($options)) $options = $this->parseOptions($options);
+        if(is_array($where))
+            $where = $this->where($where);
+        if(is_array($options))
+            $options = $this->parseOptions($options);
         $sql = sprintf($sql, $where, $options);
         return $this->queryRow($sql);
     }
@@ -255,6 +261,9 @@ class OunoMysqli  extends \Ouno\BaseComponent{
         \Ouno\OunoLog::logSql($error,  $this->table, $type);
     }
 
+    /*
+     * 查到并修改
+     * */
     public function findOneModify($where, $data, $options = ''){
         $result = $this->findOne($where, $filed = '*', $options);
         if($result)  $update = $this->update($data, $where);
@@ -264,7 +273,7 @@ class OunoMysqli  extends \Ouno\BaseComponent{
     /*
      * 开启事务
      * */
-    public function trans_start($mode = true){
+    public function trans_start($mode = 1){
         switch($mode){
             case "1" : $this->linkw->autocommit(false);
                 break;
@@ -332,7 +341,7 @@ class OunoMysqli  extends \Ouno\BaseComponent{
             foreach($where as $key=>$val){
                 $connector =  isset($val['connector']) ? $val['connector'] : '';
                 $operator = isset($val['operator']) ? $val['operator'] : '';
-                $whereStr .= $key . " " . $operator . " " . "'" .$val['value'] . "'" . " " . $connector .' ';
+                $whereStr .= $key . " " . $operator . " '" .$val['value'] . "' " . $connector .' ';
             }
         }else{
             $whereStr .= $where;

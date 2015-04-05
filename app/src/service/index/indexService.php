@@ -4,13 +4,16 @@
 * @author weiyuhe123@163.com
 */
 namespace src\service\index;
+
+use components\Myconstant;
+use \Ouno\Ouno as Ouno;
 class indexService extends \Ouno\Service {
 
 
 	/*最热门帖子*/
 	public function HotArt(){
 		//$query = array('time'=>array('$lt'=>time()));
-		return \Ouno\Ouno::dao('article', 'index')->findAll();
+		return Ouno::dao('article', 'index')->findAll();
 	}
 
 	/*
@@ -19,7 +22,7 @@ class indexService extends \Ouno\Service {
 	 * @return array | false;
 	 * */
 	public function getOne($query = array()){
-		return \Ouno\Ouno::dao('article', 'index')->getOne($query);
+		return Ouno::dao('article', 'index')->getOne($query);
 	}
 
 	/*最新XX条贴子*/
@@ -27,34 +30,51 @@ class indexService extends \Ouno\Service {
         $where = '';
 		if($cate) $where = "cate = '$cate'";
         $field = '*';
-        $options = array('order'=>array('create_time', 'value'=>'create_time', 'sort'=>'DESC'), 'limit'=>array('offset'=>$offset, 'pagesize'=>$pagesize));
-		return \Ouno\Ouno::dao('article', 'index')->db->findAll($where, $field, $options);
+        $options = array(
+            'order'=>array('create_time', 'value'=>'create_time', 'sort'=>'DESC'),
+            'limit'=>array('offset'=>$offset, 'pagesize'=>$pagesize)
+        );
+		return Ouno::dao('article', 'index')->db->findAll($where, $field, $options);
 	}
 
+    /*
+     * 更新用户点击的数量
+     * */
     public function updateArtClick($where, $data, $options = ''){
-        return \Ouno\Ouno::dao('article', 'index')->db->findOneModify($where, $data, $options);
+        return Ouno::dao('article', 'index')->db->findOneModify($where, $data, $options);
     }
+
+    /*
+     * 获取文章的评论数
+     * @param int $id
+     * @param array | false
+     * */
     public function artCommentNum($id){
-       return  \Ouno\Ouno::dao('comment', 'index')->count(" where art_id = '$id'");
+       return  Ouno::dao('comment', 'index')->count(" where art_id = '$id'");
     }
 
     public function praiseComment($cid, $field){
         $data = array($field=> "$field + 1");
         $where = " where id = '$cid' ";
-        return \Ouno\Ouno::dao('comment', 'index')->update($data, $where);
+        return Ouno::dao('comment', 'index')->update($data, $where);
     }
 
+    /*
+     * 统计文章数
+     * @param array $query
+     * @return array | false
+     * */
 	public function count($query  = array()) {
-		return \Ouno\Ouno::dao('article', 'index')->count($query);
+		return Ouno::dao('article', 'index')->count($query);
 	}
 
     public function getUsericon(){
-        return \Ouno\Ouno::dao('usericon', 'index')->db->findAll();
+        return Ouno::dao('usericon', 'index')->db->findAll();
     }
 
     public function commentUnique($data){
         $where = " nickname ='{$data['user']}' and  email ='{$data['email']}'";
-       return  \Ouno\Ouno::dao('comment', 'index')->db->findAll($where);
+       return  Ouno::dao('comment', 'index')->db->findAll($where);
     }
 
 
@@ -73,14 +93,14 @@ class indexService extends \Ouno\Service {
 		$key = $data;
 		$init = array('items'=>array());
 		$reduce = "function (doc,prev){ prev.items.push(obj);}";
-		$result = \Ouno\Ouno::dao('article', 'index')->group($key, $init, $reduce);
+		$result = Ouno::dao('article', 'index')->group($key, $init, $reduce);
 		return $result['retval'];
 	}
 
 	public function search($search){
 		//if($data) $this->controller->redirect('/')
         $where = "title like '%$search%' or tags like '%$search%'";
-        $res = \Ouno\Ouno::dao('article', 'index')->db->findAll($where);
+        $res = Ouno::dao('article', 'index')->db->findAll($where);
 		return $res;
 	}
 
@@ -89,24 +109,24 @@ class indexService extends \Ouno\Service {
         $tagStr = "tags like '%" . $tag . "%'";
         $tagStr .= 'ORDER BY click_num DESC LIMIT 0,15';
         $field = '*';
-        return \Ouno\Ouno::dao('article', 'index')->db->findAll($tagStr, $field);
+        return Ouno::dao('article', 'index')->db->findAll($tagStr, $field);
     }
 
 	public function category($key){
 		//$key = array('cate'=>'wrisper');
-		return \Ouno\Ouno::dao('article', 'index')->distinct($key);
+		return Ouno::dao('article', 'index')->distinct($key);
 	}
 
      /*
       * article count
       * */
     public function artCount($where = ''){
-        return \Ouno\Ouno::dao('article', 'index')->count($where);
+        return Ouno::dao('article', 'index')->count($where);
     }
 
 	public function getDetail($id){
 		$where = array('id'=>array('value'=>$id, 'operator'=> '='));
-		return \Ouno\Ouno::dao('article', 'index')->db->findOne($where);
+		return Ouno::dao('article', 'index')->db->findOne($where);
 	}
 
 	public function mblogDao(){
@@ -116,63 +136,76 @@ class indexService extends \Ouno\Service {
 
 	public function insertComment($data){
 		$data = array_filter($data);
-		return \Ouno\Ouno::dao('comment', 'index')->db->insert($data);
+		return Ouno::dao('comment', 'index')->db->insert($data);
 	}
 
     public function getComment($id){
         $condition['id'] = array('value'=>$id, 'operator'=>'=');
-        return \Ouno\Ouno::dao('comment', 'index')->db->findAll($condition);
+        return Ouno::dao('comment', 'index')->db->findAll($condition);
     }
 
 	public function updateComment($cid, $type){
         $data = array($type=>"$type + 1");
         $where = "where id='$cid'";
-		return \Ouno\Ouno::dao('comment', 'index')->db->update($data, $where);
+		return Ouno::dao('comment', 'index')->db->update($data, $where);
 
 	}
 
-	public function getMblog(){
-		return \Ouno\Ouno::dao('Mblog', 'index')->findAll();
-
-	}
-
-
-	public function visitLog($info, $act = 1){
-		$data = array('info'=>$info['info'], 'ip'=>$info['ip'], 'create_time'=>time(), 'visit_num'=>1,
-                        'user_agent'=>$info['user_agent'], 'act'=>$act, 'update'=>date('Y-m-d H:i:s', time()));
-        $where = array(
-            'ip'=> array('value'=>$info['ip'], 'operator'=> '=', 'connector'=>'and'),
-            'info'=> array('value'=>$info['info'],'operator'=>'='),
-        );
-        $res = \Ouno\Ouno::dao('visit', 'index')->db->findOne($where, $field = 'create_time', 'order by create_time desc ');
-        if(!$res) return false;
-        if(time() - $res['create_time'] > 30)
-            \Ouno\Ouno::dao('visit', 'index')->db->insert($data);
-        $keyword = addslashes($info['keyword']);
-        $where = "info like '%$keyword%'";
-        $count = \Ouno\Ouno::dao('visit', 'index')->count($where);
-        $data['count'] = $count['0']['count'];
-		return  $data;
+    /*
+     * 检验im用户登录
+     * @param array $data
+     * @return array | false
+     * */
+    public function checkImUserLogin($data){
+        $field = "*";
+        return Ouno::dao('imuser', 'user')->db->findOne($data, $field);
     }
 
+    /*
+     * 是否是登录用户
+     * */
+    public function isLogined(){
+        if(!empty($_SESSION[Myconstant::IM_SESSIOM_ID]))
+            $loginUser['uid'] = $_SESSION[Myconstant::IM_SESSIOM_ID];
+        else if(!empty($_COOKIE[Myconstant::IM_COOKIE_ID]))
+            $loginUser['uid'] = $_COOKIE[Myconstant::IM_COOKIE_ID];
+        else
+            return false;
+        $condition = array("uid"=>array("value"=>$loginUser['uid'], 'operator'=> '='));
+        return Ouno::dao('imuser', 'user')->db->findOne($condition);
+    }
 
-	/**
-	 * 分页类
-	 * @param int $count
-	 */
-	public function page($count, $str = '') {
-		
-	}
+    /*
+     * 添加im用户
+     * @param array $data
+     * @return boolean
+     * */
+    public function addImUser($data){
+        return Ouno::dao("imUser", "user")->db->insert($data);
+    }
 
-	public function mapreduce(){
-		return \Ouno\Ouno::dao('article', 'index')->mapreduce();
+    /*
+    * 获取im用户
+    * @param array $data
+    * @return boolean | array
+    * */
+    public function getImUser($data){
+        return Ouno::dao("imUser", "user")->db->findOne($data);
+    }
 
-	}
+    /*
+     * 获取im用户在线列表
+     * */
+    public function getOnlineList(){
+        return Ouno::dao("redis", "redis")->getChannelAllMember("ALL");
+    }
 
-
-
-
-
+    /*
+     * 获取所有im用户
+     * */
+    public function getAllImUser(){
+       return  Ouno::dao("imUser", "user")->db->findAll();
+    }
 
 }
 

@@ -60,12 +60,12 @@ class BaseRedisDao{
     }
 
     public function hash_delete($hash, $key){
-        return $this->db->hDel($hash, $key);
+        return $this->db->redis->hDel($hash, $key);
 
     }
 
     public function hash_get_all($hash){
-        return $this->db->hGetAll($hash);
+        return $this->db->redis->hGetAll($hash);
     }
 
     public function hash_count($hash){
@@ -76,5 +76,9 @@ class BaseRedisDao{
         return $this->db->redis->hKeys($hash);
     }
 
+
+    public function clear(){
+        $this->db->redis->flushDB();
+    }
 
 }

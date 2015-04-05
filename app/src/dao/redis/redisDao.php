@@ -29,6 +29,14 @@ class redisDao extends BaseRedisDao{
         return $this->hash_get($channel, $key);
     }
 
+    public function getChannelAllMember($channel){
+        return $this->hash_get_all($channel);
+    }
+
+    public function clearChannel($channel){
+        return $this->delete($channel);
+    }
+
     /*
      * 绑定用户到fd上，由于fd是整数，不能直接设为key
      * @param int $fd
@@ -62,7 +70,8 @@ class redisDao extends BaseRedisDao{
         return $this->get($uid);
     }
 
-    public function removeUser($uid, $fd){
+    public function removeUser($fd){
+        $uid = $this->getUidByFd($fd);
         $this->delete(array($uid, $this->getFdKey($fd)));
     }
 

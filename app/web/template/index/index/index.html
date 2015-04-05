@@ -9,6 +9,7 @@
 	<link href="<{$data['basePath']}>/app/static/style/Home.css" rel="stylesheet"/>
 	<link href="<{$data['basePath']}>/app/static/style/common.css" rel="stylesheet" type="text/css">
 	<script src="<{$data['basePath']}>/app/static/js/jquery.js" type="text/javascript"></script>
+    <script src="/app/static/js/jquery.json.js"></script>
 </head>
 <body>
 <{include 'Common/lmenu.html'}>
@@ -54,7 +55,7 @@
         <{foreach $data['image'] as $key=>$val}>
         <div class="cate-art">
             <a href="javascript:;">
-                <img src="http://www.uandc.cn/app<{$val['thumbfile']}>" width="90" height="90" />
+                <!--<img src="http://www.uandc.cn/app<{$val['thumbfile']}>" width="90" height="90" />-->
             </a>
         </div>
         <{/foreach}>
@@ -64,70 +65,300 @@
         <div class="cate-art"><a href="http://blog.csdn.net/initphp">老朱</a></div>
         <div class="cate-art"><a href="http://www.annapatio.com">安娜帕提欧</a></div>
         <div class="cate-art"><a href="javascript:;">木头和兔子</a></div>
-        <div class="cate-art"><a href="javascript:;">LINUX</a></div>
-        <div class="cate-art"><a href="javascript:;">HTML/CSS</a></div>
+        <div class="cate-art"><a href="javascript:;">生活糖果</a></div>
+        <div class="cate-art"><a href="javascript:;">luoo</a></div>
         <div class="cate-art"><a href="javascript:;">NOSQL</a></div>
         <div class="cate-art"><a href="javascript:;">分词</a></div>
         <div class="cate-art"><a href="javascript:;">消息队列</a></div>
         <div class="cate-art"><a href="javascript:;">git</a></div>
     </div>
     <div class="side-info side-default side-im">
+        <{if empty($data['imUser'])}>
+        <div class="im-login im-default" >
+            <p><label>username&nbsp;</label><input type="text" name="username" placeholder="your username" /></p>
+            <p><label>password&nbsp;</label>
+                <input type="password" name="password" placeholder="your password"/>
+            </p>
+            <p><button id="do-login">sign in</button></p>
+            <p><label>no account yet ？</label><a href="javascript:;" id="register" >sing up</a></p>
+        </div>
+        <div class="im-login im-register">
+            <p>
+                <label>用户名&nbsp;</label>
+                <input type="text" name="username" id="reg-username" placeholder="your username" />
+            </p>
+            <p><label>密码&nbsp;&nbsp;&nbsp;</label>
+                <input type="password" name="password" id="reg-pwd" placeholder="your password"/>
+            </p>
+            <p><button type="submit" id="do-register">注册</button></p>
+        </div>
+        <{else}>
+        <div class="im-chatroom">
+            <div class="im-msgbox">
+                <div class="clear"></div>
+                <ul class="msg-list">
+                    <li><p>
+                            <span class="im-user">螃蟹在晨跑</span>说 :
+                            <span class="im-content">hello world~!</span>
+                        </p>
+                    </li>
+                </ul>
+            </div>
+            <div class="user-list">
+                <div class="top backtochat">返回</div>
+                <ul>
+                    <li>
+                        <img src="http://www.uandc.cn/app/static/images/ablum/default/thumb/crab_running14258873851659_thumb.jpg" />
+                    </li>
+                </ul>
+            </div>
+            <div class="send">
+                <p>
+                    <span class="im-menu ol-list">在线用户</span>
+                    <span class="im-menu">表情</span>
+                    <span>
+                        <select name="select-user">
+                            <option value="0">所有人</option>
+                        </select>
+                    </span>
+                    <span class="im-menu" id="offline">下线</span>
+                </p>
+                <p>
+                    <input type="text" name="send" class="sendbox" />
+                    <input type="hidden" name="islogin" value="0" />
 
-
+                </p>
+                <div  class="send-btn"> send</div>
+            </div>
+        </div>
+        <{/if}>
         
     </div>
 </div>
 
 <script type="text/javascript">
-	$(function(){
-		
-		/*$("#show-nav").click(function(){
-			if($("#side-nav").is(":visible")){
-				$("#side-nav").slideUp('slow');
-				var num = Math.ceil(Math.random()*15);
-				$('.sidebar').css({background:"url(/app/static/images/site/"+num+".jpg) no-repeat"});
-			}else{	
-				var num = Math.ceil(Math.random()*15);
-				$("#side-nav").slideDown('slow');
-				$('.sidebar').css({"background":"url(/app/static/images/site/"+num+".jpg) no-repeat", 
-					"-moz-opacity":"0.3","filter":"alpha(opacity=30)"});
-			}	
-		});*/
 
-        $(".left-opt").click(function(){
-            var id = $(this).attr("id");
-            var active = $(".side-info").filter(".active");
-            active.slideUp();
-            active.removeClass("active");
-            active.addClass("side-default");
-            $("." + id).addClass("active");
-            if(id == 'side-weibo') {
-                if($("." + id).attr("data-flag") == "0"){
-                    $("." + id).attr("data-flag", "1");
-                    var url = "/index.php/index/index/weiboshow"
-                    $.get(url, function (data) {
-                        $("." + id).html(data);
-                        $("." + id).slideDown();
-                    });
-                }else{
+var userInfo = {
+    uid : "<{$data['imUser']['uid']}>",
+    username : "<{$data['imUser']['username']}>",
+    token : "<{$data['imUser']['token']}>",
+    avatar : "<{$data['imUser']['avatar']}>",
+    init : 0
+}
+
+
+var ws = new WebSocket('ws://192.168.253.9:8888');
+
+$(function() {
+
+    $(".left-opt").click(function () {
+        var id = $(this).attr("id");
+        var active = $(".side-info").filter(".active");
+        active.slideUp();
+        active.removeClass("active");
+        active.addClass("side-default");
+        $("." + id).addClass("active");
+        if (id == 'side-weibo') {
+            if ($("." + id).attr("data-flag") == "0") {
+                $("." + id).attr("data-flag", "1");
+                var url = "/index.php/index/index/weiboshow"
+                $.get(url, function (data) {
+                    $("." + id).html(data);
                     $("." + id).slideDown();
-                }
-            }else{
+                });
+            } else {
                 $("." + id).slideDown();
             }
-            var num = Math.ceil(Math.random()*15);
-            $('.sidebar').css({background:"url(/app/static/images/site/"+num+".jpg) no-repeat"});
+        } else {
+            $("." + id).slideDown();
+        }
+        var num = Math.ceil(Math.random() * 15);
+        $('.sidebar').css({background: "url(/app/static/images/site/" + num + ".jpg) no-repeat"});
+    })
+    $('.nav-weibo').click(function () {
+        var html = $(".side-weibo").html();
+        var url = "/index.php/index/index/weiboshow";
+        $.get(url, function (data) {
+            $('.side-weibo').html(data).show();
         })
-        $('.nav-weibo').click(function(){
-           var html = $(".side-weibo").html();
-            var url = "/index.php/index/index/weiboshow";
-            $.get(url, function(data){
-                $('.side-weibo').html(data).show();
-            })
-        })
-	})
-	
-	
+    });
+    $("#register").click(function () {
+        $(".im-default").fadeOut('slow');
+        $(".im-register").fadeIn("slow");
+    });
+
+    $(".ol-list").click(function () {
+        $(".im-msgbox").hide();
+        $(".user-list").show();
+    });
+
+    $(".backtochat").click(function () {
+        $(".user-list").hide();
+        $(".im-msgbox").show();
+    });
+
+    $("#do-login").click(function () {
+        var username = $("input[name=username]").val();
+        var password = $("input[name=password]").val();
+        var url = "/index.php/index/index/imUserLogin";
+        $.ajax({
+            url: url,
+            type: "get",
+            data: {username: username, password: password},
+            async: false,
+            success: function (data) {
+                var jdata = JSON.parse(data);
+                if (jdata.status) {
+                    $(".side-im").html(jdata.data.chatroom);
+                    userInfo.uid = jdata.data.uid;
+                    userInfo.username = jdata.data.username;
+                    userInfo.token = jdata.data.token;
+                    userInfo.avatar = jdata.data.avatar;
+                    chat.online(jdata.data.uid, jdata.data.username);
+                }
+            }
+        });
+    });
+
+    $("#do-register").click(function () {
+        var username = $("#reg-username").val();
+        var password = $("#reg-pwd").val();
+        var url = "/index.php/index/index/checkImUserRegister"
+        if (!username || !password) {
+            alert("请填写正确的用户名和密码")
+        } else {
+            $.ajax({
+                url: url,
+                type: 'get',
+                data: {username: username, password: password},
+                async: false,
+                success: function (data) {
+                    var jdata = JSON.parse(data);
+                    if (jdata.status) {
+                        $(".side-im").html(jdata.data.chatroom);
+                        userInfo.uid = jdata.data.uid;
+                        userInfo.username = jdata.data.username;
+                        userInfo.token = jdata.data.token;
+                        chat.online(jdata.data.uid, jdata.data.username);
+                    }
+                }
+            });
+        }
+    });
+
+    $("#offline").click(function () {
+
+        var url = "/index.php/index/index/offline";
+        $.ajax({
+            url: url,
+            type: "get",
+            success: function (data) {
+                var jdata = JSON.parse(data);
+                if (jdata.status) {
+                    chat.offline(userInfo.uid);
+                } else {
+                    alert("下线失败");
+                }
+            }
+        });
+        //下线清除用户信息
+        userInfo = {};
+    });
+
+    $(".send-btn").click(function(){
+        var to_uid = $("select[name=select-user]").val();
+        var content = $(".sendbox").val();
+
+        alert(to_uid + "|||" + content );
+        chat.talk(to_uid, content);
+        $(".sendbox").val('');
+
+    })
+
+    var chat = {
+        online: function (uid, username) {
+            var jsonObj = {
+                active: "online",
+                uid: uid,
+                username: userInfo.username,
+                type: 0,
+                to_user: 0,
+                message: "上线了~!"
+            };
+            var jsonStr = $.toJSON(jsonObj);
+            console.log(jsonStr);
+            ws.send(jsonStr);
+        },
+        talk:function(to_uid, msg) {
+            var json = {
+                active: "chat",
+                uid: userInfo.uid,
+                to_uid: to_uid,
+                type : 1,
+                message: msg
+            };
+            console.log(JSON.stringify(json));
+            ws.send(JSON.stringify(json));
+        },
+        offline: function () {
+            var json = {
+                active: "offline",
+                uid: userInfo.uid,
+                to_uid: 0,
+                message: userInfo.username + " 下线了"
+            };
+
+            console.log(json);
+            ws.send(JSON.stringify(json));
+        },
+
+        sendGroup: function () {
+        }
+    }
+
+
+
+    ws.onerror = function (event) {
+        console.log("websocket error" + event);
+    }
+
+    ws.onclose = function () {
+        console.log("websocket close");
+    }
+
+    ws.onmessage = function (event) {
+        var data = event.data;
+        console.log(data);
+        var jdata = eval('(' + data + ')');
+        if (jdata.active == 'online') {
+            var html = "<li><p><span class='im-user'>" + jdata.username + "</span>";
+            html += '<span class="im-content">' + jdata.message + "</span></p>";
+            $(".msg-list").append(html);
+            var avatar = '<li data="' + jdata.uid + '"><img src="/app/static/crab.jpg" />';
+            avatar += '</li>';
+            $(".user-list > ul").append(avatar);
+        } else if (jdata.active == 'chat') {
+            var to_username = "crab";
+            var html = "<li><p><span class='im-user'>" + userInfo.username + "</span>";
+            html += '<span class="im-content">';
+            if (jdata.to_uid != 0)
+                html += '@<span class="im-user">' + jdata.to_uid + '</span>&nbsp;'
+            html += jdata.message + "</span></p>";
+            $(".msg-list").append(html);
+        }
+
+    }
+
+    //初始化用户信息
+    var islogin = $("input[name=islogin]").val();
+    if (islogin== 0) {
+        console.log("init" +  islogin);
+        chat.online(userInfo.uid, userInfo.username);
+    }
+
+});
+
+
 </script>
 
 <div class="crab-show"></div>
@@ -166,6 +397,7 @@
 </div>
 <{if $data['pageCount'] > 1}><div class="pager"><{$data['pageHtml']}></div><{/if}>
 <{include 'Common/footer.html'}>
+
 </body>
 </html>
 

@@ -34,6 +34,15 @@ class BaseTools {
         return $ip;
     }
 
+    public static function getToken($uid){
+        $newid = $uid + 713;
+        $secret = "We're drivin' down the road, I wonder if you know";
+        $version = "1.0.0";
+        $token = $version . substr(md5($newid), 4, 16) . substr(md5($secret), 16);
+        return $token;
+    }
+
+
 }
 
 
