@@ -557,7 +557,7 @@ class Console extends BaseComponent{
     /*
      * @var $container
      * */
-    public $container = [];
+    public $container = array();
 		
     /**
      * 构造函数，初始化视图实例，调用运行mode@TODO
@@ -959,7 +959,7 @@ class OunoError{
  * */
 class OFactory{
 
-    private static $instances = [];
+    private static $instances = array();
 
     /*
      * 产生实例的工厂方法
