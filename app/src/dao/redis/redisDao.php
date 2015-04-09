@@ -62,12 +62,14 @@ class redisDao extends BaseRedisDao{
      * @param int $fd
      * @param int $uid
      * */
-    public function addFd($fd, $uid = 0){
+    public function addFd($fd, $uid){
         $this->set($this->getFdKey($fd), $uid);
+        $this->set($uid, $this->getFdKey($fd));
     }
 
     public function getFdByUid($uid){
-        return $this->get($uid);
+        $swoole_fd =  $this->get($uid);
+        return $this->parseFd($swoole_fd);
     }
 
     public function removeUser($fd){
@@ -75,9 +77,15 @@ class redisDao extends BaseRedisDao{
         $this->delete(array($uid, $this->getFdKey($fd)));
     }
 
-    public function getFdKey($fd, $prefix = "swoolefd_"){
+    public function getFdKey($fd){
+        $prefix = \Ouno\Ouno::config("SWOOLE_FD_PREFIX", 'SWOOLE_FD');
         return $prefix . $fd;
     }
 
+
+    public function parseFd($swoole_fd){
+        echo "pasefd\n";
+        return substr($swoole_fd, strlen(\Ouno\Ouno::config("SWOOLE_FD_PREFIX")));
+    }
 
 }

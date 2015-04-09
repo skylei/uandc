@@ -73,8 +73,7 @@
         <div class="cate-art"><a href="javascript:;">git</a></div>
     </div>
     <div class="side-info side-default side-im">
-        <{if empty($data['imUser'])}>
-        <div class="im-login im-default" >
+        <div class="im-login im-default <{if !empty($data['imUser'])}>hide<{/if}>" >
             <p><label>username&nbsp;</label><input type="text" name="username" placeholder="your username" /></p>
             <p><label>password&nbsp;</label>
                 <input type="password" name="password" placeholder="your password"/>
@@ -92,25 +91,19 @@
             </p>
             <p><button type="submit" id="do-register">注册</button></p>
         </div>
-        <{else}>
-        <div class="im-chatroom">
+        <div class="im-chatroom <{if empty($data['imUser'])}>hide<{/if}>">
             <div class="im-msgbox">
                 <div class="clear"></div>
-                <ul class="msg-list">
-                    <li><p>
-                            <span class="im-user">螃蟹在晨跑</span>说 :
-                            <span class="im-content">hello world~!</span>
-                        </p>
-                    </li>
-                </ul>
+                <div class="msg-list">
+                    <p>
+                        <span class="im-user">螃蟹在晨跑</span>
+                        <span class="im-content">欢迎来到螃蟹的城堡</span>
+                    </p>
+                </div>
             </div>
             <div class="user-list">
                 <div class="top backtochat">返回</div>
-                <ul>
-                    <li>
-                        <img src="http://www.uandc.cn/app/static/images/ablum/default/thumb/crab_running14258873851659_thumb.jpg" />
-                    </li>
-                </ul>
+                <ul></ul>
             </div>
             <div class="send">
                 <p>
@@ -125,14 +118,11 @@
                 </p>
                 <p>
                     <input type="text" name="send" class="sendbox" />
-                    <input type="hidden" name="islogin" value="0" />
-
+                    <input type="hidden" name="need-login" value="1" />
                 </p>
                 <div  class="send-btn"> send</div>
             </div>
         </div>
-        <{/if}>
-        
     </div>
 </div>
 
@@ -146,11 +136,9 @@ var userInfo = {
     init : 0
 }
 
-
 var ws = new WebSocket('ws://192.168.253.9:8888');
 
 $(function() {
-
     $(".left-opt").click(function () {
         var id = $(this).attr("id");
         var active = $(".side-info").filter(".active");
@@ -174,7 +162,8 @@ $(function() {
         }
         var num = Math.ceil(Math.random() * 15);
         $('.sidebar').css({background: "url(/app/static/images/site/" + num + ".jpg) no-repeat"});
-    })
+    });
+
     $('.nav-weibo').click(function () {
         var html = $(".side-weibo").html();
         var url = "/index.php/index/index/weiboshow";
@@ -182,6 +171,7 @@ $(function() {
             $('.side-weibo').html(data).show();
         })
     });
+
     $("#register").click(function () {
         $(".im-default").fadeOut('slow');
         $(".im-register").fadeIn("slow");
@@ -209,12 +199,18 @@ $(function() {
             success: function (data) {
                 var jdata = JSON.parse(data);
                 if (jdata.status) {
-                    $(".side-im").html(jdata.data.chatroom);
+                    $(".im-default").hide();
+                    $(".im-chatroom").show();
                     userInfo.uid = jdata.data.uid;
                     userInfo.username = jdata.data.username;
                     userInfo.token = jdata.data.token;
                     userInfo.avatar = jdata.data.avatar;
-                    chat.online(jdata.data.uid, jdata.data.username);
+                    if(chat.socket.CLOSED == 3){
+                        ws = new WebSocket('ws://192.168.253.9:8888');
+                        chat.socket = ws;
+                    }
+                    chat.online(jdata.data.username);
+
                 }
             }
         });
@@ -235,11 +231,16 @@ $(function() {
                 success: function (data) {
                     var jdata = JSON.parse(data);
                     if (jdata.status) {
-                        $(".side-im").html(jdata.data.chatroom);
+                        $(".im-default").hide();
+                        $(".im-chatroom").show();
                         userInfo.uid = jdata.data.uid;
                         userInfo.username = jdata.data.username;
                         userInfo.token = jdata.data.token;
-                        chat.online(jdata.data.uid, jdata.data.username);
+                        if(chat.socket.CLOSED == 3){
+                            ws = new WebSocket('ws://192.168.253.9:8888');
+                            chat.socket = ws;
+                        }
+                        chat.online(jdata.data.username);
                     }
                 }
             });
@@ -247,7 +248,6 @@ $(function() {
     });
 
     $("#offline").click(function () {
-
         var url = "/index.php/index/index/offline";
         $.ajax({
             url: url,
@@ -255,7 +255,10 @@ $(function() {
             success: function (data) {
                 var jdata = JSON.parse(data);
                 if (jdata.status) {
-                    chat.offline(userInfo.uid);
+                   chat.offline(userInfo.uid);
+                    $(".im-chatroom").hide();
+                    $(".im-default").show();
+//                    location.reload();
                 } else {
                     alert("下线失败");
                 }
@@ -265,99 +268,129 @@ $(function() {
         userInfo = {};
     });
 
+    /*
+    * 发送消息
+    * */
     $(".send-btn").click(function(){
         var to_uid = $("select[name=select-user]").val();
         var content = $(".sendbox").val();
+        if(content){
+            chat.talk(to_uid, content);
+            $(".sendbox").val('');
+            var msg_list =  $(".msg-list");
+            if(to_uid != 0){
+                var html = "<p><span class='im-user'>" + userInfo.username + "</span>";
+                html += '<span class="im-content">';
+                html += '@<span class="im-user">' + to_uid + '</span>&nbsp;'
+                html += content + "</span>";
+                html += "</p>";
+                msg_list.append(html);
+            }
+            msg_list.scrollTop(-0);
+        }
 
-        alert(to_uid + "|||" + content );
-        chat.talk(to_uid, content);
-        $(".sendbox").val('');
-
-    })
+    });
 
     var chat = {
-        online: function (uid, username) {
+        socket: ws,
+        online: function (username) {
             var jsonObj = {
                 active: "online",
-                uid: uid,
-                username: userInfo.username,
+                uid: username,
                 type: 0,
                 to_user: 0,
                 message: "上线了~!"
             };
             var jsonStr = $.toJSON(jsonObj);
             console.log(jsonStr);
-            ws.send(jsonStr);
+            this.socket.send(jsonStr);
         },
-        talk:function(to_uid, msg) {
+        talk:function(to_username, msg) {
             var json = {
                 active: "chat",
-                uid: userInfo.uid,
-                to_uid: to_uid,
+                uid: userInfo.username,
+                to_uid: to_username,
                 type : 1,
                 message: msg
             };
             console.log(JSON.stringify(json));
-            ws.send(JSON.stringify(json));
+            this.socket.send(JSON.stringify(json));
         },
         offline: function () {
-            var json = {
+           /* var json = {
                 active: "offline",
-                uid: userInfo.uid,
+                uid: userInfo.username,
                 to_uid: 0,
-                message: userInfo.username + " 下线了"
+                type : 1,
+                message: "下线了"
             };
-
-            console.log(json);
-            ws.send(JSON.stringify(json));
+            console.log(JSON.stringify(json));
+            this.socket.send(JSON.stringify(json));*/
+            this.socket.close(1000, 'offline');
         },
 
         sendGroup: function () {
         }
     }
 
-
-
-    ws.onerror = function (event) {
+    chat.socket.onerror = function (event) {
         console.log("websocket error" + event);
     }
 
-    ws.onclose = function () {
+    chat.socket.onclose = function () {
+        userInfo= {};
+        $("input[name=need-login]").val("1");
+        chat.socket.close(1000, 'user offline');
+        console.log(chat.socket);
         console.log("websocket close");
     }
 
-    ws.onmessage = function (event) {
+    chat.socket.onmessage = function (event) {
         var data = event.data;
         console.log(data);
         var jdata = eval('(' + data + ')');
         if (jdata.active == 'online') {
-            var html = "<li><p><span class='im-user'>" + jdata.username + "</span>";
-            html += '<span class="im-content">' + jdata.message + "</span></p>";
+            var onlineList = '<option value="0">所有人</option>';
+            var users = jdata.userList;
+            if( typeof(users) == 'object'){
+                for(var i in users){
+                    onlineList += "<option value='" + i + "'>";
+                    onlineList += i + '</option>';
+                }
+            }
+            $("select[name=select-user]").empty().append(onlineList);
+
+            var html = "<p>";
+            html += "<span class='im-user'>" + jdata.uid + "</span>";
+            html += '<span class="im-content">' + jdata.message + "</span>";
+            html += "</p>";
             $(".msg-list").append(html);
-            var avatar = '<li data="' + jdata.uid + '"><img src="/app/static/crab.jpg" />';
-            avatar += '</li>';
-            $(".user-list > ul").append(avatar);
         } else if (jdata.active == 'chat') {
-            var to_username = "crab";
-            var html = "<li><p><span class='im-user'>" + userInfo.username + "</span>";
+            var html =  "<p>";
+            html += "<span class='im-user'>" + jdata.uid + "</span>";
             html += '<span class="im-content">';
             if (jdata.to_uid != 0)
                 html += '@<span class="im-user">' + jdata.to_uid + '</span>&nbsp;'
             html += jdata.message + "</span></p>";
             $(".msg-list").append(html);
+        } else if(jdata.active == 'offline'){
+            var html = '<p>';
+            html += "<span class='im-user'>" + jdata.uid + "</span>";
+            html += '<span class="im-content">';
+            html += jdata.message + "</span></p>";
+            $(".msg-list").append(html);
+            $("select[name=select-user] option[value=" +jdata.uid +']').remove();
         }
-
     }
 
     //初始化用户信息
-    var islogin = $("input[name=islogin]").val();
-    if (islogin== 0) {
-        console.log("init" +  islogin);
-        chat.online(userInfo.uid, userInfo.username);
+    var needlogin = $("input[name=need-login]").val();
+    if (Number(needlogin) == 1) {
+        console.log("init" +  needlogin);
+        chat.online(userInfo.username);
     }
 
 });
-
 
 </script>
 

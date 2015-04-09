@@ -179,30 +179,26 @@ filter:Alpha(opacity=80); background:#fff;/*实现IE背景透明
     overflow-x: visible;
 }
 
-.im-msgbox ul{
-    list-style: none;
-    padding: 0;
+.im-msgbox  p{
+    margin-top: 20px;
+    padding:5px;
+    line-height: 14px;
+    width: 95%;
 }
-.im-msgbox ul li{
-    margin-left: 5px;
-    padding-top:10px;
-    display:block;
-}
-.im-msgbox ul li p{
-    line-height: 18px;
-    overflow: visible;
-}
-.im-msgbox ul li p .im-user{
+.im-msgbox  p .im-user{
     padd-right:5px;
     color: #0ca3d2;
     cursor: pointer;
 }
-.im-msgbox ul li p .im-content{
+.im-msgbox  p .im-content{
+    margin-top: 10px;
     border:1px solid #74d2d9;
     border-radius: 5px;
     color:#222;
     background: #fff;
+    display: inline-block;
 }
+
 .im-chatroom .send{
     padding: 0;
     color: #111;
@@ -258,7 +254,9 @@ filter:Alpha(opacity=80); background:#fff;/*实现IE背景透明
     border-radius: 50%;
     cursor: pointer;
 }
-
+.send-btn :hover{
+   background: rgba(132,151,66,0.5);
+}
 #show-leftbar{
 	font-size:32px;
 }

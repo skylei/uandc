@@ -13,9 +13,6 @@ abstract class BaseQueue{
      * */
     public $config;
 
-
-
-
     /*
      * 消息生产方法
      * */

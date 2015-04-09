@@ -29,7 +29,7 @@ class BaseRabbitMQ{
         define('AMQP_DEBUG', true);
         $this->config = array('HOSPT'=>'127.0.0.1', 'PORT'=>5672, 'USER'=>'guest', 'PASS'=>'guest');
         $this->connection($this->config);
-        \Ouno\Ouno::registerAutoloader(__NAMESPACE__ . "\\BaseRabbitMQ::qLoader");
+        \Ouno::registerAutoloader(__NAMESPACE__ . "\\BaseRabbitMQ::qLoader");
 
     }
 

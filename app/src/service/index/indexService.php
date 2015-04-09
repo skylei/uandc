@@ -181,6 +181,12 @@ class indexService extends \Ouno\Service {
      * @return boolean
      * */
     public function addImUser($data){
+        $condition = array(
+            "username" => array("value"=> $data['username'], 'operator'=> "=" )
+        );
+        $exist = Ouno::dao("imuser", "user")->db->findOne($condition);
+        if($exist)
+            return false;
         return Ouno::dao("imUser", "user")->db->insert($data);
     }
 

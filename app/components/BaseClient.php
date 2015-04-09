@@ -44,22 +44,11 @@ class BaseClient{
 
     /**
      * here should write into log
-     *  
+     *
      */
     public function onOpen(\swoole_websocket_server $server, $fd){
-	echo "open $fd";
+        echo "open $fd";
 
-    }
-    /*
-     * 收到socket发来的信息
-     * @param resource $server swoole server
-     * @param int $fd
-     * @param int $from_id
-     * @param string $jdata json data
-     * */
-    public function onReceive($server, $fd, $from_id, $jdata)
-    {
-            
     }
 
     /*
@@ -69,11 +58,20 @@ class BaseClient{
      * @param int $from_id
      * @return void
      * */
-    public function onClose($server, $client_id, $from_id){
-	    echo "this is close $client_id" . PHP_EOL;
-        $uid = $this->getRedis()->getUidByFd($client_id);
-        $this->getRedis()->removeUser($client_id);
-        $this->getRedis()->deletFromChannel($channel = "ALL", $uid);
+    public function onClose($server, $fd, $from_id){
+        $uid = $this->getRedis()->getUidByFd($fd);
+        if($uid){
+            $this->getRedis()->deletFromChannel($channel = 'ALL', $uid);
+            $this->getRedis()->removeUser($fd);
+            $data = array(
+                "active"=>'offline',
+                'uid'=> $uid,
+                'to_uid' => 0,
+                'message' => $uid . "下线了"
+            );
+            echo "close $uid";
+            $this->sendToChannel($server, $data, $channel);
+        }
     }
 
     public function onWorkerStart($server, $worker_id){
@@ -128,8 +126,6 @@ class BaseClient{
 
 	    $message = json_decode($data, true);
         var_dump($message);
-
-
         if(!$message['active'])
             return false;
         $allow = array("online", "chat", "chatall", "offline");
@@ -146,6 +142,10 @@ class BaseClient{
             echo "uid inexist";
         $this->getRedis()->addFd($fd, $data['uid']);
         $this->getRedis()->bindChanel($channel = "ALL", $data['uid'], $fd);
+
+        //由于windows上没装redis调试困难故而在此处获取好友列表
+        $userList = $this->getRedis()->getChannelAllMember("ALL");
+        $data['userList'] = $userList ? $userList : 0;
         $this->sendToChannel($server, $data, $channel);
     }
 
@@ -153,17 +153,20 @@ class BaseClient{
      * 聊天
      * */
     private function chat($server, $fd, $data){
-//        echo "chat" . PHP_EOL;
         //群聊，@todo 暂时没开启小组功能
         echo "chat:" . $data['to_uid']. PHP_EOL;
-        if($data['to_uid'] == 0){
+        if(strval($data['to_uid']) == '0'){
+            echo "chat send to All" . $data['to_uid'] . PHP_EOL;
             $this->sendToChannel($server, $data);
         }else{
-            $this->sendOne($server, $fd, $data);
+            $to_fd = $this->getRedis()->getFdByUid($data['to_uid']);
+            echo "chat $fd send TO one $to_fd " .PHP_EOL;
+            $this->sendOne($server, $to_fd, $data);
         }
     }
 
     public function offline($server, $fd, $data){
+        $server->close($fd);
 
     }
 

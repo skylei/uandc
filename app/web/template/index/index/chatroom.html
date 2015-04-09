@@ -1,40 +1,17 @@
 <div class="im-chatroom">
     <div class="im-msgbox">
         <div class="clear"></div>
-        <ul class="msg-list">
-            <li><p>
-                <span class="im-user">螃蟹在晨跑</span>说 :
-                <span class="im-content">唉时间戳 防止伪造请求你</span>
+        <div class="msg-list">
+            <p>
+                <span class="im-user">螃蟹在晨跑</span>
+                <span class="im-content">欢迎来到螃蟹的城堡</span>
             </p>
-            </li>
-
-            <li><p>
-                <span class="im-user">螃蟹在晨跑</span>说 :
-                <span class="im-content">唉时间戳 请防止伪造请求你</span>
-            </p>
-            </li>
-            <li><p>
-                <span class="im-user">螃蟹在晨跑</span>说 :
-                <span class="im-content">唉时间戳 请求时效 防止伪造请求你</span>
-            </p>
-            </li>
-        </ul>
+        </div>
     </div>
     <div class="user-list">
         <div class="top backtochat">返回</div>
         <ul>
-            <li>
-                <img src="http://www.uandc.cn/app/static/images/ablum/default/thumb/crab_running14258873851659_thumb.jpg" />
-            </li>
-            <li>
-                <img src="http://www.uandc.cn/app/static/images/ablum/default/thumb/crab_running14258873851659_thumb.jpg" />
-            </li>
-            <li>
-                <img src="http://www.uandc.cn/app/static/images/ablum/default/thumb/crab_running14258873851659_thumb.jpg" />
-            </li>
-            <li>
-                <img src="http://www.uandc.cn/app/static/images/ablum/default/thumb/crab_running14258873851659_thumb.jpg" />
-            </li>
+
         </ul>
     </div>
     <div class="send">
@@ -43,11 +20,16 @@
             <span class="im-menu">表情</span>
                     <span>
                         <select name="select-user">
-                            <option value="1">螃蟹</option>
+                            <option value="0">所有人</option>
                         </select>
                     </span>
+            <span class="im-menu" id="offline">下线</span>
         </p>
-        <p><input type="text" name="send" class="sendbox" /></p>
-        <p align="center"><div class="send-btn"> send</div></p>
+        <p>
+            <input type="text" name="send" class="sendbox" />
+            <input type="hidden" name="islogin" value="0" />
+
+        </p>
+        <div  class="send-btn"> send</div>
     </div>
 </div>

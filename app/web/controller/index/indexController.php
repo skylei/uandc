@@ -53,6 +53,10 @@ class indexController extends \components\BaseController {
         $data['pageHtml'] = $pager->pager($count['count'], $pagesize, $url);
         $imgService = new \src\service\image\mongoService();
         $data['image'] = $imgService->getNew();
+
+
+
+
         $this->assign('data', $data);
 
 //        $onlineList = $this->getIndexService()->getOnlineList();
@@ -217,12 +221,11 @@ class indexController extends \components\BaseController {
         $time = time();
         $data['create_time'] = $time;
         $data['update_time'] = date("Y-m-d H:i:s", $time);
-        $data['uid'] = uniqid('crab');
         $data['avatar'] = 'http://www.uandc.cn/app/static/images/usericon/crab.jpg';
         $data['token'] = BaseTools::getToken($data['uid']);
         $res =  $this->getIndexService()->addImuser($data);
         if(!$res)
-            $this->ajax_return(false, 'register fail');
+            $this->ajax_return(false, 'user exist');
 
         $condition = array(
             "username"=>array("value"=> $data['username'], "operator" => '=', 'connector'=> 'AND'),
@@ -249,7 +252,11 @@ class indexController extends \components\BaseController {
             unset($_COOKIE[Myconstant::IM_COOKIE_ID]);
         if(isset($_SESSION[Myconstant::IM_SESSIOM_ID]))
             unset($_SESSION[Myconstant::IM_SESSIOM_ID]);
-        $this->ajax_return(true);
+
+        $this->display = false;
+        $this->setTpl("imlogin");
+        $template = $this->show();
+        $this->ajax_return(true, $template);
     }
 
 
