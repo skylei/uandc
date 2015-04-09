@@ -34,11 +34,12 @@ class indexController extends BaseController {
         $config =  array('HOST'=>'127.0.0.1', 'PORT'=> 5672, 'USER'=>'guest', 'PASSWORD'=>'guest', 'VHOST'=>'/');
         try{
             $mq = new \components\BaseRabbitMQ($config);
-            $mq->publish($queue = 'crab', $exchange = 'crab_exchange', array("hellow"=>'crab'));
+            $mq->publish($queue = 'crab', $exchange = 'crab_exchange', array("hellow"=>'crab' . mt_rand(0,10000)));
         }catch(\Exception $e){
             echo $e->getFile() . "\r\n";
             echo $e->getLine() ."\r\n";
             echo $e->getMessage() . "\r\n";
         }
+
     }
 }

@@ -242,11 +242,15 @@ class Ouno extends BaseComponent{
             "Ouno\\Cache\\Oredis"=> __DIR__ . "/Cache/Oredis.php",
         );
         self::setAppPath($app_path);
-        $config = include_once($app_path . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . $config . ".php");
+        $config = self::import($app_path . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . $config . ".php");
         self::config($config);
-	    if(self::config('SESSION'))
-        	session_start();
-
+	    if($session_config = self::config('SESSION')){
+            if($session_config['SESSION_HANDLE']){
+                ini_set('session.save_handler', 'redis');
+                ini_set('session.save_path', $session_config['SESSION_CONFIG']);
+            }
+            session_start();
+        }
 
 		if(self::config('EXCEPTION_HANDLE', true))
             set_exception_handler(array('\Ouno\Ouno', 'handleException'));
@@ -256,13 +260,18 @@ class Ouno extends BaseComponent{
         spl_autoload_register(array('self', 'loader'));
         if(PHP_SAPI == 'cli'){
             global $argv;
-            //@TODO
             $console = new Console($argv);
             $this->container = $console->container;
         }else {
-            if (self::config('URI') == 'PATH'){
-				$this->getRequest();
-			}
+            if(self::config('URI') == 'DEFAULT'){
+                $this->parseDefaultRequest();
+            }else if(self::config('URI') == 'PATH'){
+				$this->parsePathRequest();
+			}else if(self::config('URI') == 'PREG'){
+
+            }else if(self::config('URI') == 'REST') {
+
+            }
             if(self::config('MODULE', true))
                 $this->container['module'] = $_GET['m'] = isset($_GET['m']) ? $_GET['m'] : 'index';
             $this->container['controller'] = $_GET['c'] = isset($_GET['c']) ? $_GET['c'] : 'index';
@@ -386,7 +395,7 @@ class Ouno extends BaseComponent{
     public static function import($file){
         $file = self::$APP_PATH . $file;
         if(file_exists($file) && !in_array($file, self::$_import)){
-            self::$_import[] = $file;
+            self::$_import[$file] = $file;
             include $file;
         }else{
             throw new \Exception("$file inexistance when Ouno::import");
@@ -498,7 +507,7 @@ class Ouno extends BaseComponent{
      * 2. 配合全局站点url处理request
      * @return string
      */
-    private function getRequest() {
+    private function parsePathRequest() {
         $filter_param = array('<','>','"',"'",'%3C','%3E','%22','%27','%3c','%3e');
         $request = array();
         if(isset($_SERVER['PATH_INFO'])) {
@@ -537,6 +546,12 @@ class Ouno extends BaseComponent{
         }
     }
 
+    public function parseDefaultRequest(){
+
+
+
+    }
+
     public static function error($message){
         echo $message;exit;
         OunoLog::UserLog($message);
@@ -569,16 +584,15 @@ class Console extends BaseComponent{
             $runInstance = OFactory::getInstance($mode['CLASS'], $param);
             if(method_exists($runInstance, 'run'))
                 $runInstance->run();
+        }else{
+            if(Ouno::config('MODULE', true))
+                $this->container['module'] = isset($argv[1]) ? $argv[1] : 'index';
+            $this->container['controller'] = isset($argv[2]) ? $argv[2] : 'index';
+            $this->container['action'] = isset($argv[3]) ? $argv[3] : 'index';
+            $controllerClass =  Ouno::config('COMMAND_NAMESPACE', '\\command') . '\\' . $this->container['module']
+                . '\\' .$this->container['controller'] .'Controller';
+            $this->container['controllerClass'] = $controllerClass;
         }
-
-        if(Ouno::config('MODULE', true))
-            $this->container['module'] = isset($argv[1]) ? $argv[1] : 'index';
-        $this->container['controller'] = isset($argv[2]) ? $argv[2] : 'index';
-        $this->container['action'] = isset($argv[3]) ? $argv[3] : 'index';
-        $controllerClass =  Ouno::config('COMMAND_NAMESPACE', '\\command') . '\\' . $this->container['module']
-            . '\\' .$this->container['controller'] .'Controller';
-        $this->container['controllerClass'] = $controllerClass;
-
     }
 
     /*
