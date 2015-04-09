@@ -6,27 +6,40 @@
  * Time: 21:16
  */
 namespace command\index;
+use PhpAmqpLib\Exception\AMQPException as AMQPExcepton;
 use \src\dao\redis\redisDao as rdao,
     \components\BaseController;
 
 
 class indexController extends BaseController {
 
-    public function indexAction(){
-        //$mq = new \components\BaseRabbitMQ(array());
-        //var_dump($mq);
-	echo "this is test echo ";
-	$config = array(
-	    "DB"=>1,	
-	    "HOST"=>"127.0.0.0",
-	    "PORT"=>"6379",
-	    "TIMEOUT"=>"5",	
-	);
-	//$redis = new \redis();
-	//$redis->connect("127.0.0.1", "6379");
-	//$redis->select(2);
-	$rdao = new rdao($config); 
-	$rdao->set("k1", "11");	
-	echo $rdao->get('k1');
+    public function indexAction()
+    {
+        $config =  array('HOST'=>'127.0.0.1', 'PORT'=> 5672, 'USER'=>'guest', 'PASSWORD'=>'guest', 'VHOST'=>'/');
+        try{
+            $mq = new \components\BaseRabbitMQ($config);
+//            $mq->publish('crab', 'crab_exchange', array("hellow"=>'crab'));
+            $mq->consumer('crab', 'crab_exchange');
+        }catch(\Exception $e){
+            echo $e->getFile() . "\r\n";
+            echo $e->getLine() ."\r\n";
+            echo $e->getMessage() . "\r\n";
+        }
+
+
+
+    }
+
+    public function publishAction(){
+        $config =  array('HOST'=>'127.0.0.1', 'PORT'=> 5672, 'USER'=>'guest', 'PASSWORD'=>'guest', 'VHOST'=>'/');
+        try{
+            $mq = new \components\BaseRabbitMQ($config);
+            $mq->publish($queue = 'crab', $exchange = 'crab_exchange', array("hellow"=>'crab' . mt_rand(0,10000)));
+        }catch(\Exception $e){
+            echo $e->getFile() . "\r\n";
+            echo $e->getLine() ."\r\n";
+            echo $e->getMessage() . "\r\n";
+        }
+
     }
 }
