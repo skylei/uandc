@@ -6,7 +6,7 @@
  * Time: 18:23
  */
 namespace Ouno\Core\DB;
-class OunoMongo extends \Ouno\BaseComponent{
+class OunoMongo extends \Ouno\Base{
 	
 	protected $cursor = '';
 

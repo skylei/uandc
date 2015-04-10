@@ -6,7 +6,7 @@
  * Time: 18:23
  */
 namespace Ouno\Core\Db;
-class OunoMysql  extends \Ouno\BaseComponent{
+class OunoMysql  extends \Ouno\Base{
 
     private static $db;
     public $linkw;
@@ -48,7 +48,8 @@ class OunoMysql  extends \Ouno\BaseComponent{
             $this->linkw = mysql_connect($config[0]['HOST'], $config[0]['USERNAME'], $config[0]['PASSWORD']);
         }
         mysql_query('SET NAMES ' . $config[0]['CHARSET'], $this->linkw);
-        mysql_select_db ( $config[0]['DBNAME'] ,  $this->linkw) or die ( "Can not  use {$config[0]['DBNAME']} : '" . $this->error(&$this->linkw));
+        mysql_select_db ( $config[0]['DBNAME'] ,  $this->linkw) or
+        die ( "Can not  use {$config[0]['DBNAME']} : '" . $this->error($this->linkw));
         return $this->linkw;
     }
 
@@ -59,7 +60,8 @@ class OunoMysql  extends \Ouno\BaseComponent{
         else
             $this->linkr = mysql_connect($config[$i]['HOST'], $config[$i]['USERNAME'], $config[$i]['PASSWORD']);
         mysql_query('SET NAMES ' . $config[0]['CHARSET'], $this->linkr);
-        mysql_select_db ( $config[0]['DBNAME'] ,  $this->linkr) or die ( "Can not  use {$config[0]['DBNAME']} : '" . $this->error(&$this->linkr));
+        mysql_select_db ( $config[0]['DBNAME'] ,  $this->linkr) or
+            die ( "Can not  use {$config[0]['DBNAME']} : '" . $this->error($this->linkr));
         return $this->linkr;
     }
 
@@ -69,7 +71,7 @@ class OunoMysql  extends \Ouno\BaseComponent{
         if($result)
             return $this->fetchResult($query, $all);
         else
-            $this->error(&$this->linkr);
+            $this->error($this->linkr);
     }
 
     public function execute($sql, $slave = false){//默认主服务器执行
@@ -79,7 +81,7 @@ class OunoMysql  extends \Ouno\BaseComponent{
         if($query){
             return mysql_affected_rows ($link);
         }else{
-            $this->error(&$link);
+            $this->error($link);
         }
     }
 
@@ -164,7 +166,7 @@ class OunoMysql  extends \Ouno\BaseComponent{
 
     public function commit(){}
 	
-	public function rollback{}
+	public function rollback(){}
 
     public function escape($string){
         return mysql_escape_string($string);

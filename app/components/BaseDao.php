@@ -11,14 +11,12 @@ class BaseDao extends \Ouno\Dao{
 
     public function __construct(){
         parent::__construct();
-        if($this->table != '')
-            $this->db->table = $this->table;
     }
 
     public function count($where = ''){//通过
-        $where = $where ?  $where : '';
+        $where = $where ?  ' WHERE ' . $where : '';
         $sql = "select count(*) as count from " . $this->table . $where;
-        return $this->db->queryRow($sql);
+        return $this->dao->queryRow($sql);
     }
 
 }

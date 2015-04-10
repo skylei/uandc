@@ -45,7 +45,7 @@ class indexController extends \components\BaseController {
         $data['artList'] = $this->getIndexService()->artList($cate, $offset, $pagesize);
         $data['detailUrl'] = $this->createUrl('/index/index/detail');
         $data['searchUrl'] = $this->createUrl('/index/index/search');
-        $cate = $cate ? "cate = ' $cate '" : '';
+        $cate = $cate ? "cate = '$cate'" : '';
         $count = $this->getIndexService()->artCount($cate);
         $data['pageCount'] = ceil($count['count'] / $pagesize);
         $url = $this->createUrl('/index/index/index');
@@ -53,12 +53,7 @@ class indexController extends \components\BaseController {
         $data['pageHtml'] = $pager->pager($count['count'], $pagesize, $url);
         $imgService = new \src\service\image\mongoService();
         $data['image'] = $imgService->getNew();
-
-
-
-
         $this->assign('data', $data);
-
 //        $onlineList = $this->getIndexService()->getOnlineList();
         $onlineList = $this->getIndexService()->getAllImUser();
         foreach($onlineList as $uid=>$fd){
@@ -75,18 +70,10 @@ class indexController extends \components\BaseController {
         exit;
     }
 
-    public function viewAction(){
-        $a = array(1=>'aaaa',2=>'dfddd',3=>'ssss',4=>'dddddd',5=>'aaa');
-        $this->_view->assign('a', $a);
-        $this->_view->display('view');
-        $this->_view->createStaticFile('view');
-    }
-
 
 
 	public function detailAction(){
 		$id =$this->_get('id');
-        $detail = $this->getIndexService()->getDetail($id);
         $data['submitUrl'] = $this->createUrl('/index/index/artComment');
         $where = "where id = '$id'";
         $data = array('click_num'=>'click_num + 1');//原子操作
@@ -106,6 +93,7 @@ class indexController extends \components\BaseController {
 
         $data['tagList'] = $tags;
         $data['detail'] = $detail['result'];
+        $this->assign('data', $data);
         $this->setTpl('detail');
 	}
 
@@ -147,9 +135,14 @@ class indexController extends \components\BaseController {
         $data['email'] = $this->_post('email');
         $data['nickname'] = $this->_post('nickname');
         $data['ip'] = ip2long($_SERVER['REMOTE_ADDR']);
-        $userIcon = $this->getIndexService()->getUsericon();
-        $iconIndex = mt_rand(0, count($userIcon)-1);
-        $data['user_icon'] = $userIcon[$iconIndex]['img_path'];
+        $userIcon = array(
+            0 => '/app/static/images/usericon/crab.jpg',
+            1 => '/app/static/images/usericon/crab.jpg',
+            2 => '/app/static/images/usericon/crab.jpg',
+            3 => '/app/static/images/usericon/crab.jpg',
+        );
+        $rand = array_rand($userIcon, 1);
+        $data['user_icon'] = $userIcon[$rand];
         $data['content'] = $this->_post('content');
         $data['create_time'] = time();
         $data['update'] = date('Y-m-d H:i:s', time());

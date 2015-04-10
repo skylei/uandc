@@ -12,19 +12,19 @@ class ucenterService extends \components\BaseService{
         $where = '';
         $field = '*';
         $options = array('order'=>array('create_time', 'value'=>'create_time', 'sort'=>'DESC'), 'limit'=>array('offset'=>$offset, 'pagesize'=>$pagesize));
-        return  \Ouno\Ouno::dao('comment', 'ucenter')->db->findAll($where, $field, $options);
+        return  \Ouno\Ouno::dao('comment', 'ucenter')->dao->findAll($where, $field, $options);
 
     }
 
 
     public function getUser($username, $password, $remember, $ip){
         $where = "where username = '$username'";
-        $res = \Ouno\Ouno::dao('user', 'ucenter')->db->findOne($where);
+        $res = \Ouno\Ouno::dao('user', 'ucenter')->dao->findOne($where);
         $update = array('ip'=> $ip, 'last_login'=>time());
         if($res){
             $user = $this->getPassword($res, $password);
             if($user){
-                $res = \Ouno\Ouno::dao('user', 'ucenter')->db->update($update, $where);
+                $res = \Ouno\Ouno::dao('user', 'ucenter')->dao->update($update, $where);
                 $_SESSION['username'] = serialize($res);
                 if($remember){
                     setcookie( 'username', serialize($username) ,  time ()+ 86400);
@@ -40,7 +40,7 @@ class ucenterService extends \components\BaseService{
         $where = "where username = '{$user['username']}'";
         $where .= " AND password = '$password'";
         $update['ip'] = '';
-        $loginUser = \Ouno\Ouno::dao('user', 'ucenter')->db->findOne($where);
+        $loginUser = \Ouno\Ouno::dao('user', 'ucenter')->dao->findOne($where);
         return $loginUser;
     }
 
@@ -53,7 +53,7 @@ class ucenterService extends \components\BaseService{
             if($cname){
                 $ip = '';
                 $where = "where username = '{$cname['username']}'";
-                return  \Ouno\Ouno::dao('user', 'ucenter')->db->findOne($where);
+                return  \Ouno\Ouno::dao('user', 'ucenter')->dao->findOne($where);
             }else{
                 return false;
             }
@@ -61,14 +61,14 @@ class ucenterService extends \components\BaseService{
     }
 
     public function getCateList(){
-        $res = \Ouno\Ouno::dao('cate', 'ucenter')->db->findAll('pid = 0', 'cate,name', 'order by create_time');
+        $res = \Ouno\Ouno::dao('cate', 'ucenter')->dao->findAll('pid = 0', 'cate,name', 'order by create_time');
         return $res;
     }
 
     public function addNewCate($data){
         $data['create_time'] = time();
         $data['update'] = date('Y-m-d H:i:s', time());
-         return  \Ouno\Ouno::dao('cate', 'ucenter')->db->insert($data);
+         return  \Ouno\Ouno::dao('cate', 'ucenter')->dao->insert($data);
     }
 
 

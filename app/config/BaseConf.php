@@ -19,26 +19,28 @@ return $Ouno_conf = array(
 //    ),
     'SESSION'=>true,
     'DB'=>array(
-        0=>array(
-            'HOST'=>'192.168.253.9',
-            'DB'=>'crab',
-            'USERNAME'=>'root',
-            'PASSWORD'=>'craber234',
-            'CHARSET' => 'utf8',
-            'DRIVER'=>'OunoMysqli',
-            'AUTO_COMMIT'=>true,
-            'CHARSET'=>'utf8'
-            // 'PCONNECT'=>false,
-        ),
-        1=> array(
-            'HOST'=>'127.0.0.1',
-            'DB'=>'crab',
-            'USERNAME'=>'root',
-            'PASSWORD'=>'craber234',
-            'CHARSET' => 'utf8',
-            'DRIVER'=>'OunoMysqli',
-            'AUTO_COMMIT'=>true,
-            'CHARSET'=>'utf8'
+        'DEFAULT'=> array(
+            0=>array(
+                'HOST'=>'192.168.253.9',
+                'DB'=>'crab',
+                'USERNAME'=>'root',
+                'PASSWORD'=>'craber234',
+                'CHARSET' => 'utf8',
+                'DRIVER'=>'OunoMysqli',
+                'AUTO_COMMIT'=>true,
+                'CHARSET'=>'utf8'
+                // 'PCONNECT'=>false,
+            ),
+            1=> array(
+                'HOST'=>'127.0.0.1',
+                'DB'=>'crab',
+                'USERNAME'=>'root',
+                'PASSWORD'=>'craber234',
+                'CHARSET' => 'utf8',
+                'DRIVER'=>'OunoMysqli',
+                'AUTO_COMMIT'=>true,
+                'CHARSET'=>'utf8'
+            )
         )
     ),
     'MONGO'=>array(

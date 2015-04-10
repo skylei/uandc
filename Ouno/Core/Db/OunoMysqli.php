@@ -6,7 +6,7 @@
  * Time: 18:23
  */
 namespace Ouno\Core\Db;
-class OunoMysqli  extends \Ouno\BaseComponent{
+class OunoMysqli  extends \Ouno\Base{
 
     /*
      * @var 主服务的连接
@@ -17,6 +17,11 @@ class OunoMysqli  extends \Ouno\BaseComponent{
      * @var 从服务器的连接
      * */
     public $linkr;
+
+    /*
+     * @var $links 连接池
+     * */
+    public $links = [];
 
     /*
      * @var singleton 对象
@@ -37,73 +42,43 @@ class OunoMysqli  extends \Ouno\BaseComponent{
      * */
     public $config;
 
-    /*
-     * 初始化数据库连接
-     * @param $config array
-     * */
-    public function __construct($config){
-        $this->config = $config;
-        $this->connectRouter();
-    }
 
-    /*
-     * 连接路由，支持主从结构的读写分离
-     * */
-    public function connectRouter(){
-        if(count($this->config) == 1){
-            $link = $this->connectM($this->config);
-            if($link)
-                $this->linkr = $this->linkw;
-				$this->linkr->autocommit(true);
-        }else{
-            $this->connectM($this->config);
-            $this->connectS($this->config);
+    public function connect($config, $dbIndex = 0, $slave = false){
+        if(!empty($this->links[$dbIndex])){
+            $this->linkw = $this->links[$dbIndex]['linkw'];
+            $this->linkr = $this->links[$dbIndex]['linkr'];
+            return true;
         }
 
+        $link[$dbIndex] = new \mysqli($config['HOST'], $config['USERNAME'], $config['PASSWORD'], $config['DB']);
+        if($link[$dbIndex]->errno)
+            $this->error($link[$dbIndex]->connect_error);
+        if($config['AUTO_COMMIT'])
+            $link[$dbIndex]->autocommit(true);
+        $link[$dbIndex]->set_charset($config['CHARSET']);
+        if($dbIndex == 0 && $slave){
+            $this->linkw = $link[$dbIndex];
+        }elseif($dbIndex > 0 && $slave) {
+            $this->linkr = $link[$dbIndex];
+        }else{
+            $this->linkr = $link[$dbIndex];
+            $this->linkw = $this->linkr;
+        }
+
+        $this->links[$dbIndex]['linkw'] = $this->linkw;
+        $this->links[$dbIndex]['linkr'] = $this->linkr;
+        return true;
     }
+
 
     /*
      * 获取单例singleton
      * */
-    public static function getInstance($config){
+    public static function getInstance(){
         if(self::$_instance == null){
-            self::$_instance = new self($config);
+            self::$_instance = new self();
         }
         return self::$_instance;
-    }
-
-    /*
-     * 主mysql库连接
-     * @parma array $config
-     * @return boolean
-     * */
-    public function connectM($config){
-//        echo "<pre>";
-//        var_dump($config);exit;
-        $this->linkw =  new \mysqli($config[0]['HOST'], $config[0]['USERNAME'], $config[0]['PASSWORD'], $config[0]['DB']);
-        if($this->linkw->connect_errno)
-            $this->error($this->linkw->connect_error);
-        if($config[0]['AUTO_COMMIT'])
-            $this->linkw->autocommit(true);
-        $this->linkw->set_charset($config[0]['CHARSET']);
-        return true;
-    }
-
-    /*
-     * 从服务器连接
-     * @apram array $config
-     * @return boolean
-     * */
-    public function connectS($config){
-        $i = mt_rand(1, count($config));
-        $this->linkr = new \mysqli($config[$i]['HOST'], $config[$i]['USERNAME'], $config[$i]['PASSWORD'], $config[$i]['DB']);
-        if($this->linkw->errno)
-            return $this->error($this->linkw->connect_error);
-        if($config[$i]['AUTO_COMMIT'])
-            $this->linkr->autocommit(true);
-
-        $this->linkr->set_charset($config[$i]['CHARSET']);
-        return true;
     }
 
     /*
@@ -132,7 +107,7 @@ class OunoMysqli  extends \Ouno\BaseComponent{
         $this->lastSql = $sql;
         $query = $this->linkr->query($this->lastSql);
         if($this->linkr->errno)
-            return $this->error($this->linkw->error);
+            return $this->error($this->linkr->error);
         return $this->fetchResult($query, $mode);
     }
 
@@ -259,8 +234,8 @@ class OunoMysqli  extends \Ouno\BaseComponent{
      * */
     public function error($error){
 
-        $type = $this->linkw ? 'marster' : 'slave';
-        \Ouno\OunoLog::logSql($error,  $this->table, $type);
+        $type = $this->linkw ? 'master' : 'slave';
+        \Ouno\OunoLog::logSql($error,  $this->table, $type, $this->lastSql);
     }
 
     /*

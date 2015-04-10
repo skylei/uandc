@@ -10,10 +10,7 @@ namespace Ouno;
 /*
  * 基类，核心文件均继承自该类
  * */
-
-use Ouno\Core\DB\OunoMysql;
-
-class BaseComponent{
+class Base{
 
     /*
      * @var $_container array
@@ -25,17 +22,6 @@ class BaseComponent{
      * */
     public $event = array();
 
-
-//    public function __construct() {
-//
-//        $this->run();
-//    }
-
-    /*
-     *默认运行方法，该方法保护
-     * */
-//    protected function run(){}
-//
     public function __set($key, $value){
         $set = 'set' . $key;
         if (method_exists($this, $set)) {
@@ -61,10 +47,10 @@ class BaseComponent{
     }
 
 
-//
-//    public function __toStrings(){
-//
-//    }
+
+    public function __toStrings(){
+
+    }
 
     private function __clone(){}
 
@@ -73,111 +59,10 @@ class BaseComponent{
 }
 
 /*
- *列表类，实现
- *
- * */
-class OunoList implements \ArrayAccess, \Countable, \IteratorAggregate{
-
-    /*
-     * @var property $data
-     * */
-    protected $data = array();
-
-    /*
-     * 构造函数 给data属性赋值
-     * @param $data array
-     * */
-    public function __construct($data = array()){
-        $this->data = $data;
-    }
-
-
-    /**
-     * 给data 设置键对应值
-     * @param string $key
-     * @param mixed  $value
-     */
-    public function set($key, $value)
-    {
-        $this->data[$key] = $value;
-    }
-
-    /**
-     * ArrayAccess 接口
-     */
-    public function offsetExists($offset)
-    {
-        return $this->has($offset);
-    }
-    public function offsetGet($offset)
-    {
-        return $this->get($offset);
-    }
-    public function offsetSet($offset, $value)
-    {
-        $this->set($offset, $value);
-    }
-    public function offsetUnset($offset)
-    {
-       unset($this->data[$offset]);
-    }
-
-    /**
-     * Countable 的接口实现
-     */
-    public function count()
-    {
-        return count($this->data);
-    }
-
-    /**
-     * IteratorAggregate
-     */
-    public function getIterator()
-    {
-        return new \ArrayIterator($this->data);
-    }
-
-
-    /*
-     * 添加到迭代器中
-     * @param $key string
-     * @param $value mix 如果 data 中不存在则返回默认
-     * @return mixed
-     * */
-    public function get($key, $defaul = null){
-        if($this->has($key)){
-            $enable = is_object($this->data[$key]) && method_exists($this->data[$key], '_invoke');
-            $enable ? $this->data[$key]($this) : $this->data[$key];
-        }
-        return $defaul;
-    }
-
-    /*
-     *
-     * */
-    public function has($key)
-    {
-        return array_key_exists($key, $this->data);
-    }
-
-    public function instance($key, $value)
-    {
-        $this->set($key, function ($config) use ($value) {
-            static $object;
-            if (null === $object) {
-                $object = $value($config);
-            }
-            return $object;
-        });
-    }
-
-}
-/*
  * 核心类，主要文件
  *
  * */
-class Ouno extends BaseComponent{
+class Ouno extends Base{
 
 	public static $APP_PATH = 'app';
 	
@@ -203,6 +88,15 @@ class Ouno extends BaseComponent{
     public static $_config = array();
 
 
+    /*
+     * 获取和设置配置文件
+     * 当key为数组时设置配置值
+     * key 为字符或数字且value存在时设置单个值
+     * key为字符或数字且value不存在时获取key对应的value
+     * @param mixed $key
+     * @param mixed $value
+     * @return mixed
+     * */
     public static function config($key, $value = ''){
         if($key && $value === ''){
             if(is_string($key))
@@ -218,7 +112,6 @@ class Ouno extends BaseComponent{
 	
     /**
      * 获取单例
-     * @param $config
      * @return object self
      */
     public static function getInstance(){
@@ -232,6 +125,8 @@ class Ouno extends BaseComponent{
 
     /*
      * 运行框架
+     * @param string $app_path 应用的路径
+     * @param string $config 配置文件的名称
      * */
     public function run($app_path, $config = 'default'){
         Ouno::$_classes = array(
@@ -358,10 +253,19 @@ class Ouno extends BaseComponent{
         }
     }
 
+    /*
+     * 设置应用的路径
+     * @param string $app_path
+     * */
 	public static function setAppPath($app_path){
 		self::$APP_PATH = $app_path;
 	}
 
+    /*
+     * 获取加载的控制对象,如果存在则返回,不存在则尝试实例化一个
+     * @param string $controller
+     * @return object
+     * */
     public function getController($controller){
         if(isset(self::$_instance[$controller]))
             return self::$_instance[$controller];
@@ -391,6 +295,7 @@ class Ouno extends BaseComponent{
 	
     /*
      * include加载，如果存在则加载
+     * @param $file
      * */
     public static function import($file){
         $file = self::$APP_PATH . $file;
@@ -553,7 +458,6 @@ class Ouno extends BaseComponent{
     }
 
     public static function error($message){
-        echo $message;exit;
         OunoLog::UserLog($message);
     }
 }
@@ -562,7 +466,7 @@ class Ouno extends BaseComponent{
  * cli模式下的命令基类
  *
  * */
-class Console extends BaseComponent{
+class Console extends Base{
         
      /**
       * @var $view 
@@ -575,7 +479,8 @@ class Console extends BaseComponent{
     public $container = array();
 		
     /**
-     * 构造函数，初始化视图实例，调用运行mode@TODO
+     * 构造函数，可自行设置运行的模式@TODO
+     * @param $argv cli下的参数
      */
     public function __construct($argv){
         if($mode = Ouno::config('RUN_MODE'))
@@ -607,7 +512,7 @@ class Console extends BaseComponent{
 /*
  * @desc 控制器类，所有控制器均继承自该类
  * */
-class Controller extends BaseComponent{
+class Controller extends Base{
     /**
      * 视图实例
      * @var $_view
@@ -688,9 +593,6 @@ class Controller extends BaseComponent{
         $this->_view->assign($var, $value);
     }
 
-    public function clearSmartyCache(){
-        $this->_view->cleanCache();
-    }
 
     /*
      * 设置渲染模版
@@ -725,7 +627,7 @@ class Controller extends BaseComponent{
 /*
  * @desc Ouno 默认模板引擎，采用原生php
  * */
-class OunoView extends BaseComponent{
+class OunoView extends Base{
 
 
     /*
@@ -804,7 +706,7 @@ class OunoView extends BaseComponent{
     }
 
     /*
-     * layout
+     * layout @todo
      * */
     public function layOut($name){
 // $layOutPath = Ouno::$_config['VIEW_LAYOUT_PATH'];
@@ -821,8 +723,9 @@ class OunoView extends BaseComponent{
         return $template;
     }
 
-
-
+    /*
+     * 设置模板文件
+     * */
     public function setTpl($tplName){
         $this->tpl = Ouno::config('TEMPLATE_PATH') . $tplName;
     }
@@ -833,29 +736,56 @@ class OunoView extends BaseComponent{
 /*
  * 数据库操作接口
  * */
-class Dao extends  BaseComponent
+class Dao extends  Base
 {
 
     public $db = null;
-    public $table = '';
     public $is_slice = false;
+    public $config;
+    public $dao;
+    public $link;
 
     public function __construct()
     {
+        $this->config = Ouno::config("DB");
+        $this->selectDb();
+        $this->dbRouter();
+        $this->dao->table = $this->table;
+    }
+
+    public function selectDb($db = 'DEFAULT'){
+
+        $this->db = $this->config[$db];
+    }
+
+
+    public function dbRouter(){
         $driver = Ouno::config('DB_DRIVER', 'OunoMysqli');
         $namespace = 'Ouno\\Core\\Db\\';
         $daoClass = $namespace . $driver;
-        $this->db = new $daoClass(Ouno::config('DB'));
-        $this->db->table = $this->table;
+        if($this->dao)
+            return $this->dao;
+        $this->dao = $daoClass::getInstance();
+        //从主
+        if(count($this->db) > 1){
+            $dbIndex = mt_rand(1, count($this->db) - 1);
+            $slave = true;
+            $conf = $this->db[$dbIndex];
+            $this->dao->connect($conf, $dbIndex, $slave);
+            $this->dao->connect($this->db[0], 0, $slave);
+        }else{//单库
+            $conf = $this->db[0];
+            $this->dao->connect($conf, $slave = 0, $slave =false);
+        }
     }
 
 }
 
 
-class Service extends BaseComponent{
+class Service extends Base{
     protected $service;
 
-    protected function run(){
+    public function run(){
 
     }
 
@@ -867,15 +797,13 @@ class Service extends BaseComponent{
  */
 class OunoException extends \Exception{
 
-
-
 }
 
 
 /*
  * @desc Ouno日志类
  * */
-class OunoLog extends BaseComponent{
+class OunoLog extends Base{
 
     /*
      * @var $autoFlush 文件大于改属性值时自动清空文件
@@ -910,9 +838,10 @@ class OunoLog extends BaseComponent{
      * @type $type 主从服务器
      * @return void
      * */
-    public static function logSql($message, $table, $type){
+    public static function logSql($message, $table, $type, $sql = ''){
         $errorStr = "[ SQL_ERROR ]";
         $errorStr .= "# table :" .$table;
+        $errorStr .= "# sql : " . $sql;
         $errorStr .= "# type : $type";
         $errorStr .= '# message : '. $message;
         $trace = debug_backtrace();

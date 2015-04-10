@@ -76,7 +76,7 @@
 
 <!--side-->						
 <div class="usercomment">
-	<form method="post" action="<{$data['baseUrl']}>/index/index/artComment">
+	<form method="post" action="/index.php/index/index/artComment">
 		<p><input type="text" id="nickname" name="nickname" placeholder="昵称"  required="required"></p>
 		<p><input type="email" name="email" placeholder="邮箱" required="required"></p>
 		<p><input type="hidden" name="replyto" value="" ></p>
@@ -93,7 +93,7 @@
 		var type = $curObj.attr("id");
 		var check = $curObj.attr("check");
 		if(check == 0){
-			var url = "<{$data['baseUrl']}>/index/index/updatecomment";
+			var url = "/index.php/index/index/updatecomment";
 			$.get(url,{"cid":cid, "type":type},function(data){
 				var re = JSON.parse(data);
 				if(re.status == true){
@@ -110,7 +110,7 @@
 		var type = $curObj.attr("id");
 		var check = $curObj.attr("check");
 		if(check == 0){
-			var url = "<{$data['baseUrl']}>index/index/updatecomment";
+			var url = "/index.php/index/index/updatecomment";
 			$.get(url,{"cid":cid, "type":type},function(data){
 				var re = JSON.parse(data);
 				if(re.status == true){
@@ -128,7 +128,7 @@
 		$('textarea').html("@["+ nick + "]" );
 	});
 	$("form").submit(function(){
-		var url ="<{$data['baseUrl']}>/index/index/checkComment";
+		var url ="/index.php/index/index/checkComment";
 		var user = $("input[name=nickname]").val();
 		var email = $("input[name=email]").val();
 		

@@ -22,7 +22,7 @@ class searchService extends \components\BaseService{
             );
             foreach($res[0]['matches'] as $key=>$val){
                 $where = array('id'=>array('value'=>$val['id'], 'operator'=> '='));
-                $article = \Ouno\Ouno::dao('article', 'index')->db->findOne($where);
+                $article = \Ouno\Ouno::dao('article', 'index')->dao->findOne($where);
                 $options = array(
                     "before_match"		=> "<strong>",
                     "after_match"		=> "</strong>",

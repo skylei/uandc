@@ -6,7 +6,7 @@
  * Time: 16:05
  */
 namespace components;
-class smartyView extends \Ouno\BaseComponent{
+class smartyView extends \Ouno\Base{
 	
 	
 	public $viewObj = '';
