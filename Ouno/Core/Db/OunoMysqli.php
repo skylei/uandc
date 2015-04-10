@@ -78,6 +78,8 @@ class OunoMysqli  extends \Ouno\BaseComponent{
      * @return boolean
      * */
     public function connectM($config){
+//        echo "<pre>";
+//        var_dump($config);exit;
         $this->linkw =  new \mysqli($config[0]['HOST'], $config[0]['USERNAME'], $config[0]['PASSWORD'], $config[0]['DB']);
         if($this->linkw->connect_errno)
             $this->error($this->linkw->connect_error);

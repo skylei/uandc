@@ -242,7 +242,7 @@ class Ouno extends BaseComponent{
             "Ouno\\Cache\\Oredis"=> __DIR__ . "/Cache/Oredis.php",
         );
         self::setAppPath($app_path);
-        $config = self::import($app_path . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . $config . ".php");
+        $config = self::import(DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . $config . ".php");
         self::config($config);
 	    if($session_config = self::config('SESSION')){
             if($session_config['SESSION_HANDLE']){
@@ -396,7 +396,7 @@ class Ouno extends BaseComponent{
         $file = self::$APP_PATH . $file;
         if(file_exists($file) && !in_array($file, self::$_import)){
             self::$_import[$file] = $file;
-            include $file;
+            return include $file;
         }else{
             throw new \Exception("$file inexistance when Ouno::import");
         }
