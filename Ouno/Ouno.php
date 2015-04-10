@@ -200,6 +200,15 @@ class Ouno extends Base{
     public static $_config = array();
 
 
+    /*
+     * 获取和设置配置文件
+     * 当key为数组时设置配置值
+     * key 为字符或数字且value存在时设置单个值
+     * key为字符或数字且value不存在时获取key对应的value
+     * @param mixed $key
+     * @param mixed $value
+     * @return mixed
+     * */
     public static function config($key, $value = ''){
         if($key && $value === ''){
             if(is_string($key))
@@ -228,6 +237,8 @@ class Ouno extends Base{
 
     /*
      * 运行框架
+     * @param string $app_path 应用的路径
+     * @param string $config 配置文件的名称
      * */
     public function run($app_path, $config = 'default'){
         Ouno::$_classes = array(
@@ -580,7 +591,8 @@ class Console extends Base{
     public $container = array();
 		
     /**
-     * 构造函数，初始化视图实例，调用运行mode@TODO
+     * 构造函数，可自行设置运行的模式@TODO
+     * @param $argv cli下的参数
      */
     public function __construct($argv){
         if($mode = Ouno::config('RUN_MODE'))
