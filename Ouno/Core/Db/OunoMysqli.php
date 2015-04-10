@@ -19,6 +19,11 @@ class OunoMysqli  extends \Ouno\BaseComponent{
     public $linkr;
 
     /*
+     * @var $links 连接池
+     * */
+    public $links = [];
+
+    /*
      * @var singleton 对象
      * */
     public static $_instance;
@@ -37,30 +42,28 @@ class OunoMysqli  extends \Ouno\BaseComponent{
      * */
     public $config;
 
-    /*
-     * 初始化数据库连接
-     * @param $config array
-     * */
-    public function __construct($config){
-        $this->config = $config;
-        $this->connectRouter();
-    }
 
-    /*
-     * 连接路由，支持主从结构的读写分离
-     * */
-    public function connectRouter(){
-        if(count($this->config) == 1){
-            $link = $this->connectM($this->config);
-            if($link)
-                $this->linkr = $this->linkw;
-				$this->linkr->autocommit(true);
+    public function connect($config, $dbIndex = 0, $slave = false){
+        if(!empty($this->links[$dbIndex]))
+            return $this->links[$dbIndex];
+        $this->links[$dbIndex] = new \mysqli($config['HOST'], $config['USERNAME'], $config['PASSWORD'], $config['DB']);
+        if($this->links[$dbIndex]->errno)
+            $this->error($this->links[$dbIndex]->connect_error);
+        if($config['AUTO_COMMIT'])
+            $this->links[$dbIndex]->autocommit(true);
+        $this->links[$dbIndex]->set_charset($config['CHARSET']);
+        if($dbIndex == 0 && $slave){
+            $this->linkw = $this->links[$dbIndex];
+        }elseif($dbIndex > 0 && $slave) {
+            $this->linkr = $this->link[$dbIndex];
         }else{
-            $this->connectM($this->config);
-            $this->connectS($this->config);
+            $this->linkr = $this->links[$dbIndex];
+            $this->linkw = $this->linkr;
         }
 
+        return true;
     }
+
 
     /*
      * 获取单例singleton
@@ -72,37 +75,6 @@ class OunoMysqli  extends \Ouno\BaseComponent{
         return self::$_instance;
     }
 
-    /*
-     * 主mysql库连接
-     * @parma array $config
-     * @return boolean
-     * */
-    public function connectM($config){
-        $this->linkw =  new \mysqli($config[0]['HOST'], $config[0]['USERNAME'], $config[0]['PASSWORD'], $config[0]['DB']);
-        if($this->linkw->connect_errno)
-            $this->error($this->linkw->connect_error);
-        if($config[0]['AUTO_COMMIT'])
-            $this->linkw->autocommit(true);
-        $this->linkw->set_charset($config[0]['CHARSET']);
-        return true;
-    }
-
-    /*
-     * 从服务器连接
-     * @apram array $config
-     * @return boolean
-     * */
-    public function connectS($config){
-        $i = mt_rand(1, count($config));
-        $this->linkr = new \mysqli($config[$i]['HOST'], $config[$i]['USERNAME'], $config[$i]['PASSWORD'], $config[$i]['DB']);
-        if($this->linkw->errno)
-            return $this->error($this->linkw->connect_error);
-        if($config[$i]['AUTO_COMMIT'])
-            $this->linkr->autocommit(true);
-
-        $this->linkr->set_charset($config[$i]['CHARSET']);
-        return true;
-    }
 
     /*
      * 查询并返回单条记录

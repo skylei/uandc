@@ -10,10 +10,7 @@ namespace Ouno;
 /*
  * 基类，核心文件均继承自该类
  * */
-
-use Ouno\Core\DB\OunoMysql;
-
-class BaseComponent{
+class Base{
 
     /*
      * @var $_container array
@@ -34,8 +31,8 @@ class BaseComponent{
     /*
      *默认运行方法，该方法保护
      * */
-//    protected function run(){}
-//
+    public function run(){}
+
     public function __set($key, $value){
         $set = 'set' . $key;
         if (method_exists($this, $set)) {
@@ -61,10 +58,10 @@ class BaseComponent{
     }
 
 
-//
-//    public function __toStrings(){
-//
-//    }
+
+    public function __toStrings(){
+
+    }
 
     private function __clone(){}
 
@@ -76,7 +73,7 @@ class BaseComponent{
  *列表类，实现
  *
  * */
-class OunoList implements \ArrayAccess, \Countable, \IteratorAggregate{
+class OunoSet implements \ArrayAccess, \Countable, \IteratorAggregate{
 
     /*
      * @var property $data
@@ -177,7 +174,7 @@ class OunoList implements \ArrayAccess, \Countable, \IteratorAggregate{
  * 核心类，主要文件
  *
  * */
-class Ouno extends BaseComponent{
+class Ouno extends Base{
 
 	public static $APP_PATH = 'app';
 	
@@ -218,7 +215,6 @@ class Ouno extends BaseComponent{
 	
     /**
      * 获取单例
-     * @param $config
      * @return object self
      */
     public static function getInstance(){
@@ -358,10 +354,19 @@ class Ouno extends BaseComponent{
         }
     }
 
+    /*
+     * 设置应用的路径
+     * @param string $app_path
+     * */
 	public static function setAppPath($app_path){
 		self::$APP_PATH = $app_path;
 	}
 
+    /*
+     * 获取加载的控制对象,如果存在则返回,不存在则尝试实例化一个
+     * @param string $controller
+     * @return object
+     * */
     public function getController($controller){
         if(isset(self::$_instance[$controller]))
             return self::$_instance[$controller];
@@ -391,6 +396,7 @@ class Ouno extends BaseComponent{
 	
     /*
      * include加载，如果存在则加载
+     * @param $file
      * */
     public static function import($file){
         $file = self::$APP_PATH . $file;
@@ -553,7 +559,6 @@ class Ouno extends BaseComponent{
     }
 
     public static function error($message){
-        echo $message;exit;
         OunoLog::UserLog($message);
     }
 }
@@ -562,7 +567,7 @@ class Ouno extends BaseComponent{
  * cli模式下的命令基类
  *
  * */
-class Console extends BaseComponent{
+class Console extends Base{
         
      /**
       * @var $view 
@@ -607,7 +612,7 @@ class Console extends BaseComponent{
 /*
  * @desc 控制器类，所有控制器均继承自该类
  * */
-class Controller extends BaseComponent{
+class Controller extends Base{
     /**
      * 视图实例
      * @var $_view
@@ -688,9 +693,6 @@ class Controller extends BaseComponent{
         $this->_view->assign($var, $value);
     }
 
-    public function clearSmartyCache(){
-        $this->_view->cleanCache();
-    }
 
     /*
      * 设置渲染模版
@@ -725,7 +727,7 @@ class Controller extends BaseComponent{
 /*
  * @desc Ouno 默认模板引擎，采用原生php
  * */
-class OunoView extends BaseComponent{
+class OunoView extends Base{
 
 
     /*
@@ -804,7 +806,7 @@ class OunoView extends BaseComponent{
     }
 
     /*
-     * layout
+     * layout @todo
      * */
     public function layOut($name){
 // $layOutPath = Ouno::$_config['VIEW_LAYOUT_PATH'];
@@ -821,8 +823,9 @@ class OunoView extends BaseComponent{
         return $template;
     }
 
-
-
+    /*
+     * 设置模板文件
+     * */
     public function setTpl($tplName){
         $this->tpl = Ouno::config('TEMPLATE_PATH') . $tplName;
     }
@@ -833,29 +836,55 @@ class OunoView extends BaseComponent{
 /*
  * 数据库操作接口
  * */
-class Dao extends  BaseComponent
+class Dao extends  Base
 {
 
     public $db = null;
     public $table = '';
     public $is_slice = false;
+    public static $config;
+    public $dao;
+    public $link;
 
     public function __construct()
     {
+        $this->config = Ouno::config("DB");
+        $this->selectDb();
+        $this->dbRouter();
+    }
+
+    public function selectDb($db = 'DEFAULT'){
+        $this->db = $this->config[$db];
+    }
+
+
+    public function dbRouter(){
         $driver = Ouno::config('DB_DRIVER', 'OunoMysqli');
         $namespace = 'Ouno\\Core\\Db\\';
         $daoClass = $namespace . $driver;
-        $this->db = new $daoClass(Ouno::config('DB'));
-        $this->db->table = $this->table;
+        if($this->dao)
+            return $this->dao;
+        $this->dao = $daoClass::getInstance();
+        //从主
+        if(count($this->db) > 1){
+            $dbIndex = mt_rand(1, count($this->db));
+            $slave = true;
+            $conf = $this->db[$dbIndex];
+            $this->dao->connect($conf, $dbIndex, $slave);
+            $this->dao->connect($this->db[0], 0, $slave);
+        }else{//单库
+            $conf = $this->db[0];
+            $this->dao->connect($conf, $slave = 0, $slave =false);
+        }
     }
 
 }
 
 
-class Service extends BaseComponent{
+class Service extends Base{
     protected $service;
 
-    protected function run(){
+    public function run(){
 
     }
 
@@ -867,15 +896,13 @@ class Service extends BaseComponent{
  */
 class OunoException extends \Exception{
 
-
-
 }
 
 
 /*
  * @desc Ouno日志类
  * */
-class OunoLog extends BaseComponent{
+class OunoLog extends Base{
 
     /*
      * @var $autoFlush 文件大于改属性值时自动清空文件
