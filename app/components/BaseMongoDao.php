@@ -7,11 +7,13 @@
  */
 namespace components;
 class BaseMongoDao {
+
     public  $collection = '';
+
     public $Ndb;
 
     public function __construct(){
-        $this->Ndb =  \Ouno\Core\Db\OunoMongo::getInstance(\Ouno\Ouno::config('MONGO'));
+        $this->Ndb =  \Ouno\Db\OunoMongo::getInstance(\Ouno\Ouno::config('MONGO'));
         $this->Ndb->collection($this->collection);
     }
 

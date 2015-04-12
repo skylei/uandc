@@ -55,10 +55,8 @@ class indexController extends \components\BaseController {
         $data['image'] = $imgService->getNew();
         $this->assign('data', $data);
 //        $onlineList = $this->getIndexService()->getOnlineList();
-        $onlineList = $this->getIndexService()->getAllImUser();
-        foreach($onlineList as $uid=>$fd){
+//        $onlineList = $this->getIndexService()->getAllImUser();
 
-        }
         $this->display = true;
         $this->setTpl('index');
     }

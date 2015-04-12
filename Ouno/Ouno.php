@@ -64,7 +64,9 @@ class Base{
  * */
 class Ouno extends Base{
 
-	public static $APP_PATH = 'app';
+	public static $app_path = 'app';
+
+    public static $core_path = __DIR__;
 	
     private static $includePath = array();
     /*
@@ -87,6 +89,17 @@ class Ouno extends Base{
      * */
     public static $_config = array();
 
+    public $request;
+
+    public function __construct(){
+        Ouno::$_classes = array(
+            "Ouno\\Db\\OunoMysql"=> "Ouno\\Db\\OunoMysql",
+            "Ouno\\Db\\OunoMysqli"=> "Ouno\\Db\\OunoMysqli",
+            "Ouno\\Db\\OunoMongo"=>  "Ouno\\Db\\OunoMongo",
+            "Ouno\\Cache\\Oredis"=>  "Ouno\\Cache\\Oredis",
+            "Ouno\\Http\\HttpRequest" => 'Ouno\\Http\\HttpRequest',
+        );
+    }
 
     /*
      * 获取和设置配置文件
@@ -109,6 +122,8 @@ class Ouno extends Base{
         }
         return null;
     }
+
+
 	
     /**
      * 获取单例
@@ -129,13 +144,6 @@ class Ouno extends Base{
      * @param string $config 配置文件的名称
      * */
     public function run($app_path, $config = 'default'){
-        Ouno::$_classes = array(
-            "Ouno\\Core\\Db\\OunoMysql"=> __DIR__ . "/Core/Db/OunoMysql.php",
-            "Ouno\\Core\\Db\\OunoMysqli"=> __DIR__ . "/Core/Db/OunoMysqli.php",
-            "Ouno\\Core\\Db\\OunoMongo"=> __DIR__ . "/Core/Db/OunoMongo.php",
-            "Ouno\\Core\\Db\\AbstractDb"=> __DIR__ . "/Core/Db/AbstractDb.php",
-            "Ouno\\Cache\\Oredis"=> __DIR__ . "/Cache/Oredis.php",
-        );
         self::setAppPath($app_path);
         $config = self::import(DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . $config . ".php");
         self::config($config);
@@ -147,52 +155,80 @@ class Ouno extends Base{
             session_start();
         }
 
-		if(self::config('EXCEPTION_HANDLE', true))
+		if(self::config('EXCEPTION_HANDLE'))
             set_exception_handler(array('\Ouno\Ouno', 'handleException'));
-        if(self::config('ERROR_HANDLE', true))
+        if(self::config('ERROR_HANDLE'))
             set_error_handler(array('\Ouno\Ouno','handleError'),error_reporting());
 
         spl_autoload_register(array('self', 'loader'));
+        $uri = self::config('URI');
         if(PHP_SAPI == 'cli'){
             global $argv;
             $console = new Console($argv);
             $this->container = $console->container;
-        }else {
-            if(self::config('URI') == 'DEFAULT'){
+        }else if($uri != 'REST'){
+            if($uri == 'DEFAULT'){
                 $this->parseDefaultRequest();
-            }else if(self::config('URI') == 'PATH'){
-				$this->parsePathRequest();
-			}else if(self::config('URI') == 'PREG'){
-
-            }else if(self::config('URI') == 'REST') {
-
+            }else if($uri == 'PATH'){
+                $this->request = new self::$_classes['Ouno\\Http\\HttpRequest']();
+                $this->request->parsePathRequest();
+			}else if($uri == 'REG'){
+                $this->request = new self::$_classes['Ouno\\Http\\HttpRequest']();
+                $this->request->parseRegRequest();
             }
+
             if(self::config('MODULE', true))
                 $this->container['module'] = $_GET['m'] = isset($_GET['m']) ? $_GET['m'] : 'index';
             $this->container['controller'] = $_GET['c'] = isset($_GET['c']) ? $_GET['c'] : 'index';
             $this->container['action'] = $_GET['a'] = isset($_GET['a']) ? $_GET['a'] : 'index';
-            //@todo
             $controllerNamespace = self::config('CONTROLER_NAMESPACE', '\\web\\controller');
 			$this->container['controllerClass'] = $controllerNamespace . '\\' . $this->container['module']
                 . '\\' .$this->container['controller'] .'Controller';
-		}
-        if(!class_exists( $this->container['controllerClass'])){
-            if(Ouno::config('DEBUG'))
-                throw new \Exception("controller " . $this->container['controllerClass'] . " inexistance");
-            else
-                OunoError::error404();
+
+            if(!class_exists( $this->container['controllerClass'])){
+                if(Ouno::config('DEBUG'))
+                    throw new \Exception("controller " . $this->container['controllerClass'] . " inexistance");
+                else
+                    OunoError::error404();
+            }
+
+            $controller = new $this->container['controllerClass'];
+            self::$_instance[$this->container['controllerClass']] = $controller;
+            $this->container['action'] =  $this->container['action'].'Action';
+            if(!method_exists($controller,  $this->container['action']) ){
+                OunoError::error403();
+            }
+
+            call_user_func(array($controller, $this->container['action']));
+            if(method_exists($controller, 'run_after'))
+                call_user_func(array($controller, 'run_after'));
+		}else{
+            $this->request = new self::$_classes['Ouno\\Http\\HttpRequest']();
+            $this->request->parseRestRequest();
         }
 
-        $controller = new $this->container['controllerClass'];
-        self::$_instance[$this->container['controllerClass']] = $controller;
-        $this->container['action'] =  $this->container['action'].'Action';
-        if(!method_exists($controller,  $this->container['action']) ){
-            OunoError::error403();
-        }
-		
-		call_user_func(array($controller, $this->container['action']));
-        if(method_exists($controller, 'run_after'))
-            call_user_func(array($controller, 'run_after'));
+
+
+
+    }
+
+    public function setCoreClas($class){
+        self::$_classes[$class] = $class;
+    }
+
+    public static function getCoreClass($class = ''){
+        if(!$class)
+            return self::$_classes;
+        else if($class && isset(self::$_classes[$class])){
+            if(!in_array(self::$_classes[$class], self::$_import)){
+                $classFile = dirname(self::$core_path) . DIRECTORY_SEPARATOR .
+                    str_replace('\\', DIRECTORY_SEPARATOR, ltrim(self::$_classes[$class], '\\')) . '.php';
+                include($classFile);
+                self::$_import[$classFile] = $classFile;
+            }
+        }else
+            throw new \Exception("core class inexist");
+
     }
 
     /*
@@ -225,17 +261,15 @@ class Ouno extends Base{
      * @retrun include file;
      * */
     public static function loader($className){
-
         if(isset(self::$_instance[$className])) {
             return self::$_instance[$className];
 
         }else if(isset(self::$_classes[$className])){
-            if(!isset(self::$_import[$className]) && file_exists(self::$_classes[$className]))
-                include(self::$_classes[$className]);
-
+            if(!isset(self::$_import[$className]))
+                self::getCoreClass($className);
         }else{
             if (strpos($className, '\\') !== false) {
-                $classFile = self::$APP_PATH . DIRECTORY_SEPARATOR .
+                $classFile = self::$app_path . DIRECTORY_SEPARATOR .
                     str_replace('\\', DIRECTORY_SEPARATOR, ltrim($className, '\\')) . '.php';
 		    if (is_file($classFile) && !isset(self::$_import[$className]))
                     include($classFile);
@@ -258,7 +292,7 @@ class Ouno extends Base{
      * @param string $app_path
      * */
 	public static function setAppPath($app_path){
-		self::$APP_PATH = $app_path;
+		self::$app_path = $app_path;
 	}
 
     /*
@@ -285,7 +319,7 @@ class Ouno extends Base{
     }
 	
 	public static function getAppPath(){
-		return self::$APP_PATH;
+		return self::$app_path;
 	}
 	
 	public static function addConfig($path){
@@ -298,7 +332,7 @@ class Ouno extends Base{
      * @param $file
      * */
     public static function import($file){
-        $file = self::$APP_PATH . $file;
+        $file = self::$app_path . $file;
         if(file_exists($file) && !in_array($file, self::$_import)){
             self::$_import[$file] = $file;
             return include $file;
@@ -406,65 +440,15 @@ class Ouno extends Base{
         }
     }
 
-    /**
-     * 路由分发，获取Uri数据参数
-     * 1. 对Service变量中的uri进行过滤
-     * 2. 配合全局站点url处理request
-     * @return string
-     */
-    private function parsePathRequest() {
-        $filter_param = array('<','>','"',"'",'%3C','%3E','%22','%27','%3c','%3e');
-        $request = array();
-        if(isset($_SERVER['PATH_INFO'])) {
-            $path = str_replace($filter_param, '', $_SERVER['PATH_INFO']);
-            $request = explode('/', trim($path, '/'));
-        }
-
-        $i = -1;
-        if(self::config('MODULE')) {
-            $_GET['m'] = !empty($request[++$i]) ? $request[$i] : 'index';
-            unset($request[$i]);
-        }
-
-        $_GET['c'] = !empty($request[++$i]) ? $request[$i] : 'index';
-        unset($request[$i]);
-        $_GET['a'] = !empty($request[++$i]) ? $request[$i] : 'index';
-        unset($request[$i]);
-
-        if(count($request) >= 2){
-            foreach($request as $k=>$val){
-                if($k % 2 == 0)
-                    $key[] = $val;
-                else
-                    $value[] = $val;
-            }
-
-            if(count($key) !== count($value))
-                $value[] = '';
-
-            if(count($key) === count($value)){
-                $get = array_combine($value, $key);
-                if (!empty($get)){
-                    foreach ($get as $key => $value) $_GET[$key] = $value;
-                }
-            }
-        }
-    }
-
-    public function parseDefaultRequest(){
-
-
-
-    }
 
     public static function error($message){
         OunoLog::UserLog($message);
     }
 }
 
+
 /*
  * cli模式下的命令基类
- *
  * */
 class Console extends Base{
         
@@ -497,6 +481,16 @@ class Console extends Base{
             $controllerClass =  Ouno::config('COMMAND_NAMESPACE', '\\command') . '\\' . $this->container['module']
                 . '\\' .$this->container['controller'] .'Controller';
             $this->container['controllerClass'] = $controllerClass;
+            $controller = new $this->container['controllerClass'];
+            self::$_instance[$this->container['controllerClass']] = $controller;
+            $this->container['action'] =  $this->container['action'].'Action';
+            if(!method_exists($controller,  $this->container['action']) ){
+                OunoError::error403();
+            }
+
+            call_user_func(array($controller, $this->container['action']));
+            if(method_exists($controller, 'run_after'))
+                call_user_func(array($controller, 'run_after'));
         }
     }
 
@@ -603,7 +597,7 @@ class Controller extends Base{
             $file = $_GET['m'] . DIRECTORY_SEPARATOR . $_GET['c'] .DIRECTORY_SEPARATOR . $file . Ouno::config('VIEW_POSTFIX');
         else
             $file =  $_GET['c'] .DIRECTORY_SEPARATOR . $file . '.' . Ouno::config('VIEW_POSTFIX');
-        $realFile = Ouno::$APP_PATH . Ouno::config('TEMPLATE_PATH'). DIRECTORY_SEPARATOR . $file;
+        $realFile = Ouno::$app_path . Ouno::config('TEMPLATE_PATH'). DIRECTORY_SEPARATOR . $file;
         if(!file_exists($realFile))
             Ouno::error($realFile . 'template not exist');
         $this->tpl = $file;
@@ -694,7 +688,7 @@ class OunoView extends Base{
         $this->display($file);
         $template = ob_get_contents();
         ob_end_clean();#清空缓存
-        $file = Ouno::$APP_PATH . Ouno::$_config['VIEW_STATIC_PATH'] . '/' . $file . $this->fileExtension;
+        $file = Ouno::$app_path . Ouno::$_config['VIEW_STATIC_PATH'] . '/' . $file . $this->fileExtension;
         file_put_contents($file, $template);
     }
 
@@ -717,7 +711,7 @@ class OunoView extends Base{
      * @param $file string
      * */
     public function fetch($file){
-        $this->tpl = Ouno::$APP_PATH . rtrim(Ouno::config('TEMPLATE_PATH', '/web/template'), '/') 
+        $this->tpl = Ouno::$app_path . rtrim(Ouno::config('TEMPLATE_PATH', '/web/template'), '/') 
 			. '/' . $file . $this->fileExtension;
         $template = str_replace(array("\n\r", "\t", " "), '', file_get_contents($this->tpl));
         return $template;
@@ -760,12 +754,11 @@ class Dao extends  Base
 
 
     public function dbRouter(){
-        $driver = Ouno::config('DB_DRIVER', 'OunoMysqli');
-        $namespace = 'Ouno\\Core\\Db\\';
-        $daoClass = $namespace . $driver;
+        $driver = Ouno::config('DB_DRIVER');
+        $daoClass = $driver;
         if($this->dao)
             return $this->dao;
-        $this->dao = $daoClass::getInstance();
+        $this->dao = OFactory::getInstance(Ouno::$_classes[$daoClass]);
         //从主
         if(count($this->db) > 1){
             $dbIndex = mt_rand(1, count($this->db) - 1);
@@ -821,13 +814,13 @@ class OunoLog extends Base{
      * */
     public static function log($msg = ''){
         $filename = date('Y-m-d', time()). 'runOuno.log';
-        if(!self::$_basePath) 
-			self::$_basePath = Ouno::$APP_PATH . Ouno::config('LOG_PATH', '/runtime/log');
-		if(!is_dir(self::$_basePath))
-			mkdir(self::$_basePath, 0777, true);
-		$file = self::$_basePath . '/' .$filename;
+		$logPath = Ouno::$app_path . Ouno::config('LOG_PATH', '/runtime/log');
+		if(!is_dir($logPath))
+			mkdir($logPath, 0777, true);
+		$file = $logPath . '/' .$filename;
         if(file_exists($file) && filesize($file) > self::$autoFlush)
             system("echo '' > " . $file);
+        $msg = str_replace('#', "\r\n#", $msg);
         file_put_contents($file, $msg, FILE_APPEND);
     }
 
@@ -921,6 +914,7 @@ class OFactory{
         }else{
             if(isset(self::$instances[$class]['object']))
                 return self::$instances[$class]['object'];
+
             self::$instances[$class]['object'] = new $class();
             self::$instances[$class]['param'] = $param;
             return self::$instances[$class]['object'];

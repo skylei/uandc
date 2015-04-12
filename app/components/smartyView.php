@@ -14,7 +14,7 @@ class smartyView extends \Ouno\Base{
 
 	public function __construct(){
 		$smartyPath = \Ouno\Ouno::config('SMARTY_PATH');
-        \Ouno\Ouno::$_classes['Smarty'] = APP_PATH . $smartyPath . '/Smarty.class.php';
+        \Ouno\Ouno::import($smartyPath . '/Smarty.class.php');
 //        Ouno::$_Classes['Smarty_Internal_Data'] = $smartyPath . '/sysplugins/smarty_internal_data.php';
         $this->viewObj = new \Smarty();
         $this->viewObj->error_reporting = E_ALL & ~E_NOTICE;
